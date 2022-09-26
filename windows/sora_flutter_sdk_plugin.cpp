@@ -1,0 +1,169 @@
+#include "sora_flutter_sdk_plugin.h"
+
+#ifdef _WIN32
+// This must be included before many other Windows headers.
+#include <windows.h>
+#endif
+
+#include <flutter/method_channel.h>
+#include <flutter/plugin_registrar_windows.h>
+#include <flutter/standard_method_codec.h>
+
+#include <memory>
+#include <sstream>
+
+namespace sora_flutter_sdk {
+
+// static
+void SoraFlutterSdkPlugin::RegisterWithRegistrar(
+    flutter::PluginRegistrar *registrar) {
+  auto channel =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+          registrar->messenger(), "sora_flutter_sdk",
+          &flutter::StandardMethodCodec::GetInstance());
+
+  auto plugin = std::make_unique<SoraFlutterSdkPlugin>(registrar);
+
+  channel->SetMethodCallHandler(
+      [plugin_pointer = plugin.get()](const auto &call, auto result) {
+        plugin_pointer->HandleMethodCall(call, std::move(result));
+      });
+
+  registrar->AddPlugin(std::move(plugin));
+}
+
+SoraFlutterSdkPlugin::SoraFlutterSdkPlugin(flutter::PluginRegistrar * registrar)
+  : messenger_(registrar->messenger())
+  , texture_registrar_(registrar->texture_registrar())
+#ifdef _WIN32
+  , init_(
+      webrtc::ScopedCOMInitializer::kMTA)
+#endif
+{
+  if (!init_.Succeeded()) {
+    std::cerr << "CoInitializeEx failed" << std::endl;
+    return;
+  }
+
+  //rtc::LogMessage::LogToDebug(rtc::LS_INFO);
+  //rtc::LogMessage::LogTimestamps();
+  //rtc::LogMessage::LogThreads();
+}
+
+SoraFlutterSdkPlugin::~SoraFlutterSdkPlugin() {}
+
+static std::string get_as_string(const flutter::EncodableMap& map, const std::string& key) {
+  for (auto it : map) {
+    if (key == std::get<std::string>(it.first)) {
+      if (std::holds_alternative<std::string>(it.second)) {
+        return std::get<std::string>(it.second);
+      }
+      return "";
+    }
+  }
+  return "";
+}
+
+static std::vector<std::string> get_as_listof_string(const flutter::EncodableMap& map, const std::string& key) {
+  std::vector<std::string> r;
+  for (auto it : map) {
+    if (key == std::get<std::string>(it.first)) {
+      if (std::holds_alternative<flutter::EncodableList>(it.second)) {
+        for (auto jt : std::get<flutter::EncodableList>(it.second)) {
+          if (std::holds_alternative<std::string>(jt)) {
+            r.push_back(std::get<std::string>(jt));
+          }
+        }
+      }
+      return r;
+    }
+  }
+  return r;
+}
+
+static int64_t get_as_integer(const flutter::EncodableMap& map, const std::string& key) {
+  for (auto it : map) {
+    if (key == std::get<std::string>(it.first)) {
+      if (std::holds_alternative<int64_t>(it.second)) {
+        return std::get<int64_t>(it.second);
+      } else if (std::holds_alternative<int32_t>(it.second)) {
+        return std::get<int32_t>(it.second);
+      }
+      return -1;
+    }
+  }
+  return -1;
+}
+
+void SoraFlutterSdkPlugin::HandleMethodCall(
+    const flutter::MethodCall<flutter::EncodableValue> &method_call,
+    std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+  if (method_call.method_name().compare("createSoraClient") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap req =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+
+    std::string event_channel = "SoraFlutterSdk/SoraClient/Event/" + std::to_string(client_id_);
+
+    SoraClientConfig config;
+    config.signaling_urls = get_as_listof_string(req, "signaling_urls");
+    config.channel_id = get_as_string(req, "channel_id");
+    config.role = get_as_string(req, "role");
+    config.device_width = (int)get_as_integer(req, "device_width");
+    config.device_height = (int)get_as_integer(req, "device_height");
+    config.video_codec_type = get_as_string(req, "video_codec_type");
+    config.event_channel = event_channel;
+    config.messenger = messenger_;
+    config.texture_registrar = texture_registrar_;
+    auto client = sora::CreateSoraClient<SoraClient>(config);
+    clients_.insert(std::make_pair(client_id_, client));
+
+    flutter::EncodableMap resp;
+    resp[flutter::EncodableValue("client_id")] = flutter::EncodableValue(client_id_);
+    resp[flutter::EncodableValue("event_channel")] = flutter::EncodableValue(event_channel);
+
+    client_id_ += 1;
+
+    result->Success(resp);
+  } else if (method_call.method_name().compare("connectSoraClient") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Error("Client Not Found", "");
+      return;
+    }
+
+    it->second->Connect();
+    result->Success();
+  } else if (method_call.method_name().compare("disposeSoraClient") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
+    it->second->Disconnect();
+    clients_.erase(it);
+    result->Success();
+  } else {
+    result->NotImplemented();
+  }
+}
+
+}  // namespace sora_flutter_sdk

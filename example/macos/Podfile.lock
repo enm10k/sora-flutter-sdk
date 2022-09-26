@@ -1,0 +1,22 @@
+PODS:
+  - FlutterMacOS (1.0.0)
+  - sora_flutter_sdk (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - sora_flutter_sdk (from `Flutter/ephemeral/.symlinks/plugins/sora_flutter_sdk/macos`)
+
+EXTERNAL SOURCES:
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  sora_flutter_sdk:
+    :path: Flutter/ephemeral/.symlinks/plugins/sora_flutter_sdk/macos
+
+SPEC CHECKSUMS:
+  FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
+  sora_flutter_sdk: 99fe12506406d0b7f0cf3e31e77005ba29d3cc88
+
+PODFILE CHECKSUM: c7161fcf45d4fd9025dc0f48a76d6e64e52f8176
+
+COCOAPODS: 1.11.3

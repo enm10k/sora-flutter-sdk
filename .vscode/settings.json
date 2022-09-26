@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.cs": "csharp",
+        "CMakeLists.txt": "cmake",
+        "memory": "cpp",
+        "utility": "cpp",
+        "mutex": "cpp"
+    },
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

@@ -1,0 +1,93 @@
+{
+    "configurations": [
+        {
+            "name": "Windows Release",
+            "includePath": [
+                "${workspaceFolder}/example/build/windows/boost/include",
+                "${workspaceFolder}/example/build/windows/webrtc/include",
+                "${workspaceFolder}/example/build/windows/webrtc/include/third_party/abseil-cpp",
+                "${workspaceFolder}/example/build/windows/webrtc/include/third_party/boringssl/src/include",
+                "${workspaceFolder}/example/build/windows/webrtc/include/third_party/libyuv/include",
+                "${workspaceFolder}/example/build/windows/webrtc/include/third_party/zlib",
+                "${workspaceFolder}/example/build/windows/sora/include",
+                "${workspaceFolder}/example/windows/flutter/ephemeral",
+                "${workspaceFolder}/example/windows/flutter/ephemeral/cpp_client_wrapper/include"
+            ],
+            "defines": [
+                "WEBRTC_WIN",
+                "_WIN32_WINNT=0x0A00",
+                "NOMINMAX",
+                "WIN32_LEAN_AND_MEAN"
+            ],
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "msvc-x64",
+            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/cl.exe",
+            "compileCommands": "${workspaceFolder}/android/.cxx/Release/6w161v14/arm64-v8a/compile_commands.json"
+        },
+        {
+            "name": "ubuntu-20.04_x86_64 Release",
+            "includePath": [
+                "${workspaceFolder}/example/build/linux/x64/release/boost/include",
+                "${workspaceFolder}/example/build/linux/x64/release/webrtc/include",
+                "${workspaceFolder}/example/build/linux/x64/release/webrtc/include/third_party/abseil-cpp",
+                "${workspaceFolder}/example/build/linux/x64/release/webrtc/include/third_party/boringssl/src/include",
+                "${workspaceFolder}/example/build/linux/x64/release/webrtc/include/third_party/libyuv/include",
+                "${workspaceFolder}/example/build/linux/x64/release/webrtc/include/third_party/zlib",
+                "${workspaceFolder}/example/build/linux/x64/release/sora/include",
+                "${workspaceFolder}/example/linux/flutter/ephemeral",
+                "${workspaceFolder}/src",
+                "/usr/include/glib-2.0",
+                "/usr/lib/x86_64-linux-gnu/glib-2.0/include",
+                "/usr/include/gtk-3.0",
+                "/usr/include/pango-1.0",
+                "/usr/include/cairo",
+                "/usr/include/harfbuzz",
+                "/usr/include/gdk-pixbuf-2.0",
+                "/usr/include/atk-1.0"
+            ],
+            "defines": [
+                "WEBRTC_POSIX",
+                "_LIBCPP_ABI_NAMESPACE=Cr",
+                "_LIBCPP_ABI_VERSION=2",
+                "_LIBCPP_DISABLE_AVAILABILITY",
+                "_LIBCPP_DISABLE_AVAILABILITY",
+                "OPENSSL_IS_BORINGSSL"
+            ],
+            "compilerPath": "${workspaceFolder}/example/build/linux/x64/release/llvm/clang/bin/clang++",
+            "compilerArgs": [
+                "-nostdinc++",
+                "-isystem",
+                "${workspaceFolder}/example/build/linux/x64/release/llvm/libcxx/include"
+            ],
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-clang-x64"
+        },
+        {
+            "name": "Android Release",
+            "includePath": [
+                "${workspaceFolder}/android/_install/boost/include",
+                "${workspaceFolder}/android/_install/webrtc/include",
+                "${workspaceFolder}/android/_install/webrtc/include/third_party/abseil-cpp",
+                "${workspaceFolder}/android/_install/webrtc/include/third_party/boringssl/src/include",
+                "${workspaceFolder}/android/_install/webrtc/include/third_party/libyuv/include",
+                "${workspaceFolder}/android/_install/webrtc/include/third_party/zlib",
+                "${workspaceFolder}/android/_install/sora/include",
+                "${workspaceFolder}/src"
+            ],
+            "defines": [
+                "WEBRTC_POSIX",
+                "_LIBCPP_ABI_NAMESPACE=Cr",
+                "_LIBCPP_ABI_VERSION=2",
+                "_LIBCPP_DISABLE_AVAILABILITY",
+                "_LIBCPP_DISABLE_AVAILABILITY",
+                "OPENSSL_IS_BORINGSSL",
+                "__ANDROID__"
+            ],
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++17"
+        }
+    ],
+    "version": 4
+}

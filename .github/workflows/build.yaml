@@ -1,0 +1,52 @@
+name: build
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build-macos:
+    strategy:
+      matrix:
+        name:
+          - macos_arm64
+    name: Build on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          architecture: arm64
+      - name: Lint
+        working-directory: ./example
+        run: flutter analyze
+      - name: Build
+        working-directory: ./example
+        run: |
+          flutter config --enable-macos-desktop
+          flutter build macos --release
+
+  build-windows:
+    strategy:
+      matrix:
+        name:
+          - windows_x86_64
+    name: Build on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - name: Lint
+        working-directory: ./example
+        run: flutter analyze
+      - name: Build
+        working-directory: ./example
+        run: |
+          flutter config --enable-windows-desktop
+          flutter build windows --release
