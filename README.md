@@ -21,6 +21,7 @@ Sora Flutter SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の Flutter �
 ## 対応プラットフォーム
 
 - [ ] Web
+    - [Flutter on the Web](https://flutter.dev/multi-platform/web)
 - [x] Windows x86_64
 - [x] macOS arm64
 - [x] iOS arm64
@@ -28,6 +29,7 @@ Sora Flutter SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の Flutter �
 - [x] Android arm64
 - [x] Ubuntu x86_64
 - [ ] Ubuntu arm64
+    - [sony/flutter\-embedded\-linux: Embedded Linux embedding for Flutter](https://github.com/sony/flutter-embedded-linux)
 
 ## 対応ハードウェアエンコーダー/デコーダー
 
