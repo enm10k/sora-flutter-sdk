@@ -79,13 +79,15 @@ jobs:
         with:
           channel: 'stable'
           cache: true
-      - name: Build
+      - name: Configure Build
         working-directory: ./example
         run: |
           cp lib/environment.example.dart lib/environment.dart
           flutter pub get
           flutter config --enable-windows-desktop
-          flutter build windows --release
+      - name: Build
+        working-directory: ./example
+        run: flutter build windows --release --verbose
 
   build-ubuntu:
     strategy:
