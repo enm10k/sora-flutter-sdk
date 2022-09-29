@@ -36,14 +36,17 @@ Sora Flutter SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の Flutter �
 それぞれのプラットフォームでのハードウェアアクセラレーターに対応しています。
 
 - [x] NVIDIA VIDEO CODEC SDK (NVENC / NVDEC)
+    - Windows / Linux
     - VP9 / H.264
 - [ ] NVIDIA Jetson Video HWA
+    - Linux
     - VP9 / AV1 / H.264
 - [x] Apple macOS / iOS / iPadOS Video Toolbox
     - H.264
 - [x] Google Android HWA
     - VP8 / VP9 / H.264
 - [x] Intel oneVPL (Intel Media SDK の後継)
+    - Windows / Linux
     - VP9 / AV1 / H.264
 
 ## ライセンス
