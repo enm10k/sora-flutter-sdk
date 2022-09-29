@@ -53,13 +53,18 @@ jobs:
           channel: 'stable'
           cache: true
           architecture: x64
-      - name: Build
+      - name: Configure Build
         working-directory: ./example
         run: |
           cp lib/environment.example.dart lib/environment.dart
           flutter pub get
           flutter config --enable-android
-          flutter build android --release
+      - name: Build APK
+        working-directory: ./example
+          flutter build apk
+      - name: Build App Bundle
+        working-directory: ./example
+          flutter build appbundle
 
   build-windows:
     strategy:
