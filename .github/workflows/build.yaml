@@ -34,6 +34,33 @@ jobs:
           flutter config --enable-ios
           flutter build ios --release --no-codesign
 
+  build-android:
+    strategy:
+      matrix:
+        name:
+          - android
+    name: Build on Android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+          cache: 'gradle'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          architecture: x64
+      - name: Build
+        working-directory: ./example
+        run: |
+          cp lib/environment.example.dart lib/environment.dart
+          flutter pub get
+          flutter config --enable-android
+          flutter build android --release
+
   build-windows:
     strategy:
       matrix:
