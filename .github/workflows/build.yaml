@@ -61,10 +61,10 @@ jobs:
           flutter config --enable-android
       - name: Build APK
         working-directory: ./example
-          flutter build apk
+        run: flutter build apk
       - name: Build App Bundle
         working-directory: ./example
-          flutter build appbundle
+        run: flutter build appbundle
 
   build-windows:
     strategy:
