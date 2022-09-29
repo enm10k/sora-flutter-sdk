@@ -20,12 +20,11 @@ jobs:
           channel: 'stable'
           cache: true
           architecture: arm64
-      - name: Lint
-        working-directory: ./example
-        run: flutter analyze
       - name: Build
         working-directory: ./example
         run: |
+          cp lib/environment.example.dart lib/environment.dart
+          flutter pub get
           flutter config --enable-macos-desktop
           flutter build macos --release
 
