@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         name:
-          - macos_arm64
+          - macos_x86_64
     name: Build on macOS
     runs-on: macos-latest
     steps:
@@ -19,7 +19,7 @@ jobs:
         with:
           channel: 'stable'
           cache: true
-          architecture: arm64
+          architecture: x86_64
       - name: Build
         working-directory: ./example
         run: |
