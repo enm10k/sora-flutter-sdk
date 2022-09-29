@@ -6,12 +6,12 @@ on:
       - '**.md'
 
 jobs:
-  build-macos:
+  build-ios:
     strategy:
       matrix:
         name:
-          - macos_x86_64
-    name: Build on macOS
+          - ios
+    name: Build on iOS
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,8 +25,8 @@ jobs:
         run: |
           cp lib/environment.example.dart lib/environment.dart
           flutter pub get
-          flutter config --enable-macos-desktop
-          flutter build macos --release
+          flutter config --enable-ios
+          flutter build ios --release --no-codesign
 
   build-windows:
     strategy:
