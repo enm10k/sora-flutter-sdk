@@ -19,7 +19,7 @@ jobs:
         with:
           channel: 'stable'
           cache: true
-          architecture: x86_64
+          architecture: x64
       - name: Build
         working-directory: ./example
         run: |
