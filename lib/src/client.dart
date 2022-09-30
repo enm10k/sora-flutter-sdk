@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-import 'sora_video_track.dart';
+import 'video_track.dart';
 
 class SoraClientConfig {
   List<String> signalingUrls = List<String>.empty(growable: true);

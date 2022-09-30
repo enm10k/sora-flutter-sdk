@@ -1,7 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'sora_flutter_sdk_method_channel.dart';
-import 'sora_client.dart';
+import 'method_channel.dart';
+import 'client.dart';
 
 abstract class SoraFlutterSdkPlatform extends PlatformInterface {
   /// Constructs a SoraFlutterSdkPlatform.
