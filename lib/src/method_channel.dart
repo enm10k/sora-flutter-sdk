@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'sora_flutter_sdk_platform_interface.dart';
-import 'sora_client.dart';
+import 'platform_interface.dart';
+import 'client.dart';
 
 /// An implementation of [SoraFlutterSdkPlatform] that uses method channels.
 class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:sora_flutter_sdk/sora_client.dart';
 import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
 import 'environment.dart';
