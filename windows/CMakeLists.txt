@@ -15,6 +15,11 @@ if (NOT EXISTS "${WEBRTC_LIBRARY_DIR}")
   message("Download and extracting webrtc.windows_x86_64.m105.5195.0.0.zip")
   file(DOWNLOAD https://github.com/shiguredo-webrtc-build/webrtc-build/releases/download/m105.5195.0.0/webrtc.windows_x86_64.zip ${CMAKE_BINARY_DIR}/webrtc.windows_x86_64.m105.5195.0.0.zip)
   file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/webrtc.windows_x86_64.m105.5195.0.0.zip DESTINATION ${CMAKE_BINARY_DIR})
+
+  # Dart はロングパスをサポートしていない (https://github.com/dart-lang/sdk/issues/27825) ため、
+  # ディレクトリが奥深くまであるディレクトリは削除する。
+  file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/webrtc/include/examples)
+  file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/webrtc/include/buildtools)
 endif()
 
 set(BOOST_ROOT ${CMAKE_BINARY_DIR}/boost)
