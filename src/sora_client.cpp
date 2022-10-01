@@ -13,6 +13,11 @@
 // WebRTC
 #include <rtc_base/logging.h>
 
+#if TARGET_OS_IPHONE
+#import <sdk/objc/components/audio/RTCAudioSession.h>
+#import <sdk/objc/components/audio/RTCAudioSessionConfiguration.h>
+#endif
+
 #include "sora/audio_device_module.h"
 #include "sora/camera_device_capturer.h"
 #include "sora/java_context.h"
@@ -149,6 +154,16 @@ SoraClient::~SoraClient() {
 }
 
 void SoraClient::Connect() {
+#if TARGET_OS_IPHONE
+    auto config = [RTCAudioSessionConfiguration webRTCConfiguration];
+    config.category = AVAudioSessionCategoryPlayAndRecord;
+    [[RTCAudioSession sharedInstance] initializeInput:^(NSError* error) {
+      if (error != nil) {
+        RTC_LOG(LS_ERROR) << [error.localizedDescription UTF8String];
+        return;
+     }
+    }];
+#endif
   io_thread_ = rtc::Thread::Create();
   io_thread_->SetName("Sora Flutter SDK IO Thread", nullptr);
   io_thread_->Start();
