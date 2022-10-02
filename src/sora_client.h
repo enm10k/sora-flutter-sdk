@@ -11,7 +11,7 @@
 #include <flutter/event_channel.h>
 #include <flutter/texture_registrar.h>
 #elif defined(__APPLE__)
-#import "SoraBase.h"
+#import "apple/cpp/sora_event_channel.h"
 #else
 #include <flutter_linux/flutter_linux.h>
 #endif
@@ -22,6 +22,11 @@
 
 #if defined(__ANDROID__)
 void* GetAndroidApplicationContext(void*);
+#endif
+
+#if defined(__APPLE__)
+RTC_FWD_DECL_OBJC_CLASS(FlutterBinaryMessenger);
+RTC_FWD_DECL_OBJC_CLASS(FlutterTextureRegistry);
 #endif
 
 namespace sora_flutter_sdk {
@@ -42,8 +47,8 @@ struct SoraClientConfig : sora::SoraDefaultClientConfig {
   flutter::BinaryMessenger *messenger;
   flutter::TextureRegistrar *texture_registrar;
 #elif defined(__APPLE__)
-  id<FlutterBinaryMessenger> messenger;
-  id<FlutterTextureRegistry> texture_registrar;
+  FlutterBinaryMessenger* messenger;
+  FlutterTextureRegistry* texture_registrar;
 #else
   FlBinaryMessenger *messenger;
   FlTextureRegistrar *texture_registrar;
@@ -99,9 +104,8 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> event_channel_;
   std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink_;
 #elif defined(__APPLE__)
-  FlutterEventChannel *event_channel_;
-  NSObject<FlutterStreamHandler> *stream_handler_;
-  FlutterEventSink event_sink_;
+  std::shared_ptr<SoraEventChannel> event_channel_;
+  SoraEventSink event_sink_;
 #else
   std::shared_ptr<FlEventChannel> event_channel_ = nullptr;
   bool event_channel_listened_ = false;

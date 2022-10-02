@@ -10,7 +10,8 @@
 #elif defined(_WIN32)
 #include <flutter/texture_registrar.h>
 #elif defined(__APPLE__)
-#import "SoraBase.h"
+#import "apple/cpp/sora_texture.h"
+#import "apple/cpp/sora_texture_registry.h"
 #elif defined(__linux__)
 #include <flutter_linux/flutter_linux.h>
 #endif
@@ -31,7 +32,7 @@ class SoraRenderer {
 #elif defined(_WIN32)
   SoraRenderer(flutter::TextureRegistrar* texture_registrar);
 #elif defined(__APPLE__)
-  SoraRenderer(id<FlutterTextureRegistry> texture_registrar);
+  SoraRenderer(FlutterTextureRegistry* texture_registrar);
 #elif defined(__linux__)
   SoraRenderer(FlTextureRegistrar* texture_registrar);
 #endif
@@ -46,7 +47,7 @@ class SoraRenderer {
 #elif defined(_WIN32)
     Sink(webrtc::VideoTrackInterface* track, flutter::TextureRegistrar* texture_registrar);
 #elif defined(__APPLE__)
-    Sink(webrtc::VideoTrackInterface* track, id<FlutterTextureRegistry> texture_registrar);
+    Sink(webrtc::VideoTrackInterface* track, std::shared_ptr<SoraTextureRegistry> texture_registrar);
 #elif defined(__linux__)
     Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar* texture_registrar);
 #endif
@@ -74,8 +75,8 @@ class SoraRenderer {
     std::unique_ptr<flutter::TextureVariant> texture_;
     std::unique_ptr<FlutterDesktopPixelBuffer> pixel_buffer_;
 #elif defined(__APPLE__)
-    id<FlutterTextureRegistry> texture_registrar_;
-    id<FlutterTexture> texture_;
+    std::shared_ptr<SoraTextureRegistry> texture_registrar_;
+    std::shared_ptr<SoraTexture> texture_;
     CVPixelBufferRef pixel_buffer_;
 #elif defined(__linux__)
     std::shared_ptr<FlTexture> texture_;
@@ -96,7 +97,7 @@ class SoraRenderer {
 #elif defined(_WIN32)
   flutter::TextureRegistrar* texture_registrar_;
 #elif defined(__APPLE__)
-  id<FlutterTextureRegistry> texture_registrar_;
+  std::shared_ptr<SoraTextureRegistry> texture_registrar_;
 #elif defined(__linux__)
   FlTextureRegistrar* texture_registrar_;
 #endif
