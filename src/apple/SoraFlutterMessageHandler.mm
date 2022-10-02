@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 
-#include "../sora_client.h"
+#include <sora_client.h>
 
 using namespace sora_flutter_sdk;
 
@@ -81,8 +81,8 @@ FlutterError *badArgumentsError(NSString *message) {
         config.device_height = (int)[SoraUtils intValue: arguments forKey: @"device_height"];
         config.video_codec_type = [SoraUtils stdString: arguments forKey: @"video_codec_type"];
         config.event_channel = "SoraFlutterSdk/SoraClient/Event/" + std::to_string(self.clientId);
-        config.messenger = (id)self.messenger;
-        config.texture_registrar = (id)self.textureRegistry;
+        config.messenger = self.messenger;
+        config.texture_registrar = self.textureRegistry;
 
         SoraClientWrapper *wrapper = [[SoraClientWrapper alloc] initWithConfig: config
                                                                      clientId: self.clientId];

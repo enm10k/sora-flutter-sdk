@@ -1,1 +1,0 @@
-../../../src/apple/cpp/sora_texture_registry.mm

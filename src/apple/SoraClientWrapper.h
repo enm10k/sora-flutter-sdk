@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "../sora_client.h"
+#include <sora_client.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

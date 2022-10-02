@@ -64,6 +64,39 @@ void RunOnMainThread(JNIEnv* env, std::function<void (JNIEnv*)> f) {
   return future.get();
 }
 
+#elif defined(__APPLE__)
+
+@interface SoraRendererTexture : NSObject <FlutterTexture>
+
+typedef CVPixelBufferRef (^SoraRendererCopyPixelBuffer)(void);
+
+@property (nonatomic, copy) SoraRendererCopyPixelBuffer block;
+
+- (instancetype)initWithBlock:(SoraRendererCopyPixelBuffer)block;
+
+@end
+
+@implementation SoraRendererTexture
+
+- (instancetype)initWithBlock:(SoraRendererCopyPixelBuffer)block
+{
+    if (self = [super init]) {
+        self.block = block;
+    }
+    return self;
+}
+
+- (CVPixelBufferRef)copyPixelBuffer
+{
+    return self.block();
+}
+
+- (void)onTextureUnregistered:(NSObject<FlutterTexture>*)texture
+{
+}
+
+@end
+
 #elif defined(__linux__)
 
 typedef gboolean (*CopyPixelFunction)(void* data,
@@ -124,7 +157,7 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, JNIEnv* env, jobjec
 #elif defined(_WIN32)
 SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, flutter::TextureRegistrar* texture_registrar)
 #elif defined(__APPLE__)
-SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, std::shared_ptr<SoraTextureRegistry> texture_registrar)
+SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, id<FlutterTextureRegistry> texture_registrar)
 #elif defined(__linux__)
 SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar* texture_registrar)
 #endif
@@ -184,7 +217,7 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
         return pixel_buffer_.get();
       }));
 #elif defined(__APPLE__)
-  texture_ = SoraTexture::Create([this]() {
+  texture_ = [[SoraRendererTexture alloc] initWithBlock:^{
     RTC_LOG(LS_INFO) << "[" << (void *)this << "] Sink::CopyTexture";
     std::lock_guard<std::mutex> guard(mutex_);
     if (frame_ == nullptr)
@@ -199,12 +232,13 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
       CVPixelBufferRelease(pixel_buffer_);
       rgba_buffer_.reset(new uint8_t[frame_->width() * frame_->height() * 4]);
 
-      CFMutableDictionaryRef options = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
-      CFDictionaryAddValue(options, kCVPixelBufferMetalCompatibilityKey, kCFBooleanTrue);
+      NSDictionary *options = @{
+        (NSString *)kCVPixelBufferMetalCompatibilityKey : @YES,
+      };
       CVReturn status = CVPixelBufferCreate(NULL,
                                             frame_->width(), frame_->height(),
                                             kCVPixelFormatType_32ARGB,
-                                            (CFDictionaryRef)options,
+                                            (__bridge CFDictionaryRef)options,
                                             &pixel_buffer_);
       if (status != kCVReturnSuccess)
       {
@@ -238,7 +272,7 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
 
     CFRetain(pixel_buffer_);
     return pixel_buffer_;
-  });
+  }];
 #elif defined(__linux__)
   texture_.reset(FL_TEXTURE(pixel_buffer_new([](void* data,
                                       FlPixelBufferTexture* texture,
@@ -329,7 +363,7 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
   texture_id_ = texture_registrar_->RegisterTexture(texture_.get());
 #elif defined(__APPLE__)
   pixel_buffer_ = NULL;
-  texture_id_ = texture_registrar_->RegisterTexture(texture_->GetFlutterTexture());
+  texture_id_ = [texture_registrar_ registerTexture: texture_];
 #elif defined(__linux__)
   fl_texture_registrar_register_texture(texture_registrar_, texture_.get());
   texture_id_ = reinterpret_cast<int64_t>(texture_.get());
@@ -353,7 +387,7 @@ SoraRenderer::Sink::~Sink() {
     env->CallVoidMethod(texture_entry_.obj(), entry_release_id);
   });
 #elif defined(__APPLE__)
-    texture_registrar_->UnregisterTexture(texture_id_);
+    [texture_registrar_ unregisterTexture: texture_id_];
     CVPixelBufferRelease(pixel_buffer_);
 #endif
 }
@@ -396,7 +430,7 @@ void SoraRenderer::Sink::OnFrame(const webrtc::VideoFrame& frame) {
 #elif defined(_WIN32)
   texture_registrar_->MarkTextureFrameAvailable(texture_id_);
 #elif defined(__APPLE__)
-  texture_registrar_->MarkTextureFrameAvailable(texture_id_);
+  [texture_registrar_ textureFrameAvailable: texture_id_];
 #elif defined(__linux__)
   fl_texture_registrar_mark_texture_frame_available(texture_registrar_, texture_.get());
 #endif
@@ -407,15 +441,13 @@ SoraRenderer::SoraRenderer(JNIEnv* env, jobject texture_registrar)
 #elif defined(_WIN32)
 SoraRenderer::SoraRenderer(flutter::TextureRegistrar* texture_registrar)
 #elif defined(__APPLE__)
-SoraRenderer::SoraRenderer(FlutterTextureRegistry* texture_registrar)
+SoraRenderer::SoraRenderer(id<FlutterTextureRegistry> texture_registrar)
 #elif defined(__linux__)
 SoraRenderer::SoraRenderer(FlTextureRegistrar* texture_registrar)
 #endif
 #if defined(__ANDROID__)
 : texture_registrar_(env, webrtc::JavaParamRef<jobject>(texture_registrar))
 , env_(env)
-#elif defined(__APPLE__)
-: texture_registrar_(SoraTextureRegistry::Create(texture_registrar))
 #else
 : texture_registrar_(texture_registrar)
 #endif

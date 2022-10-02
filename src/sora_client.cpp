@@ -1,30 +1,22 @@
 #include "sora_client.h"
 
 #if defined(__ANDROID__)
-
 #include <sdk/android/native_api/jni/class_loader.h>
 #include <sdk/android/native_api/jni/jvm.h>
-
-#elif defined(__APPLE__)
-
-#include "apple/cpp/sora_event_channel.h"
-#include "apple/cpp/sora_standard_method_codec.h"
-
-#if defined(TARGET_OS_IPHONE)
-#include "apple/cpp/sora_ios_audio_init.h"
-#endif
-
 #elif defined(_WIN32)
-
 #include <flutter/event_stream_handler_functions.h>
 #include <flutter/event_stream_handler.h>
 #include <flutter/standard_method_codec.h>
-
 #elif defined(__linux__)
 #endif
 
 // WebRTC
 #include <rtc_base/logging.h>
+
+#if TARGET_OS_IPHONE
+#import <sdk/objc/components/audio/RTCAudioSession.h>
+#import <sdk/objc/components/audio/RTCAudioSessionConfiguration.h>
+#endif
 
 #include "sora/audio_device_module.h"
 #include "sora/camera_device_capturer.h"
@@ -51,6 +43,20 @@ Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnCancel(JNIEnv* 
 }
 
 void RunOnMainThread(JNIEnv* env, std::function<void (JNIEnv*)> f);
+
+#elif defined(__APPLE__)
+
+#import "SoraUtils.h"
+
+typedef FlutterError *_Nullable (^StreamHandlerOnListen)(id _Nullable, FlutterEventSink __nonnull);
+
+@interface SoraClientStreamHandler : NSObject <FlutterStreamHandler>
+
+@property (nonatomic) StreamHandlerOnListen onListen;
+
+- (instancetype)initWithOnListen:(StreamHandlerOnListen)onListen;
+
+@end
 
 #endif
 
@@ -107,10 +113,15 @@ SoraClient::SoraClient(SoraClientConfig config)
 
   event_channel_->SetStreamHandler(std::move(handler));
 #elif defined(__APPLE__)
-  event_channel_ = SoraEventChannel::Create(config.event_channel, config_.messenger, GetStandardMethodCodec());
-  event_channel_->SetStreamHandler([this](const SoraEventSink& sink) {
-    event_sink_ = sink;
-  });
+  event_channel_ = [[FlutterEventChannel alloc] initWithName: [SoraUtils stringForStdString: config.event_channel]
+   binaryMessenger: config_.messenger
+    codec: [FlutterStandardMethodCodec sharedInstance]];
+  stream_handler_ = [[SoraClientStreamHandler alloc] initWithOnListen:
+    ^(id _Nullable arguments, FlutterEventSink __nonnull events) {
+    event_sink_ = events;
+    return (FlutterError *)nil;
+  }];
+  [event_channel_ setStreamHandler: stream_handler_];
 #else
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
   g_autoptr(FlEventChannel) channel = fl_event_channel_new(config_.messenger, config_.event_channel.c_str(), FL_METHOD_CODEC(codec));
@@ -144,9 +155,14 @@ SoraClient::~SoraClient() {
 
 void SoraClient::Connect() {
 #if TARGET_OS_IPHONE
-  IosAudioInit([](std::string error) {
-    RTC_LOG(LS_ERROR) << "Failed to IosAudioInit: " << error;
-  });
+    auto config = [RTCAudioSessionConfiguration webRTCConfiguration];
+    config.category = AVAudioSessionCategoryPlayAndRecord;
+    [[RTCAudioSession sharedInstance] initializeInput:^(NSError* error) {
+      if (error != nil) {
+        RTC_LOG(LS_ERROR) << [error.localizedDescription UTF8String];
+        return;
+     }
+    }];
 #endif
   io_thread_ = rtc::Thread::Create();
   io_thread_->SetName("Sora Flutter SDK IO Thread", nullptr);
@@ -264,11 +280,11 @@ void SoraClient::OnSetOffer(std::string offer) {
       event_sink_->Success(flutter::EncodableValue(params));
     }
 #elif defined(__APPLE__)
-    if (event_sink_) {
-        //event_sink_(@{@"event" : @"AddTrack",
-        //@"connection_id" : @"",
-        //@"texture_id" : @(texture_id),
-        //});
+    if (event_sink_ != nullptr) {
+        event_sink_(@{@"event" : @"AddTrack",
+        @"connection_id" : @"",
+        @"texture_id" : @(texture_id),
+        });
     }
 #else
     if (event_channel_listened_) {
@@ -327,11 +343,11 @@ void SoraClient::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> tra
       event_sink_->Success(flutter::EncodableValue(params));
     }
 #elif defined(__APPLE__)
-    if (event_sink_) {
-        //event_sink_(@{@"event" : @"AddTrack",
-        //@"connection_id" : [SoraUtils stringForStdString: connection_id],
-        //@"texture_id" : @(texture_id),
-        //});
+    if (event_sink_ != nullptr) {
+        event_sink_(@{@"event" : @"AddTrack",
+        @"connection_id" : [SoraUtils stringForStdString: connection_id],
+        @"texture_id" : @(texture_id),
+        });
     }
 #else
     if (event_channel_listened_) {
@@ -387,11 +403,11 @@ void SoraClient::OnRemoveTrack(
         event_sink_->Success(flutter::EncodableValue(params));
       }
 #elif defined(__APPLE__)
-    if (event_sink_) {
-        //event_sink_(@{@"event" : @"RemoveTrack",
-        //@"connection_id" : [SoraUtils stringForStdString: connection_id],
-        //@"texture_id" : @(texture_id),
-        //});
+    if (event_sink_ != nullptr) {
+        event_sink_(@{@"event" : @"RemoveTrack",
+        @"connection_id" : [SoraUtils stringForStdString: connection_id],
+        @"texture_id" : @(texture_id),
+        });
     }
 #else
     if (event_channel_listened_) {
@@ -407,3 +423,30 @@ void SoraClient::OnRemoveTrack(
 }
 
 }
+
+#ifdef __APPLE__
+@implementation SoraClientStreamHandler
+
+- (instancetype)initWithOnListen:(StreamHandlerOnListen)onListen
+{
+    if (self = [super init]) {
+        self.onListen = onListen;
+    }
+    return self;
+}
+
+- (FlutterError *_Nullable)onListenWithArguments:(id _Nullable)arguments
+                                       eventSink:
+                                           (nonnull FlutterEventSink)events
+{
+  NSLog(@"EventSink: onListenWithArguments");
+    return self.onListen(arguments, events);
+}
+
+- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments
+{
+    return nil;
+}
+
+@end
+#endif

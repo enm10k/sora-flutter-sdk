@@ -16,9 +16,9 @@ A new Flutter plugin project.
   s.platform = :ios, '13.0'
   s.swift_version = '5.0'
   s.public_header_files = [
-    "Classes/SoraFlutterSdkPlugin.h",
-    "Classes/SoraFlutterMessageHandler.h",
     "Classes/SoraBase.h",
+    "Classes/SoraFlutterMessageHandler.h",
+    "Classes/SoraFlutterSdkPlugin.h",
   ]
 
   s.vendored_libraries = [
@@ -46,8 +46,7 @@ A new Flutter plugin project.
     "CLANG_CXX_LANGUAGE_STANDARD" => "gnu++17",
     "GCC_PREPROCESSOR_DEFINITIONS" => "WEBRTC_MAC=1 WEBRTC_IOS=1 WEBRTC_POSIX=1 OPENSSL_IS_BORINGSSL=1",
     "OTHER_LDFLAGS" => "-ObjC",
-    "OTHER_CPLUSPLUSFLAGS" => "",
-    "SWIFT_INCLUDE_PATHS" => "\"$(PODS_TARGET_SRCROOT)/src/apple\" ",
+    "OTHER_CPLUSPLUSFLAGS" => "-x objective-c++",
   }
 
   s.framework = [

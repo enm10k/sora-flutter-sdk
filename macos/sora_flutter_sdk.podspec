@@ -17,10 +17,10 @@ A new Flutter plugin project.
   s.author = { "Your Company" => "email@example.com" }
 
   s.source = { :path => "." }
-  s.source_files = ["src/**/*"]
+  s.source_files = ["Classes/**/*", "src/**/*"]
   s.public_header_files = [
-    "src/apple/SoraBase.h",
-    "src/apple/SoraFlutterMessageHandler.h",
+    "Classes/SoraBase.h",
+    "Classes/SoraFlutterMessageHandler.h",
   ]
 
   s.vendored_libraries = [
