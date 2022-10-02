@@ -187,7 +187,7 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
 #elif defined(_WIN32)
   texture_ = std::make_unique<flutter::TextureVariant>(flutter::PixelBufferTexture(
       [this](size_t width, size_t height) -> const FlutterDesktopPixelBuffer* {
-        RTC_LOG(LS_INFO) << "[" << (void*)this << "] Sink::CopyTexture";
+        // RTC_LOG(LS_INFO) << "[" << (void*)this << "] Sink::CopyTexture";
         std::lock_guard<std::mutex> guard(mutex_);
         if (frame_ == nullptr) {
           return nullptr;
@@ -218,19 +218,29 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
       }));
 #elif defined(__APPLE__)
   texture_ = [[SoraRendererTexture alloc] initWithBlock:^{
-    RTC_LOG(LS_INFO) << "[" << (void *)this << "] Sink::CopyTexture";
+    // RTC_LOG(LS_INFO) << "[" << (void *)this << "] Sink::CopyTexture";
     std::lock_guard<std::mutex> guard(mutex_);
     if (frame_ == nullptr)
     {
       return (CVPixelBufferRef)NULL;
     }
 
+    int pitch = CVPixelBufferGetBytesPerRow(pixel_buffer_);
+
     if (pixel_buffer_ == NULL ||
         CVPixelBufferGetWidth(pixel_buffer_) != frame_->width() ||
         CVPixelBufferGetHeight(pixel_buffer_) != frame_->height())
     {
+      if (pixel_buffer_ == NULL) {
+        RTC_LOG(LS_INFO) << " Change PixelBuffer size 0x0 to "
+          << frame_->width() << "x" << frame_->height();
+      } else {
+        RTC_LOG(LS_INFO) << " Change PixelBuffer size "
+          << CVPixelBufferGetWidth(pixel_buffer_) << "x" << CVPixelBufferGetHeight(pixel_buffer_) << " to "
+          << frame_->width() << "x" << frame_->height();
+      }
+
       CVPixelBufferRelease(pixel_buffer_);
-      rgba_buffer_.reset(new uint8_t[frame_->width() * frame_->height() * 4]);
 
       NSDictionary *options = @{
         (NSString *)kCVPixelBufferMetalCompatibilityKey : @YES,
@@ -244,7 +254,11 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
       {
         return (CVPixelBufferRef)NULL;
       }
+
+      pitch = CVPixelBufferGetBytesPerRow(pixel_buffer_);
     }
+
+    auto buf = frame_->video_frame_buffer()->ToI420();
 
     CVReturn status = CVPixelBufferLockBaseAddress(pixel_buffer_, 0);
     if (status != kCVReturnSuccess)
@@ -252,17 +266,13 @@ SoraRenderer::Sink::Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar*
       return (CVPixelBufferRef)NULL;
     }
 
-    // ABGR だと CVPixelBufferCreateWithBytes() が -6680 でエラーになるので ARGB に変換している
-    auto buf = frame_->video_frame_buffer()->ToI420();
+    uint8_t* p = (uint8_t*)CVPixelBufferGetBaseAddress(pixel_buffer_);
     libyuv::I420ToARGB(
         buf->DataY(), buf->StrideY(),
         buf->DataU(), buf->StrideU(),
         buf->DataV(), buf->StrideV(),
-        rgba_buffer_.get(), frame_->width() * 4,
+        p, pitch,
         frame_->width(), frame_->height());
-
-    void *p = CVPixelBufferGetBaseAddress(pixel_buffer_);
-    memcpy(p, rgba_buffer_.get(), frame_->width() * frame_->height() * 4);
 
     status = CVPixelBufferUnlockBaseAddress(pixel_buffer_, 0);
     if (status != kCVReturnSuccess)
