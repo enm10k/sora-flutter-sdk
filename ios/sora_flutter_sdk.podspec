@@ -1,20 +1,22 @@
 sdk_dir = "_setup"
 
 Pod::Spec.new do |s|
-  s.name             = 'sora_flutter_sdk'
-  s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
-  s.description      = <<-DESC
-A new Flutter plugin project.
+  s.name = 'sora_flutter_sdk'
+  s.version  = '2022.1.0-canary.0'
+  s.summary  = 'Sora Flutter SDK.'
+  s.description  = <<-DESC
+  A library to develop Web RTC SFU Sora(https://sora.shiguredo.jp/) client applications.
                        DESC
-  s.homepage         = 'http://example.com'
-  s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
-  s.source           = { :path => '.' }
+  s.homepage = 'https://github.com/shiguredo/sora-flutter-sdk'
+  s.license  = { :type => "Apache License, Version 2.0" }
+  s.authors  = { "Shiguredo Inc." => "https://shiguredo.jp/" }
+  s.source   = {
+      :git => "https://github.com/shiguredo/sora-flutter-sdk.git",
+      :tag => s.version
+  }
   s.source_files = ["Classes/**/*", "src/**/*"]
   s.dependency 'Flutter'
   s.platform = :ios, '13.0'
-  s.swift_version = '5.0'
   s.public_header_files = [
     "Classes/SoraBase.h",
     "Classes/SoraFlutterMessageHandler.h",
