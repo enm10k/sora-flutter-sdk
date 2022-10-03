@@ -28,6 +28,6 @@ migrate_working_dir/
 .dart_tool/
 .packages
 build/
-*.xcworkspace
+*.xcworkspace/xcuserdata
 ios/_setup
 macos/_setup
