@@ -15,10 +15,10 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
     final req = {
       'signaling_urls': config.signalingUrls,
       'channel_id': config.channelId,
-      'role': config.role,
+      'role': config.role.rawValue,
       'device_width': config.deviceWidth,
       'device_height': config.deviceHeight,
-      'video_codec_type': config.videoCodecType,
+      'video_codec_type': config.videoCodecType?.rawValue ?? '',
     };
     final resp = await methodChannel.invokeMethod('createSoraClient', req);
     final client = SoraClient(resp, _connectSoraClient, _disposeSoraClient);

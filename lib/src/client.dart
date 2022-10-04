@@ -26,7 +26,7 @@ extension SoraRoleRawValue on SoraRole {
     SoraRole.recvonly: "recvonly",
     SoraRole.sendrecv: "sendrecv",
   };
-  String get rawValues => _rawValues[this]!;
+  String get rawValue => _rawValues[this]!;
 }
 
 extension SoraVideoCodecTypeRawValue on SoraVideoCodecType {
@@ -37,7 +37,7 @@ extension SoraVideoCodecTypeRawValue on SoraVideoCodecType {
     SoraVideoCodecType.h264: "H264",
     SoraVideoCodecType.h265: "H265",
   };
-  String get rawValues => _rawValues[this]!;
+  String get rawValue => _rawValues[this]!;
 }
 
 class SoraClientConfig {
