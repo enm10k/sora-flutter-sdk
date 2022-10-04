@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:collection/collection.dart';
 
 import 'video_track.dart';
 import 'sdk.dart';
@@ -60,8 +61,8 @@ class SoraClient {
   }
 
   int clientId = 0;
-  Function? onAddTrack;
-  Function? onRemoveTrack;
+  void Function(SoraVideoTrack)? onAddTrack;
+  void Function(SoraVideoTrack)? onRemoveTrack;
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
 
   String _eventChannel = "";
@@ -83,17 +84,23 @@ class SoraClient {
       case 'AddTrack':
         String connectionId = map['connection_id'];
         int textureId = map['texture_id'];
-        tracks.add(SoraVideoTrack(connectionId, textureId));
+        final track = SoraVideoTrack(connectionId, textureId);
+        tracks.add(track);
         if (onAddTrack != null) {
-          onAddTrack!(connectionId, textureId);
+          onAddTrack!(track);
         }
         break;
       case 'RemoveTrack':
         String connectionId = map['connection_id'];
         int textureId = map['texture_id'];
-        tracks.removeWhere((element) => element.textureId == textureId);
-        if (onRemoveTrack != null) {
-          onRemoveTrack!(connectionId, textureId);
+        SoraVideoTrack? track = tracks.firstWhereOrNull((element) =>
+            element.connectionId == connectionId &&
+            element.textureId == textureId);
+        if (track != null) {
+          tracks.remove(track);
+          if (onRemoveTrack != null) {
+            onRemoveTrack!(track);
+          }
         }
         break;
     }
