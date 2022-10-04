@@ -56,7 +56,6 @@ Apache License 2.0
 ```
 Copyright 2022-2022, Wandbox LLC (Original Author)
 Copyright 2022-2022, SUZUKI Tetsuya (Original Author)
-Copyright 2022-2022, Yuki Ito (Original Author)
 Copyright 2022-2022, Shiguredo Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
