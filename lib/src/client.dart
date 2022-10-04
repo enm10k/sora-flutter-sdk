@@ -3,17 +3,62 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import 'video_track.dart';
+import 'sdk.dart';
+
+enum SoraRole {
+  sendonly,
+  recvonly,
+  sendrecv,
+}
+
+enum SoraVideoCodecType {
+  vp8,
+  vp9,
+  av1,
+  h264,
+  h265,
+}
+
+extension SoraRoleRawValue on SoraRole {
+  static final Map<SoraRole, String> _rawValues = {
+    SoraRole.sendonly: "sendonly",
+    SoraRole.recvonly: "recvonly",
+    SoraRole.sendrecv: "sendrecv",
+  };
+  String get rawValues => _rawValues[this]!;
+}
+
+extension SoraVideoCodecTypeRawValue on SoraVideoCodecType {
+  static final Map<SoraVideoCodecType, String> _rawValues = {
+    SoraVideoCodecType.vp8: "VP8",
+    SoraVideoCodecType.vp9: "VP9",
+    SoraVideoCodecType.av1: "AV1",
+    SoraVideoCodecType.h264: "H264",
+    SoraVideoCodecType.h265: "H265",
+  };
+  String get rawValues => _rawValues[this]!;
+}
 
 class SoraClientConfig {
+  SoraClientConfig({
+    required this.signalingUrls,
+    required this.channelId,
+    required this.role,
+  });
+
   List<String> signalingUrls = List<String>.empty(growable: true);
-  String channelId = "";
-  String role = "sendrecv";
+  String channelId;
+  SoraRole role;
   int deviceWidth = 640;
   int deviceHeight = 480;
-  String videoCodecType = "";
+  SoraVideoCodecType? videoCodecType;
 }
 
 class SoraClient {
+  static Future<SoraClient> create(SoraClientConfig config) async {
+    return await SoraFlutterSdk.createSoraClient(config);
+  }
+
   int clientId = 0;
   Function? onAddTrack;
   Function? onRemoveTrack;
