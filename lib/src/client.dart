@@ -15,19 +15,19 @@ class SoraClientConfig {
 
 class SoraClient {
   int clientId = 0;
-  String eventChannel = "";
   Function? onAddTrack;
   Function? onRemoveTrack;
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
 
+  String _eventChannel = "";
   final Future<void> Function(SoraClient) _connector;
   final Future<void> Function(SoraClient) _disposer;
   StreamSubscription<dynamic>? _eventSubscription;
 
   SoraClient(dynamic resp, this._connector, this._disposer) {
     clientId = resp['client_id'];
-    eventChannel = resp['event_channel'];
-    _eventSubscription = EventChannel(eventChannel)
+    _eventChannel = resp['event_channel'];
+    _eventSubscription = EventChannel(_eventChannel)
         .receiveBroadcastStream()
         .listen(_eventListener, onError: _errorListener);
   }
