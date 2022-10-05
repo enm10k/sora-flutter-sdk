@@ -55,6 +55,7 @@ android {
                 arguments "-DSORA_DIR=$projectDir/_install/sora",
                     "-DCMAKE_BUILD_TYPE=Release",
                     "-DBOOST_ROOT=$projectDir/_install/boost",
+                    "-DBoost_LIBRARY_DIRS=$projectDir/_install/boost/lib",
                     "-DWEBRTC_INCLUDE_DIR=$projectDir/_install/webrtc/include",
                     "-DWEBRTC_LIBRARY_DIR=$projectDir/_install/webrtc/lib/arm64-v8a",
                     "-DLIBCXX_INCLUDE_DIR=$projectDir/_install/llvm/libcxx/include",
