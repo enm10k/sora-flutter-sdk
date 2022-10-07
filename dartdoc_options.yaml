@@ -1,0 +1,6 @@
+dartdoc:
+  examplePathPrefix: 'example'
+  errors:
+    - unresolved-doc-reference
+  warnings:
+    - tool-error
