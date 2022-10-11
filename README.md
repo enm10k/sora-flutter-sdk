@@ -20,33 +20,39 @@ Sora Flutter SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の Flutter �
 
 ## 対応プラットフォーム
 
-- [ ] Web
+- Windows x86_64
+- macOS arm64
+- iOS arm64
+- iPadOS arm64
+- Android arm64
+- Ubuntu x86_64
+
+## 対応予定プラットフォーム
+
+- Web
     - [Flutter on the Web](https://flutter.dev/multi-platform/web)
-- [x] Windows x86_64
-- [x] macOS arm64
-- [x] iOS arm64
-- [x] iPadOS arm64
-- [x] Android arm64
-- [x] Ubuntu x86_64
-- [ ] Ubuntu arm64
+- Ubuntu arm64
     - [sony/flutter\-embedded\-linux: Embedded Linux embedding for Flutter](https://github.com/sony/flutter-embedded-linux)
 
 ## 対応ハードウェアエンコーダー/デコーダー
 
 それぞれのプラットフォームでのハードウェアアクセラレーターに対応しています。
 
-- [x] NVIDIA VIDEO CODEC SDK (NVENC / NVDEC)
+- NVIDIA VIDEO CODEC SDK (NVENC / NVDEC)
     - Windows / Linux
     - VP9 / H.264
-- [ ] NVIDIA Jetson Video HWA
-    - Linux
-    - VP9 / AV1 / H.264
-- [x] Apple macOS / iOS / iPadOS Video Toolbox
+- Apple macOS / iOS / iPadOS Video Toolbox
     - H.264
-- [x] Google Android HWA
+- Google Android HWA
     - VP8 / VP9 / H.264
-- [x] Intel oneVPL (Intel Media SDK の後継)
+- Intel oneVPL (Intel Media SDK の後継)
     - Windows / Linux
+    - VP9 / AV1 / H.264
+
+対応予定
+
+- NVIDIA Jetson Video HWA
+    - Linux
     - VP9 / AV1 / H.264
 
 ## ライセンス
