@@ -27,7 +27,7 @@ Sora Flutter SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の Flutter �
 - Android arm64
 - Ubuntu x86_64
 
-## 対応予定プラットフォーム
+対応予定
 
 - Web
     - [Flutter on the Web](https://flutter.dev/multi-platform/web)
