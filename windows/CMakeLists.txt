@@ -42,6 +42,13 @@ list(APPEND CMAKE_MODULE_PATH ${SORA_DIR}/share/cmake)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 set(Boost_NO_SYSTEM_PATHS ON)
+
+# ローカルマシンにインストールされた Boost を参照しないようにする以下の設定は
+# Windows では set(Boost_NO_BOOST_CMAKE ON) を設定するとエラーになるため設定しない。
+# なお、Windows は以下の設定がなくとも正常にダウンロードした Boost を参照する。
+# set(Boost_NO_BOOST_CMAKE ON)
+# set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib)
+
 find_package(Boost REQUIRED COMPONENTS json)
 find_package(WebRTC REQUIRED)
 find_package(Sora REQUIRED)
