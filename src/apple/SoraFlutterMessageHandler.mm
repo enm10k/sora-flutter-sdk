@@ -126,7 +126,17 @@ FlutterError *badArgumentsError(NSString *message) {
             return;
         }
 
-        // TODO
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
+        int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
+        SoraClientWrapper *client = self.clients[@(clientId)];
+        if (client == nil) {
+            result(badArgumentsError(@"Client Not Found"));
+            return;
+        }
+
+        client.client->Disconnect();
+        [self.clients removeObjectForKey: @(clientId)];
+        result(nil);
     } else {
         result(FlutterMethodNotImplemented);
     }
