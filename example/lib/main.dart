@@ -38,50 +38,69 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: Center(
-          child: Column(
-            children: [
+      home: Builder(builder: _buildMain),
+    );
+  }
+
+  Widget _buildMain(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    return Center(
+      child: Column(
+        children: [
+          SizedBox(
+            height: screenSize.height * 0.8,
+            child:
+            SingleChildScrollView(
+              child:
               Center(
                 child: _buildRenderers(),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _connect();
-                    },
-                    child: const Text('接続する'),
-                  ),
-                  const SizedBox(width: 20),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _disconnect();
-                    },
-                    child: const Text('切断する'),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+          SizedBox(
+            height: screenSize.height * 0.2,
+            child:
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _connect();
+                        },
+                        child: const Text('接続する'),
+                      ),
+                      const SizedBox(width: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _disconnect();
+                        },
+                        child: const Text('切断する'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildRenderers() {
+    print('build renderers');
     var renderers = List<SoraRenderer>.empty();
     if (_soraClient != null) {
       renderers = _soraClient!.tracks
           .map((track) => SoraRenderer(
-                width: 320,
-                height: 240,
-                track: track,
-              ))
+        width: 320,
+        height: 240,
+        track: track,
+      ))
           .toList();
     }
 
@@ -94,13 +113,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _connect() async {
+    if (_isConnected) {
+      return;
+    }
     if (_soraClient != null) {
       dispose();
     }
 
     final config = SoraClientConfig(
       signalingUrls:
-          Environment.urlCandidates.map((e) => e.toString()).toList(),
+      Environment.urlCandidates.map((e) => e.toString()).toList(),
       channelId: Environment.channelId,
       role: SoraRole.sendrecv,
     );
@@ -122,6 +144,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _disconnect() async {
+    if (!_isConnected && _soraClient == null) {
+      return;
+    }
+    print('disconnect');
+
     await _soraClient?.dispose();
     setState(() {
       _soraClient = null;
