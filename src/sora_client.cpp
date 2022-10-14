@@ -251,11 +251,57 @@ void SoraClient::OnSetOffer(std::string offer) {
     obj["texture_id"] = texture_id;
     SendEvent(obj);
   }
+
+  {
+    boost::json::object obj;
+    obj["event"] = "SetOffer";
+    obj["offer"] = offer;
+    SendEvent(obj);
+  }
 }
+
 void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
                              std::string message) {
   RTC_LOG(LS_INFO) << "OnDisconnect: " << message;
   ioc_->stop();
+
+  boost::json::object obj;
+  obj["event"] = "Disconnect";
+  std::string s;
+  switch (ec) {
+    case sora::SoraSignalingErrorCode::CLOSE_SUCCEEDED: s = "CLOSE_SUCCEEDED"; break;
+    case sora::SoraSignalingErrorCode::CLOSE_FAILED: s = "CLOSE_FAILED"; break;
+    case sora::SoraSignalingErrorCode::INTERNAL_ERROR: s = "INTERNAL_ERROR"; break;
+    case sora::SoraSignalingErrorCode::INVALID_PARAMETER: s = "INVALID_PARAMETER"; break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_HANDSHAKE_FAILED: s = "WEBSOCKET_HANDSHAKE_FAILED"; break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_ONCLOSE: s = "WEBSOCKET_ONCLOSE"; break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_ONERROR: s = "WEBSOCKET_ONERROR"; break;
+    case sora::SoraSignalingErrorCode::PEER_CONNECTION_STATE_FAILED: s = "PEER_CONNECTION_STATE_FAILED"; break;
+    case sora::SoraSignalingErrorCode::ICE_FAILED: s = "ICE_FAILED"; break;
+  }
+  obj["error_code"] = s;
+  obj["message"] = message;
+  SendEvent(obj);
+}
+
+void SoraClient::OnNotify(std::string text) {
+  boost::json::object obj;
+  obj["event"] = "Notify";
+  obj["text"] = text;
+  SendEvent(obj);
+}
+void SoraClient::OnPush(std::string text) {
+  boost::json::object obj;
+  obj["event"] = "Push";
+  obj["text"] = text;
+  SendEvent(obj);
+}
+void SoraClient::OnMessage(std::string label, std::string data) {
+  boost::json::object obj;
+  obj["event"] = "Message";
+  obj["label"] = label;
+  obj["data"] = data;
+  SendEvent(obj);
 }
 
 void SoraClient::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
@@ -290,6 +336,13 @@ void SoraClient::OnRemoveTrack(
       SendEvent(obj);
     }
   }
+}
+
+void SoraClient::OnDataChannel(std::string label) {
+  boost::json::object obj;
+  obj["event"] = "DataChannel";
+  obj["label"] = label;
+  SendEvent(obj);
 }
 
 void SoraClient::SendEvent(const boost::json::value& v) {

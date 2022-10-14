@@ -64,10 +64,16 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void OnDisconnect(sora::SoraSignalingErrorCode ec,
                     std::string message) override;
 
+  void OnNotify(std::string text) override;
+  void OnPush(std::string text) override;
+  void OnMessage(std::string label, std::string data) override;
+
   void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
       override;
   void OnRemoveTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
+
+  void OnDataChannel(std::string label) override;
 
 #if defined(__ANDROID__)
   void* GetAndroidApplicationContext(void* env) override { return ::GetAndroidApplicationContext(env); }

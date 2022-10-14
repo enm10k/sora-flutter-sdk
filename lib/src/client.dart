@@ -146,8 +146,14 @@ class SoraClient {
   }
 
   int clientId = 0;
+  void Function(String)? onSetOffer;
+  void Function(String, String)? onDisconnect;
+  void Function(String)? onNotify;
+  void Function(String)? onPush;
+  void Function(String, String)? onMessage;
   void Function(SoraVideoTrack)? onAddTrack;
   void Function(SoraVideoTrack)? onRemoveTrack;
+  void Function(String)? onDataChannel;
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
 
   String _eventChannel = "";
@@ -167,6 +173,38 @@ class SoraClient {
     final Map<dynamic, dynamic> map = event;
     final Map<String, dynamic> js = json.decode(map['json']);
     switch (js['event']) {
+      case 'SetOffer':
+        String offer = js['offer'];
+        if (onSetOffer != null) {
+          onSetOffer!(offer);
+        }
+        break;
+      case 'Disconnect':
+        String errorCode = js['error_code'];
+        String message = js['message'];
+        if (onDisconnect != null) {
+          onDisconnect!(errorCode, message);
+        }
+        break;
+      case 'Notify':
+        String text = js['text'];
+        if (onNotify != null) {
+          onNotify!(text);
+        }
+        break;
+      case 'Push':
+        String text = js['text'];
+        if (onPush != null) {
+          onPush!(text);
+        }
+        break;
+      case 'Message':
+        String label = js['label'];
+        String data = js['data'];
+        if (onMessage != null) {
+          onMessage!(label, data);
+        }
+        break;
       case 'AddTrack':
         String connectionId = js['connection_id'];
         int textureId = js['texture_id'];
@@ -187,6 +225,12 @@ class SoraClient {
           if (onRemoveTrack != null) {
             onRemoveTrack!(track);
           }
+        }
+        break;
+      case 'DataChannel':
+        String label = js['label'];
+        if (onDataChannel != null) {
+          onDataChannel!(label);
         }
         break;
     }
