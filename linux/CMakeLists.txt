@@ -23,9 +23,14 @@ list(APPEND CMAKE_PREFIX_PATH ${SORA_DIR})
 list(APPEND CMAKE_MODULE_PATH ${SORA_DIR}/share/cmake)
 
 set(Boost_USE_STATIC_LIBS ON)
+
+# ローカルマシンにインストールされた Boost を参照しない設定
+# 以下リンクの stack overflow の内容を参考にしている
+# https://stackoverflow.com/questions/3016448/how-can-i-get-cmake-to-find-my-alternative-boost-installation
 set(Boost_NO_BOOST_CMAKE ON)
 set(Boost_NO_SYSTEM_PATHS ON)
 set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib)
+
 find_package(Boost REQUIRED COMPONENTS json)
 find_package(WebRTC REQUIRED)
 find_package(Sora REQUIRED)
