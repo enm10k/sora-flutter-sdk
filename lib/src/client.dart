@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
 import 'video_track.dart';
 import 'sdk.dart';
@@ -164,10 +165,11 @@ class SoraClient {
 
   void _eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
-    switch (map['event']) {
+    final Map<String, dynamic> js = json.decode(map['json']);
+    switch (js['event']) {
       case 'AddTrack':
-        String connectionId = map['connection_id'];
-        int textureId = map['texture_id'];
+        String connectionId = js['connection_id'];
+        int textureId = js['texture_id'];
         final track = SoraVideoTrack(connectionId, textureId);
         tracks.add(track);
         if (onAddTrack != null) {
@@ -175,8 +177,8 @@ class SoraClient {
         }
         break;
       case 'RemoveTrack':
-        String connectionId = map['connection_id'];
-        int textureId = map['texture_id'];
+        String connectionId = js['connection_id'];
+        int textureId = js['texture_id'];
         SoraVideoTrack? track = tracks.firstWhereOrNull((element) =>
             element.connectionId == connectionId &&
             element.textureId == textureId);

@@ -47,9 +47,9 @@ SoraFlutterSdkPlugin::SoraFlutterSdkPlugin(flutter::PluginRegistrar * registrar)
     return;
   }
 
-  rtc::LogMessage::LogToDebug(rtc::LS_INFO);
-  rtc::LogMessage::LogTimestamps();
-  rtc::LogMessage::LogThreads();
+  // rtc::LogMessage::LogToDebug(rtc::LS_INFO);
+  // rtc::LogMessage::LogTimestamps();
+  // rtc::LogMessage::LogThreads();
 }
 
 SoraFlutterSdkPlugin::~SoraFlutterSdkPlugin() {}
