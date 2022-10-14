@@ -58,8 +58,8 @@ static void sora_flutter_sdk_plugin_handle_method_call(
 
     sora_flutter_sdk::SoraClientConfig config;
     std::string json = get_as_string(args, "config");
-    config = JsonToClientConfig(json);
-    config.signaling_config = JsonToSignalingConfig(json);
+    config = sora_flutter_sdk::JsonToClientConfig(json);
+    config.signaling_config = sora_flutter_sdk::JsonToSignalingConfig(json);
     config.event_channel = event_channel;
     config.messenger = self->messenger;
     config.texture_registrar = self->texture_registrar;

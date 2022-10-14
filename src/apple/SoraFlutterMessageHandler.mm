@@ -76,8 +76,8 @@ FlutterError *badArgumentsError(NSString *message) {
         NSDictionary *arguments = (NSDictionary *)call.arguments;
         SoraClientConfig config;
         std::string json = [SoraUtils stdStrings: arguments forKey: @"config"];
-        config = JsonToClientConfig(json);
-        config.signaling_config = JsonToSignalingConfig(json);
+        config = sora_flutter_sdk::JsonToClientConfig(json);
+        config.signaling_config = sora_flutter_sdk::JsonToSignalingConfig(json);
         config.event_channel = "SoraFlutterSdk/SoraClient/Event/" + std::to_string(self.clientId);
         config.messenger = self.messenger;
         config.texture_registrar = self.textureRegistry;

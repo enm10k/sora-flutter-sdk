@@ -50,8 +50,8 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_createSoraClient(JNIEn
     json = p;
     env->ReleaseStringUTFChars(str.obj(), p);
   }
-  config = JsonToClientConfig(json);
-  config.signaling_config = JsonToSignalingConfig(json);
+  config = sora_flutter_sdk::JsonToClientConfig(json);
+  config.signaling_config = sora_flutter_sdk::JsonToSignalingConfig(json);
   config.event_channel = event_channel;
   config.env = env;
   // config.binary_messenger = binding.getBinaryMessenger();
