@@ -8,6 +8,7 @@
 #include <sdk/android/native_api/jni/class_loader.h>
 
 #include "sora_client.h"
+#include "client_reader.h"
 
 struct SoraClientWrapper {
   std::shared_ptr<sora_flutter_sdk::SoraClient> p;
