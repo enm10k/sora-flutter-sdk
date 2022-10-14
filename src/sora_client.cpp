@@ -183,9 +183,10 @@ void SoraClient::DoConnect() {
 #endif
 
   sora::CameraDeviceCapturerConfig cam_config;
-  cam_config.width = config_.device_width;
-  cam_config.height = config_.device_height;
-  cam_config.fps = 30;
+  cam_config.device_name = config_.video_device_name;
+  cam_config.width = config_.video_device_width;
+  cam_config.height = config_.video_device_height;
+  cam_config.fps = config_.video_device_fps;
 #if defined(__ANDROID__)
   auto env = io_env_;
   cam_config.jni_env = env;
@@ -204,16 +205,12 @@ void SoraClient::DoConnect() {
 
   ioc_.reset(new boost::asio::io_context(1));
 
-  sora::SoraSignalingConfig config;
+  sora::SoraSignalingConfig config = config_.signaling_config;
   config.pc_factory = factory();
   config.io_context = ioc_.get();
   config.observer = shared_from_this();
-  config.signaling_urls = config_.signaling_urls;
-  config.channel_id = config_.channel_id;
-  config.sora_client = "Sora Flutter SDK";
-  config.role = config_.role;
-  config.video_codec_type = config_.video_codec_type;
-  config.multistream = true;
+  config.network_manager = connection_context()->default_network_manager();
+  config.socket_factory = connection_context()->default_socket_factory();
   conn_ = sora::SoraSignaling::Create(config);
 
   boost::asio::executor_work_guard<boost::asio::io_context::executor_type>

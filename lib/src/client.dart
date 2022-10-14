@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'video_track.dart';
 import 'sdk.dart';
+
+part 'client.g.dart';
 
 enum SoraRole {
   sendonly,
@@ -13,11 +16,21 @@ enum SoraRole {
 }
 
 enum SoraVideoCodecType {
+  @JsonValue("VP8")
   vp8,
+  @JsonValue("VP9")
   vp9,
+  @JsonValue("AV1")
   av1,
+  @JsonValue("H264")
   h264,
+  @JsonValue("H265")
   h265,
+}
+
+enum SoraAudioCodecType {
+  @JsonValue("OPUS")
+  opus,
 }
 
 extension SoraRoleRawValue on SoraRole {
@@ -40,6 +53,26 @@ extension SoraVideoCodecTypeRawValue on SoraVideoCodecType {
   String get rawValue => _rawValues[this]!;
 }
 
+@JsonSerializable()
+class SoraDataChannel {
+  SoraDataChannel({
+    required this.label,
+    required this.direction,
+  });
+  String label;
+  SoraRole direction;
+  bool? ordered;
+  int? maxPacketLifeTime;
+  int? maxRetransmits;
+  String? protocol;
+  bool? compress;
+
+  factory SoraDataChannel.fromJson(Map<String, dynamic> json) =>
+      _$SoraDataChannelFromJson(json);
+  Map<String, dynamic> toJson() => _$SoraDataChannelToJson(this);
+}
+
+@JsonSerializable()
 class SoraClientConfig {
   SoraClientConfig({
     required this.signalingUrls,
@@ -47,12 +80,63 @@ class SoraClientConfig {
     required this.role,
   });
 
-  List<String> signalingUrls = List<String>.empty(growable: true);
+  // SoraSignalingConfig の設定
+
+  List<String> signalingUrls;
   String channelId;
-  SoraRole role;
-  int deviceWidth = 640;
-  int deviceHeight = 480;
+  String? clientId;
+  String? bundleId;
+
+  String soraClient = "Sora Flutter SDK";
+
+  bool? insecure;
+  bool? video;
+  bool? audio;
   SoraVideoCodecType? videoCodecType;
+  SoraAudioCodecType? audioCodecType;
+  int? videoBitRate;
+  int? audioOpusParamsClockRate;
+  Map<String, dynamic>? metadata;
+  Map<String, dynamic>? signalingNotifyMetadata;
+  SoraRole role;
+  bool? multistream;
+  bool? spotlight;
+  int? spotlightNumber;
+  String? spotlightFocusRid;
+  String? spotlightUnfocusRid;
+  bool? simulcast;
+  String? simulcastRid;
+  bool? dataChannelSignaling;
+  int? dataChannelSignalingTimeout;
+  bool? ignoreDisconnectWebsocket;
+  int? disconnectWaitTimeout;
+  List<SoraDataChannel>? dataChannels;
+
+  String? clientCert;
+  String? clientKey;
+
+  int? websocketCloseTimeout;
+  int? websocketConnectionTimeout;
+
+  String? proxyUrl;
+  String? proxyUsername;
+  String? proxyPassword;
+  String? proxyAgent;
+
+  bool? disableSignalingUrlRandomization;
+
+  // SoraClientConfig の設定
+
+  bool? useAudioDeivce;
+  bool? useHardwareEncoder;
+  String? videoDeviceName;
+  int? videoDeviceWidth;
+  int? videoDeviceHeight;
+  int? videoDeviceFps;
+
+  factory SoraClientConfig.fromJson(Map<String, dynamic> json) =>
+      _$SoraClientConfigFromJson(json);
+  Map<String, dynamic> toJson() => _$SoraClientConfigToJson(this);
 }
 
 class SoraClient {

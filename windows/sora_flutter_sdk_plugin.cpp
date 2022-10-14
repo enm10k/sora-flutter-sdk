@@ -12,6 +12,8 @@
 #include <memory>
 #include <sstream>
 
+#include "config_reader.h"
+
 namespace sora_flutter_sdk {
 
 // static
@@ -45,41 +47,12 @@ SoraFlutterSdkPlugin::SoraFlutterSdkPlugin(flutter::PluginRegistrar * registrar)
     return;
   }
 
-  //rtc::LogMessage::LogToDebug(rtc::LS_INFO);
-  //rtc::LogMessage::LogTimestamps();
-  //rtc::LogMessage::LogThreads();
+  rtc::LogMessage::LogToDebug(rtc::LS_INFO);
+  rtc::LogMessage::LogTimestamps();
+  rtc::LogMessage::LogThreads();
 }
 
 SoraFlutterSdkPlugin::~SoraFlutterSdkPlugin() {}
-
-static std::string get_as_string(const flutter::EncodableMap& map, const std::string& key) {
-  for (auto it : map) {
-    if (key == std::get<std::string>(it.first)) {
-      if (std::holds_alternative<std::string>(it.second)) {
-        return std::get<std::string>(it.second);
-      }
-      return "";
-    }
-  }
-  return "";
-}
-
-static std::vector<std::string> get_as_listof_string(const flutter::EncodableMap& map, const std::string& key) {
-  std::vector<std::string> r;
-  for (auto it : map) {
-    if (key == std::get<std::string>(it.first)) {
-      if (std::holds_alternative<flutter::EncodableList>(it.second)) {
-        for (auto jt : std::get<flutter::EncodableList>(it.second)) {
-          if (std::holds_alternative<std::string>(jt)) {
-            r.push_back(std::get<std::string>(jt));
-          }
-        }
-      }
-      return r;
-    }
-  }
-  return r;
-}
 
 static int64_t get_as_integer(const flutter::EncodableMap& map, const std::string& key) {
   for (auto it : map) {
@@ -109,12 +82,9 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     std::string event_channel = "SoraFlutterSdk/SoraClient/Event/" + std::to_string(client_id_);
 
     SoraClientConfig config;
-    config.signaling_urls = get_as_listof_string(req, "signaling_urls");
-    config.channel_id = get_as_string(req, "channel_id");
-    config.role = get_as_string(req, "role");
-    config.device_width = (int)get_as_integer(req, "device_width");
-    config.device_height = (int)get_as_integer(req, "device_height");
-    config.video_codec_type = get_as_string(req, "video_codec_type");
+    std::string json = std::get<std::string>(req.at(flutter::EncodableValue("config")));
+    config = JsonToClientConfig(json);
+    config.signaling_config = JsonToSignalingConfig(json);
     config.event_channel = event_channel;
     config.messenger = messenger_;
     config.texture_registrar = texture_registrar_;

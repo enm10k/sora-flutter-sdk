@@ -27,12 +27,13 @@ void* GetAndroidApplicationContext(void*);
 namespace sora_flutter_sdk {
 
 struct SoraClientConfig : sora::SoraDefaultClientConfig {
-  std::vector<std::string> signaling_urls;
-  std::string channel_id;
-  std::string role;
-  int device_width;
-  int device_height;
-  std::string video_codec_type;
+  std::string video_device_name;
+  int video_device_width = 640;
+  int video_device_height = 480;
+  int video_device_fps = 30;
+
+  sora::SoraSignalingConfig signaling_config;
+
   std::string event_channel;
 #if defined(__ANDROID__)
   JNIEnv* env;

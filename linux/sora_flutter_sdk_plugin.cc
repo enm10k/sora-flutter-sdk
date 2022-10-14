@@ -8,6 +8,7 @@
 #include <string>
 
 #include "sora_client.h"
+#include "config_reader.h"
 
 #define SORA_FLUTTER_SDK_PLUGIN(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST((obj), sora_flutter_sdk_plugin_get_type(), \
@@ -26,17 +27,6 @@ struct _SoraFlutterSdkPlugin {
 };
 
 G_DEFINE_TYPE(SoraFlutterSdkPlugin, sora_flutter_sdk_plugin, g_object_get_type())
-
-std::vector<std::string> get_as_listof_string(FlValue* value, const std::string& key) {
-  std::vector<std::string> r;
-  FlValue* val = fl_value_lookup_string(value, key.c_str());
-  int length = fl_value_get_length(val);
-  for (int i = 0; i < length; i++) {
-    FlValue* v = fl_value_get_list_value(val, i);
-    r.push_back(fl_value_get_string(v));
-  }
-  return r;
-}
 
 std::string get_as_string(FlValue* value, const std::string& key) {
   FlValue* val = fl_value_lookup_string(value, key.c_str());
@@ -67,12 +57,9 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     std::string event_channel = "SoraFlutterSdk/SoraClient/Event/" + std::to_string(data->client_id);
 
     sora_flutter_sdk::SoraClientConfig config;
-    config.signaling_urls = get_as_listof_string(args, "signaling_urls");
-    config.channel_id = get_as_string(args, "channel_id");
-    config.role = get_as_string(args, "role");
-    config.device_width = (int)get_as_integer(args, "device_width");
-    config.device_height = (int)get_as_integer(args, "device_height");
-    config.video_codec_type = get_as_string(args, "video_codec_type");
+    std::string json = get_as_string(args, "config");
+    config = JsonToClientConfig(json);
+    config.signaling_config = JsonToSignalingConfig(json);
     config.event_channel = event_channel;
     config.messenger = self->messenger;
     config.texture_registrar = self->texture_registrar;
