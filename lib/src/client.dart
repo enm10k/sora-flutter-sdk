@@ -34,26 +34,6 @@ enum SoraAudioCodecType {
   opus,
 }
 
-extension SoraRoleRawValue on SoraRole {
-  static final Map<SoraRole, String> _rawValues = {
-    SoraRole.sendonly: "sendonly",
-    SoraRole.recvonly: "recvonly",
-    SoraRole.sendrecv: "sendrecv",
-  };
-  String get rawValue => _rawValues[this]!;
-}
-
-extension SoraVideoCodecTypeRawValue on SoraVideoCodecType {
-  static final Map<SoraVideoCodecType, String> _rawValues = {
-    SoraVideoCodecType.vp8: "VP8",
-    SoraVideoCodecType.vp9: "VP9",
-    SoraVideoCodecType.av1: "AV1",
-    SoraVideoCodecType.h264: "H264",
-    SoraVideoCodecType.h265: "H265",
-  };
-  String get rawValue => _rawValues[this]!;
-}
-
 @JsonSerializable()
 class SoraDataChannel {
   SoraDataChannel({
