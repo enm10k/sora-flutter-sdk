@@ -8,6 +8,7 @@
 #include <sdk/android/native_api/jni/class_loader.h>
 
 #include "sora_client.h"
+#include "config_reader.h"
 
 struct SoraClientWrapper {
   std::shared_ptr<sora_flutter_sdk::SoraClient> p;
@@ -40,57 +41,18 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_createSoraClient(JNIEn
   std::string event_channel = "SoraFlutterSdk/SoraClient/Event/" + std::to_string(client_id);
 
   sora_flutter_sdk::SoraClientConfig config;
-  // config.signaling_urls = call.argument<String[]>("signaling_urls");
-  // config.channel_id = call.argument<String>("channel_id");
-  // config.role = call.argument<String>("role");
-  // config.device_width = call.argument<Integer>("device_width");
-  // config.device_height = call.argument<Integer>("device_height");
-  // config.video_codec_type = call.argument<String>("video_codec_type");
+  // var json = call.argument<String[]>("config");
   webrtc::ScopedJavaLocalRef<jclass> callcls(env, env->GetObjectClass(call));
   jmethodID arg_id = env->GetMethodID(callcls.obj(), "argument", "(Ljava/lang/String;)Ljava/lang/Object;");
+  std::string json;
   {
-    webrtc::ScopedJavaLocalRef<jobject> obj(env, env->CallObjectMethod(call, arg_id, env->NewStringUTF("signaling_urls")));
-    webrtc::ScopedJavaLocalRef<jclass> listcls = webrtc::GetClass(env, "java/util/List");
-    jmethodID get_id = env->GetMethodID(listcls.obj(), "get", "(I)Ljava/lang/Object;");
-    jmethodID size_id = env->GetMethodID(listcls.obj(), "size", "()I");
-    int length = env->CallIntMethod(obj.obj(), size_id);
-    for (int i = 0; i < length; i++) {
-      webrtc::ScopedJavaLocalRef<jstring> str(env, (jstring)env->CallObjectMethod(obj.obj(), get_id, i));
-      const char* p = env->GetStringUTFChars(str.obj(), nullptr);
-      config.signaling_urls.push_back(p);
-      env->ReleaseStringUTFChars(str.obj(), p);
-    }
-  }
-  {
-    webrtc::ScopedJavaLocalRef<jstring> str(env, (jstring)env->CallObjectMethod(call, arg_id, env->NewStringUTF("channel_id")));
+    webrtc::ScopedJavaLocalRef<jstring> str(env, (jstring)env->CallObjectMethod(call, arg_id, env->NewStringUTF("config")));
     const char* p = env->GetStringUTFChars(str.obj(), nullptr);
-    config.channel_id = p;
+    json = p;
     env->ReleaseStringUTFChars(str.obj(), p);
   }
-  {
-    webrtc::ScopedJavaLocalRef<jstring> str(env, (jstring)env->CallObjectMethod(call, arg_id, env->NewStringUTF("role")));
-    const char* p = env->GetStringUTFChars(str.obj(), nullptr);
-    config.role = p;
-    env->ReleaseStringUTFChars(str.obj(), p);
-  }
-  {
-    webrtc::ScopedJavaLocalRef<jobject> value(env, env->CallObjectMethod(call, arg_id, env->NewStringUTF("device_width")));
-    webrtc::ScopedJavaLocalRef<jclass> intcls = webrtc::GetClass(env, "java/lang/Integer");
-    jmethodID int_value_id = env->GetMethodID(intcls.obj(), "intValue", "()I");
-    config.device_width = env->CallIntMethod(value.obj(), int_value_id);
-  }
-  {
-    webrtc::ScopedJavaLocalRef<jobject> value(env, env->CallObjectMethod(call, arg_id, env->NewStringUTF("device_height")));
-    webrtc::ScopedJavaLocalRef<jclass> intcls = webrtc::GetClass(env, "java/lang/Integer");
-    jmethodID int_value_id = env->GetMethodID(intcls.obj(), "intValue", "()I");
-    config.device_height = env->CallIntMethod(value.obj(), int_value_id);
-  }
-  {
-    webrtc::ScopedJavaLocalRef<jstring> str(env, (jstring)env->CallObjectMethod(call, arg_id, env->NewStringUTF("video_codec_type")));
-    const char* p = env->GetStringUTFChars(str.obj(), nullptr);
-    config.video_codec_type = p;
-    env->ReleaseStringUTFChars(str.obj(), p);
-  }
+  config = sora_flutter_sdk::JsonToClientConfig(json);
+  config.signaling_config = sora_flutter_sdk::JsonToSignalingConfig(json);
   config.event_channel = event_channel;
   config.env = env;
   // config.binary_messenger = binding.getBinaryMessenger();

@@ -183,9 +183,10 @@ void SoraClient::DoConnect() {
 #endif
 
   sora::CameraDeviceCapturerConfig cam_config;
-  cam_config.width = config_.device_width;
-  cam_config.height = config_.device_height;
-  cam_config.fps = 30;
+  cam_config.device_name = config_.video_device_name;
+  cam_config.width = config_.video_device_width;
+  cam_config.height = config_.video_device_height;
+  cam_config.fps = config_.video_device_fps;
 #if defined(__ANDROID__)
   auto env = io_env_;
   cam_config.jni_env = env;
@@ -204,16 +205,12 @@ void SoraClient::DoConnect() {
 
   ioc_.reset(new boost::asio::io_context(1));
 
-  sora::SoraSignalingConfig config;
+  sora::SoraSignalingConfig config = config_.signaling_config;
   config.pc_factory = factory();
   config.io_context = ioc_.get();
   config.observer = shared_from_this();
-  config.signaling_urls = config_.signaling_urls;
-  config.channel_id = config_.channel_id;
-  config.sora_client = "Sora Flutter SDK";
-  config.role = config_.role;
-  config.video_codec_type = config_.video_codec_type;
-  config.multistream = true;
+  config.network_manager = signaling_thread()->Invoke<rtc::NetworkManager*>(RTC_FROM_HERE, [this]() { return connection_context()->default_network_manager(); });
+  config.socket_factory = signaling_thread()->Invoke<rtc::PacketSocketFactory*>(RTC_FROM_HERE, [this]() { return connection_context()->default_socket_factory(); });
   conn_ = sora::SoraSignaling::Create(config);
 
   boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
@@ -248,59 +245,63 @@ void SoraClient::OnSetOffer(std::string offer) {
 
   if (video_track_ != nullptr) {
     auto texture_id = renderer_->AddTrack(video_track_.get());
-#if defined(__ANDROID__)
-    if (!event_sink_.is_null()) {
-      // m = new HashMap();
-      // m.put("event", "AddTrack");
-      // m.put("connection_id", "");
-      // m.put("texture_id", texture_id);
-      // event_sink_.success(m);
-      RunOnMainThread(io_env_, [&, this](JNIEnv* env) {
-        webrtc::ScopedJavaLocalRef<jclass> mapcls = webrtc::GetClass(env, "java/util/HashMap");
-        jmethodID ctorid = env->GetMethodID(mapcls.obj(), "<init>", "()V");
-        webrtc::ScopedJavaLocalRef<jobject> mapobj(env, env->NewObject(mapcls.obj(), ctorid));
-        jmethodID putid = env->GetMethodID(mapcls.obj(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-        webrtc::ScopedJavaLocalRef<jclass> longcls = webrtc::GetClass(env, "java/lang/Long");
-        jmethodID value_of_id = env->GetStaticMethodID(longcls.obj(), "valueOf", "(J)Ljava/lang/Long;");
-        webrtc::ScopedJavaLocalRef<jobject> texture_id_obj(env, env->CallStaticObjectMethod(longcls.obj(), value_of_id, texture_id));
-        env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("event"), env->NewStringUTF("AddTrack"));
-        env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("connection_id"), env->NewStringUTF(""));
-        env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("texture_id"), texture_id_obj.obj());
-        webrtc::ScopedJavaLocalRef<jclass> sinkcls(env, env->GetObjectClass(event_sink_.obj()));
-        jmethodID successid = env->GetMethodID(sinkcls.obj(), "success", "(Ljava/lang/Object;)V");
-        env->CallVoidMethod(event_sink_.obj(), successid, mapobj.obj());
-      });
-    }
-#elif defined(_WIN32)
-    if (event_sink_ != nullptr) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "AddTrack";
-      params[flutter::EncodableValue("connection_id")] = "";
-      params[flutter::EncodableValue("texture_id")] = flutter::EncodableValue(texture_id);
-      event_sink_->Success(flutter::EncodableValue(params));
-    }
-#elif defined(__APPLE__)
-    if (event_sink_ != nullptr) {
-        event_sink_(@{@"event" : @"AddTrack",
-        @"connection_id" : @"",
-        @"texture_id" : @(texture_id),
-        });
-    }
-#else
-    if (event_channel_listened_) {
-      g_autoptr(FlValue) params = fl_value_new_map();
-      fl_value_set_string_take(params, "event", fl_value_new_string("AddTrack"));
-      fl_value_set_string_take(params, "connection_id", fl_value_new_string(""));
-      fl_value_set_string_take(params, "texture_id", fl_value_new_int(texture_id));
-      fl_event_channel_send(event_channel_.get(), params, nullptr, nullptr);
-    }
-#endif
+    boost::json::object obj;
+    obj["event"] = "AddTrack";
+    obj["connection_id"] = "";
+    obj["texture_id"] = texture_id;
+    SendEvent(obj);
+  }
+
+  {
+    boost::json::object obj;
+    obj["event"] = "SetOffer";
+    obj["offer"] = offer;
+    SendEvent(obj);
   }
 }
+
 void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
                              std::string message) {
   RTC_LOG(LS_INFO) << "OnDisconnect: " << message;
   ioc_->stop();
+
+  boost::json::object obj;
+  obj["event"] = "Disconnect";
+  std::string s;
+  switch (ec) {
+    case sora::SoraSignalingErrorCode::CLOSE_SUCCEEDED: s = "CLOSE_SUCCEEDED"; break;
+    case sora::SoraSignalingErrorCode::CLOSE_FAILED: s = "CLOSE_FAILED"; break;
+    case sora::SoraSignalingErrorCode::INTERNAL_ERROR: s = "INTERNAL_ERROR"; break;
+    case sora::SoraSignalingErrorCode::INVALID_PARAMETER: s = "INVALID_PARAMETER"; break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_HANDSHAKE_FAILED: s = "WEBSOCKET_HANDSHAKE_FAILED"; break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_ONCLOSE: s = "WEBSOCKET_ONCLOSE"; break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_ONERROR: s = "WEBSOCKET_ONERROR"; break;
+    case sora::SoraSignalingErrorCode::PEER_CONNECTION_STATE_FAILED: s = "PEER_CONNECTION_STATE_FAILED"; break;
+    case sora::SoraSignalingErrorCode::ICE_FAILED: s = "ICE_FAILED"; break;
+  }
+  obj["error_code"] = s;
+  obj["message"] = message;
+  SendEvent(obj);
+}
+
+void SoraClient::OnNotify(std::string text) {
+  boost::json::object obj;
+  obj["event"] = "Notify";
+  obj["text"] = text;
+  SendEvent(obj);
+}
+void SoraClient::OnPush(std::string text) {
+  boost::json::object obj;
+  obj["event"] = "Push";
+  obj["text"] = text;
+  SendEvent(obj);
+}
+void SoraClient::OnMessage(std::string label, std::string data) {
+  boost::json::object obj;
+  obj["event"] = "Message";
+  obj["label"] = label;
+  obj["data"] = data;
+  SendEvent(obj);
 }
 
 void SoraClient::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
@@ -311,53 +312,11 @@ void SoraClient::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> tra
         static_cast<webrtc::VideoTrackInterface*>(track.get()));
     connection_ids_.insert(std::make_pair(texture_id, connection_id));
 
-#if defined(__ANDROID__)
-    if (!event_sink_.is_null()) {
-      // m = new HashMap();
-      // m.put("event", "AddTrack");
-      // m.put("connection_id", connection_id);
-      // m.put("texture_id", texture_id);
-      // event_sink_.success(m);
-      RunOnMainThread(io_env_, [&, this](JNIEnv* env) {
-        webrtc::ScopedJavaLocalRef<jclass> mapcls = webrtc::GetClass(env, "java/util/HashMap");
-        jmethodID ctorid = env->GetMethodID(mapcls.obj(), "<init>", "()V");
-        webrtc::ScopedJavaLocalRef<jobject> mapobj(env, env->NewObject(mapcls.obj(), ctorid));
-        jmethodID putid = env->GetMethodID(mapcls.obj(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-        webrtc::ScopedJavaLocalRef<jclass> longcls = webrtc::GetClass(env, "java/lang/Long");
-        jmethodID value_of_id = env->GetStaticMethodID(longcls.obj(), "valueOf", "(J)Ljava/lang/Long;");
-        webrtc::ScopedJavaLocalRef<jobject> texture_id_obj(env, env->CallStaticObjectMethod(longcls.obj(), value_of_id, texture_id));
-        env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("event"), env->NewStringUTF("AddTrack"));
-        env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("connection_id"), env->NewStringUTF(connection_id.c_str()));
-        env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("texture_id"), texture_id_obj.obj());
-        webrtc::ScopedJavaLocalRef<jclass> sinkcls(env, env->GetObjectClass(event_sink_.obj()));
-        jmethodID successid = env->GetMethodID(sinkcls.obj(), "success", "(Ljava/lang/Object;)V");
-        env->CallVoidMethod(event_sink_.obj(), successid, mapobj.obj());
-      });
-    }
-#elif defined(_WIN32)
-    if (event_sink_ != nullptr) {
-      flutter::EncodableMap params;
-      params[flutter::EncodableValue("event")] = "AddTrack";
-      params[flutter::EncodableValue("connection_id")] = connection_id;
-      params[flutter::EncodableValue("texture_id")] = flutter::EncodableValue(texture_id);
-      event_sink_->Success(flutter::EncodableValue(params));
-    }
-#elif defined(__APPLE__)
-    if (event_sink_ != nullptr) {
-        event_sink_(@{@"event" : @"AddTrack",
-        @"connection_id" : [SoraUtils stringForStdString: connection_id],
-        @"texture_id" : @(texture_id),
-        });
-    }
-#else
-    if (event_channel_listened_) {
-      g_autoptr(FlValue) params = fl_value_new_map();
-      fl_value_set_string_take(params, "event", fl_value_new_string("AddTrack"));
-      fl_value_set_string_take(params, "connection_id", fl_value_new_string(connection_id.c_str()));
-      fl_value_set_string_take(params, "texture_id", fl_value_new_int(texture_id));
-      fl_event_channel_send(event_channel_.get(), params, nullptr, nullptr);
-    }
-#endif
+    boost::json::object obj;
+    obj["event"] = "AddTrack";
+    obj["connection_id"] = connection_id;
+    obj["texture_id"] = texture_id;
+    SendEvent(obj);
   }
 }
 void SoraClient::OnRemoveTrack(
@@ -370,56 +329,60 @@ void SoraClient::OnRemoveTrack(
     connection_ids_.erase(texture_id);
 
     if (texture_id != 0) {
-#if defined(__ANDROID__)
-      if (!event_sink_.is_null()) {
-        auto env = io_env_;
-        // m = new HashMap();
-        // m.put("event", "RemoveTrack");
-        // m.put("connection_id", connection_id);
-        // m.put("texture_id", texture_id);
-        // event_sink_.success(m);
-        RunOnMainThread(io_env_, [&, this](JNIEnv* env) {
-          webrtc::ScopedJavaLocalRef<jclass> mapcls = webrtc::GetClass(env, "java/util/HashMap");
-          jmethodID ctorid = env->GetMethodID(mapcls.obj(), "<init>", "()V");
-          webrtc::ScopedJavaLocalRef<jobject> mapobj(env, env->NewObject(mapcls.obj(), ctorid));
-          jmethodID putid = env->GetMethodID(mapcls.obj(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-          webrtc::ScopedJavaLocalRef<jclass> longcls = webrtc::GetClass(env, "java/lang/Long");
-          jmethodID value_of_id = env->GetStaticMethodID(longcls.obj(), "valueOf", "(J)Ljava/lang/Long;");
-          webrtc::ScopedJavaLocalRef<jobject> texture_id_obj(env, env->CallStaticObjectMethod(longcls.obj(), value_of_id, texture_id));
-          env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("event"), env->NewStringUTF("RemoveTrack"));
-          env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("connection_id"), env->NewStringUTF(connection_id.c_str()));
-          env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("texture_id"), texture_id_obj.obj());
-          webrtc::ScopedJavaLocalRef<jclass> sinkcls(env, env->GetObjectClass(event_sink_.obj()));
-          jmethodID successid = env->GetMethodID(sinkcls.obj(), "success", "(Ljava/lang/Object;)V");
-          env->CallVoidMethod(event_sink_.obj(), successid, mapobj.obj());
-        });
-      }
-#elif defined(_WIN32)
-      if (event_sink_ != nullptr) {
-        flutter::EncodableMap params;
-        params[flutter::EncodableValue("event")] = "RemoveTrack";
-        params[flutter::EncodableValue("connection_id")] = connection_id;
-        params[flutter::EncodableValue("texture_id")] = flutter::EncodableValue(texture_id);
-        event_sink_->Success(flutter::EncodableValue(params));
-      }
-#elif defined(__APPLE__)
-    if (event_sink_ != nullptr) {
-        event_sink_(@{@"event" : @"RemoveTrack",
-        @"connection_id" : [SoraUtils stringForStdString: connection_id],
-        @"texture_id" : @(texture_id),
-        });
-    }
-#else
-    if (event_channel_listened_) {
-      g_autoptr(FlValue) params = fl_value_new_map();
-      fl_value_set_string_take(params, "event", fl_value_new_string("RemoveTrack"));
-      fl_value_set_string_take(params, "connection_id", fl_value_new_string(connection_id.c_str()));
-      fl_value_set_string_take(params, "texture_id", fl_value_new_int(texture_id));
-      fl_event_channel_send(event_channel_.get(), params, nullptr, nullptr);
-    }
-#endif
+      boost::json::object obj;
+      obj["event"] = "RemoveTrack";
+      obj["connection_id"] = connection_id;
+      obj["texture_id"] = texture_id;
+      SendEvent(obj);
     }
   }
+}
+
+void SoraClient::OnDataChannel(std::string label) {
+  boost::json::object obj;
+  obj["event"] = "DataChannel";
+  obj["label"] = label;
+  SendEvent(obj);
+}
+
+void SoraClient::SendEvent(const boost::json::value& v) {
+  std::string json = boost::json::serialize(v);
+#if defined(__ANDROID__)
+  if (!event_sink_.is_null()) {
+    auto env = io_env_;
+    // m = new HashMap();
+    // m.put("json", json);
+    // event_sink_.success(m);
+    RunOnMainThread(io_env_, [&, this](JNIEnv* env) {
+      webrtc::ScopedJavaLocalRef<jclass> mapcls = webrtc::GetClass(env, "java/util/HashMap");
+      jmethodID ctorid = env->GetMethodID(mapcls.obj(), "<init>", "()V");
+      webrtc::ScopedJavaLocalRef<jobject> mapobj(env, env->NewObject(mapcls.obj(), ctorid));
+      jmethodID putid = env->GetMethodID(mapcls.obj(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+      env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("json"), env->NewStringUTF(json.c_str()));
+      webrtc::ScopedJavaLocalRef<jclass> sinkcls(env, env->GetObjectClass(event_sink_.obj()));
+      jmethodID successid = env->GetMethodID(sinkcls.obj(), "success", "(Ljava/lang/Object;)V");
+      env->CallVoidMethod(event_sink_.obj(), successid, mapobj.obj());
+    });
+  }
+#elif defined(_WIN32)
+  if (event_sink_ != nullptr) {
+    flutter::EncodableMap params;
+    params[flutter::EncodableValue("json")] = flutter::EncodableValue(json);
+    event_sink_->Success(flutter::EncodableValue(params));
+  }
+#elif defined(__APPLE__)
+  if (event_sink_ != nullptr) {
+      event_sink_(@{
+        @"json" : [SoraUtils stringForStdString: json],
+      });
+  }
+#else
+  if (event_channel_listened_) {
+    g_autoptr(FlValue) params = fl_value_new_map();
+    fl_value_set_string_take(params, "json", fl_value_new_string(json.c_str()));
+    fl_event_channel_send(event_channel_.get(), params, nullptr, nullptr);
+  }
+#endif
 }
 
 }

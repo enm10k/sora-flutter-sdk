@@ -128,6 +128,15 @@ class _MyAppState extends State<MyApp> {
     );
 
     final soraClient = await SoraClient.create(config)
+      ..onDisconnect = (String errorCode, String message) {
+        print("OnDisconnect: ec=$errorCode message=$message");
+      }
+      ..onSetOffer = (String offer) {
+        print("OnSetOffer: $offer");
+      }
+      ..onNotify = (String text) {
+        print("OnNotify: $text");
+      }
       ..onAddTrack = (SoraVideoTrack track) {
         setState(() {/* soraClient.tracks の数が変動したので描画し直す */});
       }
