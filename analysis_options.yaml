@@ -4,3 +4,8 @@ analyzer:
   exclude:
     - build/**
     - example/**
+    - src/**
+    - ios/_setup/**
+    - macos/_setup/**
+    - android/_install/**
+    - linux/_install/**
