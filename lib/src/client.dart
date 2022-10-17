@@ -8,6 +8,8 @@ import 'dart:convert';
 import 'video_track.dart';
 import 'sdk.dart';
 
+// 次のコマンドで生成できる (build_runner のインストールが必要)
+// dart run build_runner build
 part 'client.g.dart';
 
 enum SoraRole {
