@@ -78,6 +78,7 @@ class SoraClientConfig {
   SoraVideoCodecType? videoCodecType;
   SoraAudioCodecType? audioCodecType;
   int? videoBitRate;
+  int? audioBitRate;
   int? audioOpusParamsClockRate;
   Map<String, dynamic>? metadata;
   Map<String, dynamic>? signalingNotifyMetadata;

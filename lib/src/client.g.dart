@@ -53,6 +53,7 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
       ..audioCodecType = $enumDecodeNullable(
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
       ..videoBitRate = json['videoBitRate'] as int?
+      ..audioBitRate = json['audioBitRate'] as int?
       ..audioOpusParamsClockRate = json['audioOpusParamsClockRate'] as int?
       ..metadata = json['metadata'] as Map<String, dynamic>?
       ..signalingNotifyMetadata =
@@ -86,7 +87,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
       ..useHardwareEncoder = json['useHardwareEncoder'] as bool?
       ..videoDeviceName = json['videoDeviceName'] as String?
       ..videoDeviceWidth = json['videoDeviceWidth'] as int?
-      ..videoDeviceHeight = json['videoDeviceHeight'] as int?;
+      ..videoDeviceHeight = json['videoDeviceHeight'] as int?
+      ..videoDeviceFps = json['videoDeviceFps'] as int?;
 
 Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
     <String, dynamic>{
@@ -101,6 +103,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
       'videoCodecType': _$SoraVideoCodecTypeEnumMap[instance.videoCodecType],
       'audioCodecType': _$SoraAudioCodecTypeEnumMap[instance.audioCodecType],
       'videoBitRate': instance.videoBitRate,
+      'audioBitRate': instance.audioBitRate,
       'audioOpusParamsClockRate': instance.audioOpusParamsClockRate,
       'metadata': instance.metadata,
       'signalingNotifyMetadata': instance.signalingNotifyMetadata,
@@ -132,6 +135,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
       'videoDeviceName': instance.videoDeviceName,
       'videoDeviceWidth': instance.videoDeviceWidth,
       'videoDeviceHeight': instance.videoDeviceHeight,
+      'videoDeviceFps': instance.videoDeviceFps,
     };
 
 const _$SoraVideoCodecTypeEnumMap = {
