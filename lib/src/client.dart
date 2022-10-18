@@ -12,21 +12,33 @@ import 'sdk.dart';
 // dart run build_runner build
 part 'client.g.dart';
 
+/// 接続時のロールを表します。
 enum SoraRole {
+  /// 送信のみ
   sendonly,
+
+  /// 受信のみ
   recvonly,
+
+  /// 送受信
   sendrecv,
 }
 
+/// 映像コーデックを表します。
 enum SoraVideoCodecType {
+  /// VP8
   @JsonValue("VP8")
   vp8,
+  /// VP9
   @JsonValue("VP9")
   vp9,
+  /// AV1
   @JsonValue("AV1")
   av1,
+  /// H.264
   @JsonValue("H264")
   h264,
+  /// H.265
   @JsonValue("H265")
   h265,
 }
@@ -55,8 +67,10 @@ class SoraDataChannel {
   Map<String, dynamic> toJson() => _$SoraDataChannelToJson(this);
 }
 
+/// 接続設定です。
 @JsonSerializable()
 class SoraClientConfig {
+  /// 本オブジェクトを生成します。
   SoraClientConfig({
     required this.signalingUrls,
     required this.channelId,
@@ -65,7 +79,9 @@ class SoraClientConfig {
 
   // SoraSignalingConfig の設定
 
+  /// シグナリング URL のリスト
   List<String> signalingUrls;
+  /// チャネル ID
   String channelId;
   String? clientId;
   String? bundleId;
@@ -75,12 +91,14 @@ class SoraClientConfig {
   bool? insecure;
   bool? video;
   bool? audio;
+  /// 映像コーデック
   SoraVideoCodecType? videoCodecType;
   SoraAudioCodecType? audioCodecType;
   int? videoBitRate;
   int? audioOpusParamsClockRate;
   Map<String, dynamic>? metadata;
   Map<String, dynamic>? signalingNotifyMetadata;
+  /// ロール
   SoraRole role;
   bool? multistream;
   bool? spotlight;
@@ -113,7 +131,9 @@ class SoraClientConfig {
   bool? useAudioDeivce;
   bool? useHardwareEncoder;
   String? videoDeviceName;
+  /// 送信する映像の横幅
   int? videoDeviceWidth;
+  /// 送信する映像の縦幅
   int? videoDeviceHeight;
   int? videoDeviceFps;
 
@@ -122,20 +142,31 @@ class SoraClientConfig {
   Map<String, dynamic> toJson() => _$SoraClientConfigToJson(this);
 }
 
+/// Sora に接続します。
+///
+/// 本オブジェクトの使用後は必ず [dispose] を呼んで終了処理を行ってください。
 class SoraClient {
+  /// [config] を接続設定として本オブジェクトを生成します。
+  ///
+  /// 生成した時点では Sora に接続されていません。
+  /// 接続するには [connect] を呼んでください。
   static Future<SoraClient> create(SoraClientConfig config) async {
     return await SoraFlutterSdk.createSoraClient(config);
   }
 
+  /// クライアント ID
   int clientId = 0;
   void Function(String)? onSetOffer;
   void Function(String, String)? onDisconnect;
   void Function(String)? onNotify;
   void Function(String)? onPush;
   void Function(String, String)? onMessage;
+  /// 映像トラックが追加されたときに呼ばれるコールバック
   void Function(SoraVideoTrack)? onAddTrack;
+  /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
   void Function(SoraVideoTrack)? onRemoveTrack;
   void Function(String)? onDataChannel;
+  /// 映像トラックのリスト
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
 
   String _eventChannel = "";
@@ -143,6 +174,8 @@ class SoraClient {
   final Future<void> Function(SoraClient) _disposer;
   StreamSubscription<dynamic>? _eventSubscription;
 
+  /// 本コンストラクタは内部実装で使われるので使わないでください。
+  /// 本オブジェクトを生成するには [create] を使ってください。
   SoraClient(dynamic resp, this._connector, this._disposer) {
     clientId = resp['client_id'];
     _eventChannel = resp['event_channel'];
@@ -224,10 +257,14 @@ class SoraClient {
     }
   }
 
+  /// Sora に接続します。
+  ///
+  /// 本オブジェクトの使用後は必ず [dispose] を呼んで終了処理を行ってください。
   Future<void> connect() async {
     await _connector(this);
   }
 
+  /// 終了処理を行います。
   Future<void> dispose() async {
     _eventSubscription?.cancel();
     await _disposer(this);
