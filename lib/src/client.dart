@@ -2,9 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
 import 'video_track.dart';
 import 'sdk.dart';
+
+// 次のコマンドで生成できる (build_runner のインストールが必要)
+// dart run build_runner build
+part 'client.g.dart';
 
 /// 接続時のロールを表します。
 enum SoraRole {
@@ -21,42 +27,48 @@ enum SoraRole {
 /// 映像コーデックを表します。
 enum SoraVideoCodecType {
   /// VP8
+  @JsonValue("VP8")
   vp8,
-
   /// VP9
+  @JsonValue("VP9")
   vp9,
-
   /// AV1
+  @JsonValue("AV1")
   av1,
-
   /// H.264
+  @JsonValue("H264")
   h264,
-
   /// H.265
+  @JsonValue("H265")
   h265,
 }
 
-extension SoraRoleRawValue on SoraRole {
-  static final Map<SoraRole, String> _rawValues = {
-    SoraRole.sendonly: "sendonly",
-    SoraRole.recvonly: "recvonly",
-    SoraRole.sendrecv: "sendrecv",
-  };
-  String get rawValue => _rawValues[this]!;
+enum SoraAudioCodecType {
+  @JsonValue("OPUS")
+  opus,
 }
 
-extension SoraVideoCodecTypeRawValue on SoraVideoCodecType {
-  static final Map<SoraVideoCodecType, String> _rawValues = {
-    SoraVideoCodecType.vp8: "VP8",
-    SoraVideoCodecType.vp9: "VP9",
-    SoraVideoCodecType.av1: "AV1",
-    SoraVideoCodecType.h264: "H264",
-    SoraVideoCodecType.h265: "H265",
-  };
-  String get rawValue => _rawValues[this]!;
+@JsonSerializable()
+class SoraDataChannel {
+  SoraDataChannel({
+    required this.label,
+    required this.direction,
+  });
+  String label;
+  SoraRole direction;
+  bool? ordered;
+  int? maxPacketLifeTime;
+  int? maxRetransmits;
+  String? protocol;
+  bool? compress;
+
+  factory SoraDataChannel.fromJson(Map<String, dynamic> json) =>
+      _$SoraDataChannelFromJson(json);
+  Map<String, dynamic> toJson() => _$SoraDataChannelToJson(this);
 }
 
 /// 接続設定です。
+@JsonSerializable()
 class SoraClientConfig {
   /// 本オブジェクトを生成します。
   SoraClientConfig({
@@ -65,23 +77,69 @@ class SoraClientConfig {
     required this.role,
   });
 
-  /// シグナリング URL のリスト
-  List<String> signalingUrls = List<String>.empty(growable: true);
+  // SoraSignalingConfig の設定
 
+  /// シグナリング URL のリスト
+  List<String> signalingUrls;
   /// チャネル ID
   String channelId;
+  String? clientId;
+  String? bundleId;
 
-  /// ロール
-  SoraRole role;
+  String soraClient = "Sora Flutter SDK";
 
-  /// 送信する映像の横幅
-  int deviceWidth = 640;
-
-  /// 送信する映像の縦幅
-  int deviceHeight = 480;
-
+  bool? insecure;
+  bool? video;
+  bool? audio;
   /// 映像コーデック
   SoraVideoCodecType? videoCodecType;
+  SoraAudioCodecType? audioCodecType;
+  int? videoBitRate;
+  int? audioOpusParamsClockRate;
+  Map<String, dynamic>? metadata;
+  Map<String, dynamic>? signalingNotifyMetadata;
+  /// ロール
+  SoraRole role;
+  bool? multistream;
+  bool? spotlight;
+  int? spotlightNumber;
+  String? spotlightFocusRid;
+  String? spotlightUnfocusRid;
+  bool? simulcast;
+  String? simulcastRid;
+  bool? dataChannelSignaling;
+  int? dataChannelSignalingTimeout;
+  bool? ignoreDisconnectWebsocket;
+  int? disconnectWaitTimeout;
+  List<SoraDataChannel>? dataChannels;
+
+  String? clientCert;
+  String? clientKey;
+
+  int? websocketCloseTimeout;
+  int? websocketConnectionTimeout;
+
+  String? proxyUrl;
+  String? proxyUsername;
+  String? proxyPassword;
+  String? proxyAgent;
+
+  bool? disableSignalingUrlRandomization;
+
+  // SoraClientConfig の設定
+
+  bool? useAudioDeivce;
+  bool? useHardwareEncoder;
+  String? videoDeviceName;
+  /// 送信する映像の横幅
+  int? videoDeviceWidth;
+  /// 送信する映像の縦幅
+  int? videoDeviceHeight;
+  int? videoDeviceFps;
+
+  factory SoraClientConfig.fromJson(Map<String, dynamic> json) =>
+      _$SoraClientConfigFromJson(json);
+  Map<String, dynamic> toJson() => _$SoraClientConfigToJson(this);
 }
 
 /// Sora に接続します。
@@ -98,13 +156,16 @@ class SoraClient {
 
   /// クライアント ID
   int clientId = 0;
-
+  void Function(String)? onSetOffer;
+  void Function(String, String)? onDisconnect;
+  void Function(String)? onNotify;
+  void Function(String)? onPush;
+  void Function(String, String)? onMessage;
   /// 映像トラックが追加されたときに呼ばれるコールバック
   void Function(SoraVideoTrack)? onAddTrack;
-
   /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
   void Function(SoraVideoTrack)? onRemoveTrack;
-
+  void Function(String)? onDataChannel;
   /// 映像トラックのリスト
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
 
@@ -125,10 +186,43 @@ class SoraClient {
 
   void _eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
-    switch (map['event']) {
+    final Map<String, dynamic> js = json.decode(map['json']);
+    switch (js['event']) {
+      case 'SetOffer':
+        String offer = js['offer'];
+        if (onSetOffer != null) {
+          onSetOffer!(offer);
+        }
+        break;
+      case 'Disconnect':
+        String errorCode = js['error_code'];
+        String message = js['message'];
+        if (onDisconnect != null) {
+          onDisconnect!(errorCode, message);
+        }
+        break;
+      case 'Notify':
+        String text = js['text'];
+        if (onNotify != null) {
+          onNotify!(text);
+        }
+        break;
+      case 'Push':
+        String text = js['text'];
+        if (onPush != null) {
+          onPush!(text);
+        }
+        break;
+      case 'Message':
+        String label = js['label'];
+        String data = js['data'];
+        if (onMessage != null) {
+          onMessage!(label, data);
+        }
+        break;
       case 'AddTrack':
-        String connectionId = map['connection_id'];
-        int textureId = map['texture_id'];
+        String connectionId = js['connection_id'];
+        int textureId = js['texture_id'];
         final track = SoraVideoTrack(connectionId, textureId);
         tracks.add(track);
         if (onAddTrack != null) {
@@ -136,8 +230,8 @@ class SoraClient {
         }
         break;
       case 'RemoveTrack':
-        String connectionId = map['connection_id'];
-        int textureId = map['texture_id'];
+        String connectionId = js['connection_id'];
+        int textureId = js['texture_id'];
         SoraVideoTrack? track = tracks.firstWhereOrNull((element) =>
             element.connectionId == connectionId &&
             element.textureId == textureId);
@@ -146,6 +240,12 @@ class SoraClient {
           if (onRemoveTrack != null) {
             onRemoveTrack!(track);
           }
+        }
+        break;
+      case 'DataChannel':
+        String label = js['label'];
+        if (onDataChannel != null) {
+          onDataChannel!(label);
         }
         break;
     }
