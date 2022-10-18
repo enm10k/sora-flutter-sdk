@@ -1,4 +1,11 @@
 include: package:flutter_lints/flutter.yaml
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+analyzer:
+  exclude:
+    - build/**
+    - example/**
+    - src/**
+    - ios/_setup/**
+    - macos/_setup/**
+    - android/_install/**
+    - linux/_install/**
