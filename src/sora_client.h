@@ -27,12 +27,13 @@ void* GetAndroidApplicationContext(void*);
 namespace sora_flutter_sdk {
 
 struct SoraClientConfig : sora::SoraDefaultClientConfig {
-  std::vector<std::string> signaling_urls;
-  std::string channel_id;
-  std::string role;
-  int device_width;
-  int device_height;
-  std::string video_codec_type;
+  std::string video_device_name;
+  int video_device_width = 640;
+  int video_device_height = 480;
+  int video_device_fps = 30;
+
+  sora::SoraSignalingConfig signaling_config;
+
   std::string event_channel;
 #if defined(__ANDROID__)
   JNIEnv* env;
@@ -63,10 +64,16 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void OnDisconnect(sora::SoraSignalingErrorCode ec,
                     std::string message) override;
 
+  void OnNotify(std::string text) override;
+  void OnPush(std::string text) override;
+  void OnMessage(std::string label, std::string data) override;
+
   void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
       override;
   void OnRemoveTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
+
+  void OnDataChannel(std::string label) override;
 
 #if defined(__ANDROID__)
   void* GetAndroidApplicationContext(void* env) override { return ::GetAndroidApplicationContext(env); }
@@ -76,6 +83,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
 
  private:
   void DoConnect();
+  void SendEvent(const boost::json::value& v);
 
  private:
   SoraClientConfig config_;

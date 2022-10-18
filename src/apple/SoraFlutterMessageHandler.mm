@@ -6,7 +6,8 @@
 #include <sstream>
 #include <vector>
 
-#include <sora_client.h>
+#include "sora_client.h"
+#include "config_reader.h"
 
 using namespace sora_flutter_sdk;
 
@@ -74,12 +75,9 @@ FlutterError *badArgumentsError(NSString *message) {
 
         NSDictionary *arguments = (NSDictionary *)call.arguments;
         SoraClientConfig config;
-        config.signaling_urls = [SoraUtils stdStrings: arguments forKey: @"signaling_urls"];
-        config.channel_id = [SoraUtils stdString: arguments forKey: @"channel_id"];
-        config.role = [SoraUtils stdString: arguments forKey: @"role"];
-        config.device_width = (int)[SoraUtils intValue: arguments forKey: @"device_width"];
-        config.device_height = (int)[SoraUtils intValue: arguments forKey: @"device_height"];
-        config.video_codec_type = [SoraUtils stdString: arguments forKey: @"video_codec_type"];
+        std::string json = [SoraUtils stdString: arguments forKey: @"config"];
+        config = sora_flutter_sdk::JsonToClientConfig(json);
+        config.signaling_config = sora_flutter_sdk::JsonToSignalingConfig(json);
         config.event_channel = "SoraFlutterSdk/SoraClient/Event/" + std::to_string(self.clientId);
         config.messenger = self.messenger;
         config.texture_registrar = self.textureRegistry;
@@ -126,7 +124,17 @@ FlutterError *badArgumentsError(NSString *message) {
             return;
         }
 
-        // TODO
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
+        int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
+        SoraClientWrapper *client = self.clients[@(clientId)];
+        if (client == nil) {
+            result(badArgumentsError(@"Client Not Found"));
+            return;
+        }
+
+        client.client->Disconnect();
+        [self.clients removeObjectForKey: @(clientId)];
+        result(nil);
     } else {
         result(FlutterMethodNotImplemented);
     }

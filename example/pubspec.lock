@@ -67,6 +67,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.7.0"
   lints:
     dependency: transitive
     description:
@@ -148,7 +155,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2022.1.0"
+    version: "2022.1.0-canary.2"
   source_span:
     dependency: transitive
     description:

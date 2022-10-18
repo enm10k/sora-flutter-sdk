@@ -24,16 +24,16 @@ endif()
 
 set(BOOST_ROOT ${CMAKE_BINARY_DIR}/boost)
 if (NOT EXISTS "${BOOST_ROOT}")
-  message("Download and extracting boost-1.80.0_sora-cpp-sdk-2022.11.0_windows_x86_64.zip")
-  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/2022.11.0/boost-1.80.0_sora-cpp-sdk-2022.11.0_windows_x86_64.zip ${CMAKE_BINARY_DIR}/boost-1.80.0_sora-cpp-sdk-2022.11.0_windows_x86_64.zip)
-  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/boost-1.80.0_sora-cpp-sdk-2022.11.0_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
+  message("Download and extracting boost-1.80.0_sora-cpp-sdk-2022.14.0_windows_x86_64.zip")
+  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/2022.14.0/boost-1.80.0_sora-cpp-sdk-2022.14.0_windows_x86_64.zip ${CMAKE_BINARY_DIR}/boost-1.80.0_sora-cpp-sdk-2022.14.0_windows_x86_64.zip)
+  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/boost-1.80.0_sora-cpp-sdk-2022.14.0_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
 set(SORA_DIR ${CMAKE_BINARY_DIR}/sora)
 if (NOT EXISTS "${SORA_DIR}")
-  message("Download and extracting sora-cpp-sdk-2022.11.0_windows_x86_64.zip")
-  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/2022.11.0/sora-cpp-sdk-2022.11.0_windows_x86_64.zip ${CMAKE_BINARY_DIR}/sora-cpp-sdk-2022.11.0_windows_x86_64.zip)
-  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/sora-cpp-sdk-2022.11.0_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
+  message("Download and extracting sora-cpp-sdk-2022.14.0_windows_x86_64.zip")
+  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/2022.14.0/sora-cpp-sdk-2022.14.0_windows_x86_64.zip ${CMAKE_BINARY_DIR}/sora-cpp-sdk-2022.14.0_windows_x86_64.zip)
+  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/sora-cpp-sdk-2022.14.0_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH ${SORA_DIR})
@@ -41,7 +41,14 @@ list(APPEND CMAKE_MODULE_PATH ${SORA_DIR}/share/cmake)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
-set(Boost_NO_SYSTEM_PATHS ON)
+
+# ローカルマシンにインストールされた Boost を参照しないようにする以下の設定は
+# Windows では set(Boost_NO_BOOST_CMAKE ON) を設定するとエラーになるため設定しない。
+# なお、Windows は以下の設定がなくとも正常にダウンロードした Boost を参照する。
+# set(Boost_NO_BOOST_CMAKE ON)
+# set(Boost_NO_SYSTEM_PATHS ON)
+# set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib)
+
 find_package(Boost REQUIRED COMPONENTS json)
 find_package(WebRTC REQUIRED)
 find_package(Sora REQUIRED)
