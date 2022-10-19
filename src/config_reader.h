@@ -148,7 +148,7 @@ sora::SoraSignalingConfig JsonToSignalingConfig(const std::string& json) {
   F(SetString, "videoCodecType", &c.video_codec_type);
   F(SetString, "audioCodecType", &c.audio_codec_type);
   F(SetInteger, "videoBitRate", &c.video_bit_rate);
-  F(SetInteger, "audioOpusParamsClockRate", &c.audio_opus_params_clock_rate);
+  F(SetInteger, "audioBitRate", &c.audio_bit_rate);
   F(SetJson, "metadata", &c.metadata);
   F(SetJson, "signalingNotifyMetadata", &c.signaling_notify_metadata);
   F(SetString, "role", &c.role);
