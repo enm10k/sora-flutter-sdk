@@ -54,7 +54,6 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
-      ..audioOpusParamsClockRate = json['audioOpusParamsClockRate'] as int?
       ..metadata = json['metadata'] as Map<String, dynamic>?
       ..signalingNotifyMetadata =
           json['signalingNotifyMetadata'] as Map<String, dynamic>?
@@ -104,7 +103,6 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
       'audioCodecType': _$SoraAudioCodecTypeEnumMap[instance.audioCodecType],
       'videoBitRate': instance.videoBitRate,
       'audioBitRate': instance.audioBitRate,
-      'audioOpusParamsClockRate': instance.audioOpusParamsClockRate,
       'metadata': instance.metadata,
       'signalingNotifyMetadata': instance.signalingNotifyMetadata,
       'role': _$SoraRoleEnumMap[instance.role]!,
