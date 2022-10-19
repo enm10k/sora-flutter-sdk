@@ -127,6 +127,8 @@ class _MyAppState extends State<MyApp> {
       role: SoraRole.sendrecv,
     );
 
+    config.metadata = Environment.signalingMetadata;
+
     final soraClient = await SoraClient.create(config)
       ..onDisconnect = (String errorCode, String message) {
         print("OnDisconnect: ec=$errorCode message=$message");
