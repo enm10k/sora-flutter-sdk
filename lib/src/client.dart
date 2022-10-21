@@ -200,6 +200,7 @@ class SoraClient {
         if (onDisconnect != null) {
           onDisconnect!(errorCode, message);
         }
+        SoraFlutterSdk.destroySoraClient(this);
         break;
       case 'Notify':
         String text = js['text'];

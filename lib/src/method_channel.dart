@@ -32,4 +32,11 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
       'client_id': client.clientId,
     });
   }
+
+  @override
+  Future<void> destroySoraClient(SoraClient client) async {
+    await methodChannel.invokeMethod('destroySoraClient', {
+      'client_id': client.clientId,
+    });
+  }
 }
