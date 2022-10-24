@@ -201,6 +201,7 @@ class SoraClient {
           onDisconnect!(errorCode, message);
         }
         SoraFlutterSdk.destroySoraClient(this);
+        _eventSubscription?.cancel();
         break;
       case 'Notify':
         String text = js['text'];
@@ -267,7 +268,6 @@ class SoraClient {
 
   /// 終了処理を行います。
   Future<void> dispose() async {
-    _eventSubscription?.cancel();
     await _disposer(this);
   }
 }
