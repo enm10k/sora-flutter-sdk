@@ -146,12 +146,16 @@ class _MyAppState extends State<MyApp> {
         setState(() {/* soraClient.tracks の数が変動したので描画し直す */});
       };
 
-    await soraClient.connect();
+    try {
+      await soraClient.connect();
 
-    setState(() {
-      _soraClient = soraClient;
-      _isConnected = true;
-    });
+      setState(() {
+        _soraClient = soraClient;
+        _isConnected = true;
+      });
+    } on Exception catch (e) {
+      print('connect failed => $e');
+    }
   }
 
   Future<void> _disconnect() async {
@@ -160,7 +164,12 @@ class _MyAppState extends State<MyApp> {
     }
     print('disconnect');
 
-    await _soraClient?.dispose();
+    try {
+      await _soraClient?.dispose();
+    } on Exception catch (e) {
+      print('dispose failed => $e');
+    }
+
     setState(() {
       _soraClient = null;
       _isConnected = false;
