@@ -172,11 +172,12 @@ class SoraClient {
   String _eventChannel = "";
   final Future<void> Function(SoraClient) _connector;
   final Future<void> Function(SoraClient) _disposer;
+  final Future<void> Function(SoraClient) _destructor;
   StreamSubscription<dynamic>? _eventSubscription;
 
   /// 本コンストラクタは内部実装で使われるので使わないでください。
   /// 本オブジェクトを生成するには [create] を使ってください。
-  SoraClient(dynamic resp, this._connector, this._disposer) {
+  SoraClient(dynamic resp, this._connector, this._disposer, this._destructor) {
     clientId = resp['client_id'];
     _eventChannel = resp['event_channel'];
     _eventSubscription = EventChannel(_eventChannel)
@@ -200,7 +201,7 @@ class SoraClient {
         if (onDisconnect != null) {
           onDisconnect!(errorCode, message);
         }
-        SoraFlutterSdk.destroySoraClient(this);
+        _destructor(this);
         _eventSubscription?.cancel();
         break;
       case 'Notify':

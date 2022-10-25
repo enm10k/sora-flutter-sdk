@@ -27,8 +27,4 @@ abstract class SoraFlutterSdkPlatform extends PlatformInterface {
   Future<SoraClient> createSoraClient(SoraClientConfig config) {
     throw UnimplementedError('createSoraClient() has not been implemented.');
   }
-
-  Future<void> destroySoraClient(SoraClient client) async {
-    throw UnimplementedError('destroySoraClient() has not been implemented.');
-  }
 }
