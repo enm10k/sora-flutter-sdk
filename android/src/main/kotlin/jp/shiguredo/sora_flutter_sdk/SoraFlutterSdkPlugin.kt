@@ -78,6 +78,10 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
       var clientId = call.argument<Int>("client_id");
       var client = clients[clientId]
       disposeSoraClient(client!!, call, result)
+    } else if (call.method == "destroySoraClient") {
+      var clientId = call.argument<Int>("client_id");
+      var client = clients[clientId]
+      destroySoraClient(client!!, call, result)
     } else {
       result.notImplemented()
     }
@@ -97,6 +101,7 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
   external fun createSoraClient(binding: FlutterPlugin.FlutterPluginBinding, clientId: Int, call: MethodCall, result: Result): Long
   external fun connectSoraClient(client: Long, call: MethodCall, result: Result)
   external fun disposeSoraClient(client: Long, call: MethodCall, result: Result)
+  external fun destroySoraClient(client: Long, call: MethodCall, result: Result)
 
   // ActivityAware
   override fun onDetachedFromActivity() {

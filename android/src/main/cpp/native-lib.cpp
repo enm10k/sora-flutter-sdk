@@ -101,10 +101,28 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_connectSoraClient(JNIE
 extern "C" JNIEXPORT void JNICALL
 Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_disposeSoraClient(JNIEnv* env,
                                          jobject /* this */, jlong client, jobject call, jobject result) {
-  delete reinterpret_cast<SoraClientWrapper*>(client);
+  reinterpret_cast<SoraClientWrapper*>(client)->p->Disconnect();
 
   // result.success(null);
   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
   env->CallVoidMethod(result, successid, nullptr);
+}
+
+void RunOnMainThread(JNIEnv* env, std::function<void (JNIEnv*)> f);
+
+extern "C" JNIEXPORT void JNICALL
+Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_destroySoraClient(JNIEnv* env,
+                                         jobject /* this */, jlong client, jobject call, jobject result) {
+  // Dart から呼んだときにネイティブスレッド外で実行されるので、
+  // ネイティブスレッドで JNIEnv を扱う
+  auto mainEnv = webrtc::AttachCurrentThreadIfNeeded();
+  RunOnMainThread(mainEnv, [&](JNIEnv* env) {
+    delete reinterpret_cast<SoraClientWrapper*>(client);
+
+    // result.success(null);
+    webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
+    jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
+    env->CallVoidMethod(result, successid, nullptr);
+  });
 }
