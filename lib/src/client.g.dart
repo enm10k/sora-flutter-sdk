@@ -54,9 +54,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
-      ..metadata = json['metadata'] as Map<String, dynamic>?
-      ..signalingNotifyMetadata =
-          json['signalingNotifyMetadata'] as Map<String, dynamic>?
+      ..metadata = json['metadata']
+      ..signalingNotifyMetadata = json['signalingNotifyMetadata']
       ..multistream = json['multistream'] as bool?
       ..spotlight = json['spotlight'] as bool?
       ..spotlightNumber = json['spotlightNumber'] as int?
