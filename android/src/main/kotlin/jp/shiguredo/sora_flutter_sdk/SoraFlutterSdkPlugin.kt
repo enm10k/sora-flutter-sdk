@@ -81,6 +81,7 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
     } else if (call.method == "destroySoraClient") {
       var clientId = call.argument<Int>("client_id");
       var client = clients[clientId]
+      clients.remove(clientId)
       destroySoraClient(client!!, call, result)
     } else {
       result.notImplemented()

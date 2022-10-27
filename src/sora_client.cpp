@@ -18,11 +18,15 @@
 #import <sdk/objc/components/audio/RTCAudioSessionConfiguration.h>
 #endif
 
-#include "sora/audio_device_module.h"
-#include "sora/camera_device_capturer.h"
-#include "sora/java_context.h"
-#include "sora/sora_video_decoder_factory.h"
-#include "sora/sora_video_encoder_factory.h"
+#include <sora/audio_device_module.h>
+#include <sora/camera_device_capturer.h>
+#include <sora/java_context.h>
+#include <sora/sora_video_decoder_factory.h>
+#include <sora/sora_video_encoder_factory.h>
+
+#if defined(__ANDROID__)
+#include <sora/android/android_capturer.h>
+#endif
 
 #if defined(__ANDROID__)
 
@@ -146,11 +150,21 @@ SoraClient::SoraClient(SoraClientConfig config)
 
 SoraClient::~SoraClient() {
   RTC_LOG(LS_INFO) << "SoraClient dtor";
-  ioc_.reset();
-  video_track_ = nullptr;
-  audio_track_ = nullptr;
-  video_source_ = nullptr;
   io_thread_.reset();
+}
+
+void SoraClient::Destroy() {
+  RTC_LOG(LS_INFO) << "SoraClient::Destroy";
+  io_thread_->PostTask([self = shared_from_this()]() {
+#if defined(__ANDROID__)
+    static_cast<sora::AndroidCapturer*>(self->video_source_.get())->Stop();
+#endif
+    self->video_source_ = nullptr;
+    self->renderer_ = nullptr;
+    self->ioc_.reset();
+    self->video_track_ = nullptr;
+    self->audio_track_ = nullptr;
+  });
 }
 
 void SoraClient::Connect() {

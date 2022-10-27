@@ -56,6 +56,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
  public:
   SoraClient(SoraClientConfig config);
   virtual ~SoraClient();
+  void Destroy();
 
   void Connect();
   void Disconnect();
