@@ -114,8 +114,6 @@ void RunOnMainThread(JNIEnv* env, std::function<void (JNIEnv*)> f);
 extern "C" JNIEXPORT void JNICALL
 Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_destroySoraClient(JNIEnv* env,
                                          jobject /* this */, jlong client, jobject call, jobject result) {
-  // Dart から呼んだときにネイティブスレッド外で実行されるので、
-  // ネイティブスレッドで JNIEnv を扱う
   reinterpret_cast<SoraClientWrapper*>(client)->p->Destroy();
 
   // result.success(null);
