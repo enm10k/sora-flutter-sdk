@@ -1,4 +1,4 @@
-sdk_dir = "_setup"
+sdk_dir = "_install"
 
 Pod::Spec.new do |s|
   s.name = 'sora_flutter_sdk'

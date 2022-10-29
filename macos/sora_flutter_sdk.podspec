@@ -3,7 +3,7 @@
 # Run `pod lib lint sora_flutter_sdk.podspec` to validate before publishing.
 #
 
-sdk_dir = "_setup"
+sdk_dir = "_install"
 
 Pod::Spec.new do |s|
   s.name = "sora_flutter_sdk"
