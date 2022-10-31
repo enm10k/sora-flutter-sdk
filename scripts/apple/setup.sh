@@ -17,7 +17,7 @@ SDK_URL=https://github.com/shiguredo/sora-cpp-sdk/releases/download/$SDK_VERSION
 BOOST_URL=https://github.com/shiguredo/sora-cpp-sdk/releases/download/$SDK_VERSION/$BOOST_FILE
 WEBRTC_URL=https://github.com/shiguredo-webrtc-build/webrtc-build/releases/download/$WEBRTC_VERSION/$WEBRTC_FILE
 
-SETUP_DIR=_setup
+SETUP_DIR=_install
 
 
 cd ../../$(dirname $0)/$OS

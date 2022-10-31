@@ -5,7 +5,7 @@ analyzer:
     - build/**
     - example/**
     - src/**
-    - ios/_setup/**
-    - macos/_setup/**
+    - ios/_install/**
+    - macos/_install/**
     - android/_install/**
     - linux/_install/**
