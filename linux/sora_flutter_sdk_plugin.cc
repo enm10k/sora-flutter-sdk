@@ -104,6 +104,21 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     }
 
     it->second->Disconnect();
+    fl_method_call_respond_success(method_call, nullptr, nullptr);
+  } else if (strcmp(method, "destroySoraClient") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    if (args == nullptr) {
+      fl_method_call_respond_error(method_call, "Bad Arguments", "Null constraints arguments received", nullptr, nullptr);
+      return;
+    }
+
+    int client_id = (int)get_as_integer(args, "client_id");
+    auto it = data->clients.find(client_id);
+    if (it == data->clients.end()) {
+      fl_method_call_respond_success(method_call, nullptr, nullptr);
+      return;
+    }
+
     data->clients.erase(it);
     fl_method_call_respond_success(method_call, nullptr, nullptr);
   } else {
