@@ -129,6 +129,21 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     }
 
     it->second->Disconnect();
+    result->Success();
+  } else if (method_call.method_name().compare("destroySoraClient") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
     clients_.erase(it);
     result->Success();
   } else {
