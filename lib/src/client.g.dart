@@ -37,7 +37,7 @@ const _$SoraRoleEnumMap = {
 SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
     SoraClientConfig(
       signalingUrls: (json['signalingUrls'] as List<dynamic>)
-          .map((e) => e as String)
+          .map((e) => Uri.parse(e as String))
           .toList(),
       channelId: json['channelId'] as String,
       role: $enumDecode(_$SoraRoleEnumMap, json['role']),
@@ -91,7 +91,7 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
     <String, dynamic>{
-      'signalingUrls': instance.signalingUrls,
+      'signalingUrls': instance.signalingUrls.map((e) => e.toString()).toList(),
       'channelId': instance.channelId,
       'clientId': instance.clientId,
       'bundleId': instance.bundleId,

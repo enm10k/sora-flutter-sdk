@@ -80,7 +80,8 @@ class SoraClientConfig {
   // SoraSignalingConfig の設定
 
   /// シグナリング URL のリスト
-  List<String> signalingUrls;
+  List<Uri> signalingUrls;
+
   /// チャネル ID
   String channelId;
   String? clientId;
