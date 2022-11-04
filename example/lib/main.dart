@@ -121,8 +121,7 @@ class _MyAppState extends State<MyApp> {
     }
 
     final config = SoraClientConfig(
-      signalingUrls:
-      Environment.urlCandidates.map((e) => e.toString()).toList(),
+      signalingUrls: Environment.urlCandidates,
       channelId: Environment.channelId,
       role: SoraRole.sendrecv,
     );
