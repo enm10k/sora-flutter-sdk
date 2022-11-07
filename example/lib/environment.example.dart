@@ -11,5 +11,5 @@ class Environment {
 
   static const String channelId = 'sora';
 
-  static const dynamic? signalingMetadata = null;
+  static const dynamic signalingMetadata = null;
 }
