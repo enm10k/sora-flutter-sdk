@@ -9,7 +9,7 @@ import 'video_track.dart';
 import 'sdk.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
-// dart run build_runner build
+// flutter pub run build_runner build
 part 'client.g.dart';
 
 /// 接続時のロールを表します。
@@ -80,7 +80,8 @@ class SoraClientConfig {
   // SoraSignalingConfig の設定
 
   /// シグナリング URL のリスト
-  List<String> signalingUrls;
+  List<Uri> signalingUrls;
+
   /// チャネル ID
   String channelId;
   String? clientId;
