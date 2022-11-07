@@ -97,8 +97,8 @@ class SoraClientConfig {
   SoraAudioCodecType? audioCodecType;
   int? videoBitRate;
   int? audioBitRate;
-  Map<String, dynamic>? metadata;
-  Map<String, dynamic>? signalingNotifyMetadata;
+  dynamic metadata;
+  dynamic signalingNotifyMetadata;
   /// ロール
   SoraRole role;
   bool? multistream;
