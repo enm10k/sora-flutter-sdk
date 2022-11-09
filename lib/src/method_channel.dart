@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'dart:convert';
 
-import 'platform_interface.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
 import 'client.dart';
+import 'platform_interface.dart';
 
 /// An implementation of [SoraFlutterSdkPlatform] that uses method channels.
 class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
@@ -17,7 +18,8 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
       'config': json.encode(config.toJson()),
     };
     final resp = await methodChannel.invokeMethod('createSoraClient', req);
-    final client = SoraClient(resp, _connectSoraClient, _disposeSoraClient, _destroySoraClient);
+    final client = SoraClient(
+        resp, _connectSoraClient, _disposeSoraClient, _destroySoraClient);
     return client;
   }
 
@@ -36,6 +38,19 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
   Future<void> _destroySoraClient(SoraClient client) async {
     await methodChannel.invokeMethod('destroySoraClient', {
       'client_id': client.clientId,
+    });
+  }
+
+  @override
+  Future<bool> sendDataChannel({
+    required SoraClient client,
+    required String label,
+    required String data,
+  }) async {
+    return await methodChannel.invokeMethod('sendDataChannel', {
+      'client_id': client.clientId,
+      'label': label,
+      'data': data,
     });
   }
 }
