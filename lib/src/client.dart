@@ -270,4 +270,15 @@ class SoraClient {
     _eventSubscription?.cancel();
     await _disposer(this);
   }
+
+  Future<bool> sendDataChannel({
+    required String label,
+    required String data,
+  }) async {
+    return await SoraFlutterSdk.sendDataChannel(
+      client: this,
+      label: label,
+      data: data,
+    );
+  }
 }

@@ -230,6 +230,10 @@ void SoraClient::Disconnect() {
   });
 }
 
+bool SoraClient::SendDataChannel(std::string label, std::string data) {
+  return conn_->SendDataChannel(label, data);
+}
+
 void SoraClient::OnSetOffer(std::string offer) {
   std::string stream_id = rtc::CreateRandomString(16);
   if (audio_track_ != nullptr) {
