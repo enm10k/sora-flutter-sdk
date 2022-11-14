@@ -166,7 +166,7 @@ SoraClient::~SoraClient() {
 #elif defined(__APPLE__)
   [event_channel_ setStreamHandler: nil];
 #else
-  fl_event_channel_set_stream_handlers(event_channel_.get(), nullptr, nullptr, nullptr);
+  fl_event_channel_set_stream_handlers(event_channel_.get(), nullptr, nullptr, nullptr, nullptr);
 #endif
   io_thread_.reset();
 }
