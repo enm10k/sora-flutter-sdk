@@ -152,7 +152,6 @@ FlutterError *badArgumentsError(NSString *message) {
             return;
         }
         
-        client.client->Destroy();
         [self.clients removeObjectForKey: @(clientId)];
         result(nil);
     } else {

@@ -3,7 +3,7 @@ package jp.shiguredo.sora_flutter_sdk
 import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.EventChannel.EventSink
 
-class EventChannelHandler(private val ptr: Long): StreamHandler {
+class EventChannelHandler(private var ptr: Long): StreamHandler {
   override fun onListen(arguments: Any?, events: EventSink) {
     nativeOnListen(ptr, arguments, events)
   }
@@ -12,4 +12,8 @@ class EventChannelHandler(private val ptr: Long): StreamHandler {
   }
   external fun nativeOnListen(ptr: Long, arguments: Any?, events: EventSink)
   external fun nativeOnCancel(ptr: Long, arguments: Any?)
+
+  fun clear() {
+    ptr = 0
+  }
 }

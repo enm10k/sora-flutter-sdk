@@ -60,10 +60,8 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_createSoraClient(JNIEn
   webrtc::ScopedJavaLocalRef<jclass> bindingcls(env, env->GetObjectClass(binding));
   jmethodID getbin = env->GetMethodID(bindingcls.obj(), "getBinaryMessenger", "()Lio/flutter/plugin/common/BinaryMessenger;");
   jmethodID gettex = env->GetMethodID(bindingcls.obj(), "getTextureRegistry", "()Lio/flutter/view/TextureRegistry;");
-  webrtc::ScopedJavaLocalRef<jobject> messenger(env, env->CallObjectMethod(binding, getbin));
-  webrtc::ScopedJavaLocalRef<jobject> texture_registry(env, env->CallObjectMethod(binding, gettex));
-  config.messenger = messenger;
-  config.texture_registry = texture_registry;
+  config.messenger = env->CallObjectMethod(binding, getbin);
+  config.texture_registry = env->CallObjectMethod(binding, gettex);
   auto client = new SoraClientWrapper();
   client->p = sora::CreateSoraClient<sora_flutter_sdk::SoraClient>(config);
 
@@ -114,7 +112,7 @@ void RunOnMainThread(JNIEnv* env, std::function<void (JNIEnv*)> f);
 extern "C" JNIEXPORT void JNICALL
 Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_destroySoraClient(JNIEnv* env,
                                          jobject /* this */, jlong client, jobject call, jobject result) {
-  reinterpret_cast<SoraClientWrapper*>(client)->p->Destroy();
+  delete reinterpret_cast<SoraClientWrapper*>(client);
 
   // result.success(null);
   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
