@@ -47,8 +47,7 @@ static void sora_flutter_sdk_plugin_handle_method_call(
 
   const gchar* method = fl_method_call_get_name(method_call);
   auto data = (SoraFlutterSdkPluginData*)self->data;
-  printf("handle method call: %s\n", method);
-  std::cout << "handle method call: " << method;
+
   if (strcmp(method, "createSoraClient") == 0) {
     FlValue* args = fl_method_call_get_args(method_call);
     if (args == nullptr) {
