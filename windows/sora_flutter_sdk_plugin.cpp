@@ -147,6 +147,25 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     it->second->Destroy();
     clients_.erase(it);
     result->Success();
+  } else if (method_call.method_name().compare("sendDataChannel") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
+    std::string label = std::get<std::string>(params.at(flutter::EncodableValue("label")));
+    std::string data = std::get<std::string>(params.at(flutter::EncodableValue("data")));
+    bool status = it->second->SendDataChannel(label, data);
+    auto resp = flutter::EncodableValue(status);
+    result->Success(resp);
   } else {
     result->NotImplemented();
   }
