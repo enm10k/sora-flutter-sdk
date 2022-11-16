@@ -103,6 +103,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   webrtc::ScopedJavaGlobalRef<jobject> messenger_;
   webrtc::ScopedJavaGlobalRef<jobject> texture_registry_;
   webrtc::ScopedJavaGlobalRef<jobject> event_channel_;
+  webrtc::ScopedJavaGlobalRef<jobject> event_handler_;
   webrtc::ScopedJavaGlobalRef<jobject> event_sink_;
 #elif defined(_WIN32)
   std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> event_channel_;

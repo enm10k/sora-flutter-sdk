@@ -12,4 +12,8 @@ class EventChannelHandler(private var ptr: Long): StreamHandler {
   }
   external fun nativeOnListen(ptr: Long, arguments: Any?, events: EventSink)
   external fun nativeOnCancel(ptr: Long, arguments: Any?)
+
+  fun clear() {
+    ptr = 0
+  }
 }

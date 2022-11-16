@@ -36,6 +36,9 @@ Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnListen(JNIEnv* 
                                          jlong ptr,
                                          jobject arguments,
                                          jobject events) {
+  if (ptr == 0) {
+    return;
+  }
   ((sora_flutter_sdk::SoraClient*)ptr)->OnListen(env, self, arguments, events);
 }
 extern "C" JNIEXPORT void JNICALL
@@ -43,6 +46,9 @@ Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnCancel(JNIEnv* 
                                          jobject self,
                                          jlong ptr,
                                          jobject arguments) {
+  if (ptr == 0) {
+    return;
+  }
   ((sora_flutter_sdk::SoraClient*)ptr)->OnCancel(env, self, arguments);
 }
 
@@ -71,6 +77,7 @@ void SoraClient::OnListen(JNIEnv* env, jobject self, jobject arguments, jobject 
   event_sink_ = webrtc::ScopedJavaLocalRef<jobject>(env, events);
 }
 void SoraClient::OnCancel(JNIEnv* env, jobject self, jobject arguments) {
+  RTC_LOG(LS_INFO) << "OnCancel: this=" << (void*)this;
   event_sink_ = nullptr;
 }
 #endif
@@ -84,7 +91,7 @@ SoraClient::SoraClient(SoraClientConfig config)
   texture_registry_ = webrtc::JavaParamRef<jobject>(config_.texture_registry);
 
   // event_channel_ = new EventChannel(messenger_, event_channel);
-  // auto handler = new EventChannelHandler(this);
+  // event_handler_ = new EventChannelHandler(this);
   // event_channel_.setStreamHandler(handler);
   webrtc::ScopedJavaLocalRef<jclass> evcls = webrtc::GetClass(env, "io/flutter/plugin/common/EventChannel");
   jmethodID evctorid = env->GetMethodID(evcls.obj(), "<init>", "(Lio/flutter/plugin/common/BinaryMessenger;Ljava/lang/String;)V");
@@ -98,6 +105,7 @@ SoraClient::SoraClient(SoraClientConfig config)
   env->CallVoidMethod(evobj.obj(), set_stream_handler_id, hndobj.obj());
 
   event_channel_ = evobj;
+  event_handler_ = hndobj;
 #elif defined(_WIN32)
   event_channel_.reset(new flutter::EventChannel<flutter::EncodableValue>(
       config_.messenger, config_.event_channel, &flutter::StandardMethodCodec::GetInstance()));
@@ -155,9 +163,16 @@ SoraClient::SoraClient(SoraClientConfig config)
 
 SoraClient::~SoraClient() {
   RTC_LOG(LS_INFO) << "SoraClient dtor";
+  io_thread_.reset();
 #if defined(__ANDROID__)
+  auto env = config_.env;
+
+  // event_handler_.clear();
+  webrtc::ScopedJavaLocalRef<jclass> hndcls(env, env->GetObjectClass(event_handler_.obj()));
+  jmethodID clearid = env->GetMethodID(hndcls.obj(), "clear", "()V");
+  env->CallVoidMethod(event_handler_.obj(), clearid);
+
   // event_channel_.setStreamHandler(null);
-  auto env = webrtc::AttachCurrentThreadIfNeeded();
   webrtc::ScopedJavaLocalRef<jclass> evcls(env, env->GetObjectClass(event_channel_.obj()));
   jmethodID set_stream_handler_id = env->GetMethodID(evcls.obj(), "setStreamHandler", "(Lio/flutter/plugin/common/EventChannel$StreamHandler;)V");
   env->CallVoidMethod(event_channel_.obj(), set_stream_handler_id, NULL);
@@ -168,7 +183,7 @@ SoraClient::~SoraClient() {
 #else
   fl_event_channel_set_stream_handlers(event_channel_.get(), nullptr, nullptr, nullptr, nullptr);
 #endif
-  io_thread_.reset();
+  RTC_LOG(LS_INFO) << "SoraClient dtor completed";
 }
 
 void SoraClient::Connect() {
