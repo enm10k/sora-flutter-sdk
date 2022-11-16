@@ -273,12 +273,25 @@ class SoraClient {
 
   Future<bool> sendDataChannel({
     required String label,
-    required String data,
+    required Object data,
   }) async {
+    if (data is ByteData) {
+      data = data.buffer.asUint8List();
+    }
+    final buf = StringBuffer();
+    if (data is String) {
+      buf.write(data);
+    } else if (data is Uint8List) {
+      for (int n in data) {
+        buf.writeCharCode(n);
+      }
+    } else {
+      throw ArgumentError('data must be String, ByteData or Uint8List');
+    }
     return await SoraFlutterSdk.sendDataChannel(
       client: this,
       label: label,
-      data: data,
+      data: buf.toString(),
     );
   }
 }
