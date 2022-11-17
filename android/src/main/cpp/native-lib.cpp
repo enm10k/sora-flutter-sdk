@@ -124,9 +124,16 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_destroySoraClient(JNIE
 
 extern "C" JNIEXPORT void JNICALL
 Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_sendDataChannel(JNIEnv* env,
-                                         jobject /* this */, jlong client, jstring label, jstring data, jobject call, jobject result) {
+                                         jobject /* this */, jlong client, jstring label, jbyteArray data, jobject call, jobject result) {
   std::string c_label = env->GetStringUTFChars(label, 0);
-  std::string c_data = env->GetStringUTFChars(data, 0);
+
+  jsize data_len = env->GetArrayLength(data);
+  jbyte *data_bytes = env->GetByteArrayElements(data, JNI_FALSE);
+  std::string c_data;
+  for (int i = 0; i < data_len; i++) {
+    c_data.push_back(data_bytes[i]);
+  }
+
   bool resp = reinterpret_cast<SoraClientWrapper*>(client)->p->SendDataChannel(c_label, c_data);
 
   // b = Boolean(resp);
