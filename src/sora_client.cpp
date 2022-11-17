@@ -18,11 +18,15 @@
 #import <sdk/objc/components/audio/RTCAudioSessionConfiguration.h>
 #endif
 
-#include "sora/audio_device_module.h"
-#include "sora/camera_device_capturer.h"
-#include "sora/java_context.h"
-#include "sora/sora_video_decoder_factory.h"
-#include "sora/sora_video_encoder_factory.h"
+#include <sora/audio_device_module.h>
+#include <sora/camera_device_capturer.h>
+#include <sora/java_context.h>
+#include <sora/sora_video_decoder_factory.h>
+#include <sora/sora_video_encoder_factory.h>
+
+#if defined(__ANDROID__)
+#include <sora/android/android_capturer.h>
+#endif
 
 #if defined(__ANDROID__)
 
@@ -32,6 +36,9 @@ Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnListen(JNIEnv* 
                                          jlong ptr,
                                          jobject arguments,
                                          jobject events) {
+  if (ptr == 0) {
+    return;
+  }
   ((sora_flutter_sdk::SoraClient*)ptr)->OnListen(env, self, arguments, events);
 }
 extern "C" JNIEXPORT void JNICALL
@@ -39,6 +46,9 @@ Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnCancel(JNIEnv* 
                                          jobject self,
                                          jlong ptr,
                                          jobject arguments) {
+  if (ptr == 0) {
+    return;
+  }
   ((sora_flutter_sdk::SoraClient*)ptr)->OnCancel(env, self, arguments);
 }
 
@@ -67,6 +77,7 @@ void SoraClient::OnListen(JNIEnv* env, jobject self, jobject arguments, jobject 
   event_sink_ = webrtc::ScopedJavaLocalRef<jobject>(env, events);
 }
 void SoraClient::OnCancel(JNIEnv* env, jobject self, jobject arguments) {
+  RTC_LOG(LS_INFO) << "OnCancel: this=" << (void*)this;
   event_sink_ = nullptr;
 }
 #endif
@@ -74,13 +85,14 @@ void SoraClient::OnCancel(JNIEnv* env, jobject self, jobject arguments) {
 SoraClient::SoraClient(SoraClientConfig config)
     : sora::SoraDefaultClient(config), config_(config) {
 #if defined(__ANDROID__)
-  messenger_ = config_.messenger;
-  texture_registry_ = config_.texture_registry;
+  auto env = config_.env;
+
+  messenger_ = webrtc::JavaParamRef<jobject>(config_.messenger);
+  texture_registry_ = webrtc::JavaParamRef<jobject>(config_.texture_registry);
 
   // event_channel_ = new EventChannel(messenger_, event_channel);
-  // auto handler = new EventChannelHandler(this);
+  // event_handler_ = new EventChannelHandler(this);
   // event_channel_.setStreamHandler(handler);
-  auto env = config_.env;
   webrtc::ScopedJavaLocalRef<jclass> evcls = webrtc::GetClass(env, "io/flutter/plugin/common/EventChannel");
   jmethodID evctorid = env->GetMethodID(evcls.obj(), "<init>", "(Lio/flutter/plugin/common/BinaryMessenger;Ljava/lang/String;)V");
   webrtc::ScopedJavaLocalRef<jobject> evobj(env, env->NewObject(evcls.obj(), evctorid, messenger_.obj(), env->NewStringUTF(config_.event_channel.c_str())));
@@ -93,23 +105,26 @@ SoraClient::SoraClient(SoraClientConfig config)
   env->CallVoidMethod(evobj.obj(), set_stream_handler_id, hndobj.obj());
 
   event_channel_ = evobj;
+  event_handler_ = hndobj;
 #elif defined(_WIN32)
   event_channel_.reset(new flutter::EventChannel<flutter::EncodableValue>(
       config_.messenger, config_.event_channel, &flutter::StandardMethodCodec::GetInstance()));
 
   auto handler = std::make_unique<flutter::StreamHandlerFunctions<flutter::EncodableValue>>(
-		  [this](
-			  const flutter::EncodableValue* arguments,
-			  std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
-		  -> std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> {
-	  event_sink_ = std::move(events);
-	  return nullptr;
-  },
-		  [this](const flutter::EncodableValue* arguments)
-	  -> std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> {
-	  event_sink_ = nullptr;
-	  return nullptr;
-  });
+    [this](
+        const flutter::EncodableValue* arguments,
+        std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events
+    ) -> std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> {
+      RTC_LOG(LS_INFO) << "WindowsEventHandler OnListen";
+      event_sink_ = std::move(events);
+      return nullptr;
+    },
+    [this](const flutter::EncodableValue* arguments)
+      -> std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> {
+      RTC_LOG(LS_INFO) << "WindowsEventHandler OnCancel";
+      event_sink_ = nullptr;
+      return nullptr;
+    });
 
   event_channel_->SetStreamHandler(std::move(handler));
 #elif defined(__APPLE__)
@@ -142,15 +157,38 @@ SoraClient::SoraClient(SoraClientConfig config)
   event_channel_.reset(channel, [](FlEventChannel* p) { g_object_unref(p); });
   channel = nullptr;
 #endif
+
+  ioc_.reset(new boost::asio::io_context(1));
 }
 
 SoraClient::~SoraClient() {
   RTC_LOG(LS_INFO) << "SoraClient dtor";
-  ioc_.reset();
-  video_track_ = nullptr;
-  audio_track_ = nullptr;
-  video_source_ = nullptr;
+}
+
+void SoraClient::Destroy() {
+  RTC_LOG(LS_INFO) << "SoraClient::Destroy";
+
   io_thread_.reset();
+
+#if defined(__ANDROID__)
+  auto env = config_.env;
+
+  // event_handler_.clear();
+  webrtc::ScopedJavaLocalRef<jclass> hndcls(env, env->GetObjectClass(event_handler_.obj()));
+  jmethodID clearid = env->GetMethodID(hndcls.obj(), "clear", "()V");
+  env->CallVoidMethod(event_handler_.obj(), clearid);
+
+  // event_channel_.setStreamHandler(null);
+  webrtc::ScopedJavaLocalRef<jclass> evcls(env, env->GetObjectClass(event_channel_.obj()));
+  jmethodID set_stream_handler_id = env->GetMethodID(evcls.obj(), "setStreamHandler", "(Lio/flutter/plugin/common/EventChannel$StreamHandler;)V");
+  env->CallVoidMethod(event_channel_.obj(), set_stream_handler_id, NULL);
+#elif defined(_WIN32)
+  event_channel_->SetStreamHandler(nullptr);
+#elif defined(__APPLE__)
+  [event_channel_ setStreamHandler: nil];
+#else
+  fl_event_channel_set_stream_handlers(event_channel_.get(), nullptr, nullptr, nullptr, nullptr);
+#endif
 }
 
 void SoraClient::Connect() {
@@ -202,8 +240,6 @@ void SoraClient::DoConnect() {
       factory()->CreateAudioSource(cricket::AudioOptions()).get());
   video_track_ =
       factory()->CreateVideoTrack(video_track_id, video_source_.get());
-
-  ioc_.reset(new boost::asio::io_context(1));
 
   sora::SoraSignalingConfig config = config_.signaling_config;
   config.pc_factory = factory();
@@ -264,6 +300,14 @@ void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
                              std::string message) {
   RTC_LOG(LS_INFO) << "OnDisconnect: " << message;
   ioc_->stop();
+
+#if defined(__ANDROID__)
+  static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
+#endif
+  video_source_ = nullptr;
+  renderer_ = nullptr;
+  video_track_ = nullptr;
+  audio_track_ = nullptr;
 
   boost::json::object obj;
   obj["event"] = "Disconnect";
@@ -347,6 +391,7 @@ void SoraClient::OnDataChannel(std::string label) {
 
 void SoraClient::SendEvent(const boost::json::value& v) {
   std::string json = boost::json::serialize(v);
+  RTC_LOG(LS_INFO) << "SendEvent: event=" << v.at("event").as_string() << " json=" << json;
 #if defined(__ANDROID__)
   if (!event_sink_.is_null()) {
     auto env = io_env_;

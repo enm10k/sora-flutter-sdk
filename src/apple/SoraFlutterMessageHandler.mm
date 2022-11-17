@@ -133,6 +133,26 @@ FlutterError *badArgumentsError(NSString *message) {
         }
 
         client.client->Disconnect();
+        result(nil);
+
+    } else if ([call.method isEqualToString: @"destroySoraClient"]) {
+        if (call.arguments == NULL) {
+            result(nullArgumentsError());
+            return;
+        } else if (![call.arguments isKindOfClass: [NSDictionary class]]) {
+            result(invalidArgumentsError());
+            return;
+        }
+
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
+        int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
+        SoraClientWrapper *client = self.clients[@(clientId)];
+        if (client == nil) {
+            result(badArgumentsError(@"Client Not Found"));
+            return;
+        }
+        
+        client.client->Destroy();
         [self.clients removeObjectForKey: @(clientId)];
         result(nil);
     } else {

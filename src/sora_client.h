@@ -37,8 +37,8 @@ struct SoraClientConfig : sora::SoraDefaultClientConfig {
   std::string event_channel;
 #if defined(__ANDROID__)
   JNIEnv* env;
-  webrtc::ScopedJavaLocalRef<jobject> messenger;
-  webrtc::ScopedJavaLocalRef<jobject> texture_registry;
+  jobject messenger;
+  jobject texture_registry;
 #elif defined(_WIN32)
   flutter::BinaryMessenger *messenger;
   flutter::TextureRegistrar *texture_registrar;
@@ -56,6 +56,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
  public:
   SoraClient(SoraClientConfig config);
   virtual ~SoraClient();
+  void Destroy();
 
   void Connect();
   void Disconnect();
@@ -95,13 +96,14 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   std::unique_ptr<rtc::Thread> io_thread_;
 
   std::unique_ptr<SoraRenderer> renderer_;
-   std::map<int64_t, std::string> connection_ids_;
+  std::map<int64_t, std::string> connection_ids_;
 
 #if defined(__ANDROID__)
   JNIEnv* io_env_;
   webrtc::ScopedJavaGlobalRef<jobject> messenger_;
   webrtc::ScopedJavaGlobalRef<jobject> texture_registry_;
   webrtc::ScopedJavaGlobalRef<jobject> event_channel_;
+  webrtc::ScopedJavaGlobalRef<jobject> event_handler_;
   webrtc::ScopedJavaGlobalRef<jobject> event_sink_;
 #elif defined(_WIN32)
   std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> event_channel_;

@@ -17,7 +17,7 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
       'config': json.encode(config.toJson()),
     };
     final resp = await methodChannel.invokeMethod('createSoraClient', req);
-    final client = SoraClient(resp, _connectSoraClient, _disposeSoraClient);
+    final client = SoraClient(resp, _connectSoraClient, _disposeSoraClient, _destroySoraClient);
     return client;
   }
 
@@ -29,6 +29,12 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
 
   Future<void> _disposeSoraClient(SoraClient client) async {
     await methodChannel.invokeMethod('disposeSoraClient', {
+      'client_id': client.clientId,
+    });
+  }
+
+  Future<void> _destroySoraClient(SoraClient client) async {
+    await methodChannel.invokeMethod('destroySoraClient', {
       'client_id': client.clientId,
     });
   }
