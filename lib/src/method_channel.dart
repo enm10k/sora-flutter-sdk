@@ -45,7 +45,7 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
   Future<bool> sendDataChannel({
     required SoraClient client,
     required String label,
-    required String data,
+    required Uint8List data,
   }) async {
     return await methodChannel.invokeMethod('sendDataChannel', {
       'client_id': client.clientId,
