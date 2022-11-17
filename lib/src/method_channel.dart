@@ -1,9 +1,10 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'dart:convert';
 
-import 'platform_interface.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
 import 'client.dart';
+import 'platform_interface.dart';
 
 /// An implementation of [SoraFlutterSdkPlatform] that uses method channels.
 class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
@@ -37,7 +38,7 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
   Future<bool> sendDataChannel({
     required SoraClient client,
     required String label,
-    required String data,
+    required Uint8List data,
   }) async {
     return await methodChannel.invokeMethod('sendDataChannel', {
       'client_id': client.clientId,
