@@ -174,7 +174,14 @@ FlutterError *badArgumentsError(NSString *message) {
         }
 
         std::string label = [SoraUtils stdString: arguments forKey: @"label"];
-        std::string data = [SoraUtils stdString: arguments forKey: @"data"];
+
+        FlutterStandardTypedData *flData = (FlutterStandardTypedData *)arguments[@"data"];
+        std::string data;
+        const uint8_t *bytes = (const uint8_t *)flData.data.bytes;
+        for (int i = 0; i < flData.data.length; i++) {
+            data.push_back(bytes[i]);
+        }
+
         bool resp = client.client->SendDataChannel(label, data);
         result(@(resp));
     } else {
