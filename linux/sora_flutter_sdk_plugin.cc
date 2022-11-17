@@ -119,6 +119,7 @@ static void sora_flutter_sdk_plugin_handle_method_call(
       return;
     }
 
+    it->second->Destroy();
     data->clients.erase(it);
     fl_method_call_respond_success(method_call, nullptr, nullptr);
   } else {

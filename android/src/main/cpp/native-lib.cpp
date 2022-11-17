@@ -112,7 +112,9 @@ void RunOnMainThread(JNIEnv* env, std::function<void (JNIEnv*)> f);
 extern "C" JNIEXPORT void JNICALL
 Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_destroySoraClient(JNIEnv* env,
                                          jobject /* this */, jlong client, jobject call, jobject result) {
-  delete reinterpret_cast<SoraClientWrapper*>(client);
+  auto wrapper = reinterpret_cast<SoraClientWrapper*>(client);
+  wrapper->p->Destroy();
+  delete wrapper;
 
   // result.success(null);
   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));

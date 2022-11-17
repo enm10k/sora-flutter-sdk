@@ -163,7 +163,13 @@ SoraClient::SoraClient(SoraClientConfig config)
 
 SoraClient::~SoraClient() {
   RTC_LOG(LS_INFO) << "SoraClient dtor";
+}
+
+void SoraClient::Destroy() {
+  RTC_LOG(LS_INFO) << "SoraClient::Destroy";
+
   io_thread_.reset();
+
 #if defined(__ANDROID__)
   auto env = config_.env;
 
@@ -183,7 +189,6 @@ SoraClient::~SoraClient() {
 #else
   fl_event_channel_set_stream_handlers(event_channel_.get(), nullptr, nullptr, nullptr, nullptr);
 #endif
-  RTC_LOG(LS_INFO) << "SoraClient dtor completed";
 }
 
 void SoraClient::Connect() {

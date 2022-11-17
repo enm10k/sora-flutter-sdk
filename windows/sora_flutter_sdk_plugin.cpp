@@ -144,6 +144,7 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
       return;
     }
 
+    it->second->Destroy();
     clients_.erase(it);
     result->Success();
   } else {
