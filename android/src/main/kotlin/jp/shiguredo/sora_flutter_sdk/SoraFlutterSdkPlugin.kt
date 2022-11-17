@@ -82,7 +82,7 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
       var clientId = call.argument<Int>("client_id");
       var client = clients[clientId]
       var label = call.argument<String>("label")!!;
-      var data = call.argument<String>("data")!!;
+      var data = call.argument<ByteArray>("data")!!;
       sendDataChannel(client!!, label, data, call, result)
     } else {
       result.notImplemented()
@@ -103,7 +103,7 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
   external fun createSoraClient(binding: FlutterPlugin.FlutterPluginBinding, clientId: Int, call: MethodCall, result: Result): Long
   external fun connectSoraClient(client: Long, call: MethodCall, result: Result)
   external fun disposeSoraClient(client: Long, call: MethodCall, result: Result)
-  external fun sendDataChannel(client: Long, label: String, data: String, call: MethodCall, result: Result)
+  external fun sendDataChannel(client: Long, label: String, data: ByteArray, call: MethodCall, result: Result)
 
   // ActivityAware
   override fun onDetachedFromActivity() {
