@@ -8,6 +8,7 @@
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+#include <stdint.h>
 
 #include <memory>
 #include <sstream>
@@ -146,7 +147,8 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     }
 
     std::string label = std::get<std::string>(params.at(flutter::EncodableValue("label")));
-    std::string data = std::get<std::string>(params.at(flutter::EncodableValue("data")));
+    std::vector<uint8_t> data_bytes = std::get<std::vector<uint8_t>>(params.at(flutter::EncodableValue("data")));
+    std::string data(data_bytes.begin(), data_bytes.end());
     bool status = it->second->SendDataChannel(label, data);
     auto resp = flutter::EncodableValue(status);
     result->Success(resp);
