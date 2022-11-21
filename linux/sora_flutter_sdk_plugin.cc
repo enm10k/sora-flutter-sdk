@@ -138,7 +138,11 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     }
 
     std::string label = get_as_string(args, "label");
-    std::string data = get_as_string(args, "data");
+    FlValue* fl_data = fl_value_lookup_string(args, "data");
+    const uint8_t* data_bytes = fl_value_get_uint8_list(fl_data);
+    size_t data_len = fl_value_get_length(fl_data);
+    std::vector<uint8_t> data_vec(data_bytes, data_bytes + data_len);
+    std::string data(data_vec.begin(), data_vec.end());
     bool status = it->second->SendDataChannel(label, data);
     g_autoptr(FlValue) resp = fl_value_new_bool(status);
 
