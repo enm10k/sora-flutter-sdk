@@ -48,6 +48,20 @@ enum SoraAudioCodecType {
   opus,
 }
 
+enum SoraSimulcastRid {
+  /// rid0
+  @JsonValue("r0")
+  r0,
+
+  /// rid1
+  @JsonValue("r1")
+  r1,
+
+  /// rid2
+  @JsonValue("r2")
+  r2,
+}
+
 @JsonSerializable()
 class SoraDataChannel {
   SoraDataChannel({
@@ -107,7 +121,7 @@ class SoraClientConfig {
   String? spotlightFocusRid;
   String? spotlightUnfocusRid;
   bool? simulcast;
-  String? simulcastRid;
+  SoraSimulcastRid? simulcastRid;
   bool? dataChannelSignaling;
   int? dataChannelSignalingTimeout;
   bool? ignoreDisconnectWebsocket;

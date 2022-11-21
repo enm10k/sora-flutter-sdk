@@ -62,7 +62,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
       ..spotlightFocusRid = json['spotlightFocusRid'] as String?
       ..spotlightUnfocusRid = json['spotlightUnfocusRid'] as String?
       ..simulcast = json['simulcast'] as bool?
-      ..simulcastRid = json['simulcastRid'] as String?
+      ..simulcastRid =
+          $enumDecodeNullable(_$SoraSimulcastRidEnumMap, json['simulcastRid'])
       ..dataChannelSignaling = json['dataChannelSignaling'] as bool?
       ..dataChannelSignalingTimeout =
           json['dataChannelSignalingTimeout'] as int?
@@ -111,7 +112,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
       'spotlightFocusRid': instance.spotlightFocusRid,
       'spotlightUnfocusRid': instance.spotlightUnfocusRid,
       'simulcast': instance.simulcast,
-      'simulcastRid': instance.simulcastRid,
+      'simulcastRid': _$SoraSimulcastRidEnumMap[instance.simulcastRid],
       'dataChannelSignaling': instance.dataChannelSignaling,
       'dataChannelSignalingTimeout': instance.dataChannelSignalingTimeout,
       'ignoreDisconnectWebsocket': instance.ignoreDisconnectWebsocket,
@@ -145,4 +146,10 @@ const _$SoraVideoCodecTypeEnumMap = {
 
 const _$SoraAudioCodecTypeEnumMap = {
   SoraAudioCodecType.opus: 'OPUS',
+};
+
+const _$SoraSimulcastRidEnumMap = {
+  SoraSimulcastRid.r0: 'r0',
+  SoraSimulcastRid.r1: 'r1',
+  SoraSimulcastRid.r2: 'r2',
 };
