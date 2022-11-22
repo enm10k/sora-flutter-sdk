@@ -1,7 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'method_channel.dart';
 import 'client.dart';
+import 'method_channel.dart';
 
 abstract class SoraFlutterSdkPlatform extends PlatformInterface {
   /// Constructs a SoraFlutterSdkPlatform.
@@ -26,5 +28,13 @@ abstract class SoraFlutterSdkPlatform extends PlatformInterface {
 
   Future<SoraClient> createSoraClient(SoraClientConfig config) {
     throw UnimplementedError('createSoraClient() has not been implemented.');
+  }
+
+  Future<bool> sendDataChannel({
+    required SoraClient client,
+    required String label,
+    required Uint8List data,
+  }) async {
+    throw UnimplementedError('sendDataChannel() has not been implemented.');
   }
 }

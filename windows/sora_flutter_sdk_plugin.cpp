@@ -8,6 +8,7 @@
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
 #include <flutter/standard_method_codec.h>
+#include <stdint.h>
 
 #include <memory>
 #include <sstream>
@@ -147,6 +148,26 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     it->second->Destroy();
     clients_.erase(it);
     result->Success();
+  } else if (method_call.method_name().compare("sendDataChannel") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
+    std::string label = std::get<std::string>(params.at(flutter::EncodableValue("label")));
+    std::vector<uint8_t> data_bytes = std::get<std::vector<uint8_t>>(params.at(flutter::EncodableValue("data")));
+    std::string data(data_bytes.begin(), data_bytes.end());
+    bool status = it->second->SendDataChannel(label, data);
+    auto resp = flutter::EncodableValue(status);
+    result->Success(resp);
   } else {
     result->NotImplemented();
   }

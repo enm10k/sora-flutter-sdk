@@ -155,6 +155,35 @@ FlutterError *badArgumentsError(NSString *message) {
         client.client->Destroy();
         [self.clients removeObjectForKey: @(clientId)];
         result(nil);
+
+    } else if ([call.method isEqualToString: @"sendDataChannel"]) {
+        if (call.arguments == NULL) {
+            result(nullArgumentsError());
+            return;
+        } else if (![call.arguments isKindOfClass: [NSDictionary class]]) {
+            result(invalidArgumentsError());
+            return;
+        }
+
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
+        int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
+        SoraClientWrapper *client = self.clients[@(clientId)];
+        if (client == nil) {
+            result(badArgumentsError(@"Client Not Found"));
+            return;
+        }
+
+        std::string label = [SoraUtils stdString: arguments forKey: @"label"];
+
+        FlutterStandardTypedData *flData = (FlutterStandardTypedData *)arguments[@"data"];
+        std::string data;
+        const uint8_t *bytes = (const uint8_t *)flData.data.bytes;
+        for (int i = 0; i < flData.data.length; i++) {
+            data.push_back(bytes[i]);
+        }
+
+        bool resp = client.client->SendDataChannel(label, data);
+        result(@(resp));
     } else {
         result(FlutterMethodNotImplemented);
     }

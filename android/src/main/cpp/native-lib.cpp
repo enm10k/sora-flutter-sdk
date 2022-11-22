@@ -121,3 +121,27 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_destroySoraClient(JNIE
   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
   env->CallVoidMethod(result, successid, nullptr);
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_sendDataChannel(JNIEnv* env,
+                                         jobject /* this */, jlong client, jstring label, jbyteArray data, jobject call, jobject result) {
+  std::string c_label = env->GetStringUTFChars(label, 0);
+
+  jsize data_len = env->GetArrayLength(data);
+  jbyte *data_bytes = env->GetByteArrayElements(data, JNI_FALSE);
+  std::string c_data;
+  for (int i = 0; i < data_len; i++) {
+    c_data.push_back(data_bytes[i]);
+  }
+
+  bool resp = reinterpret_cast<SoraClientWrapper*>(client)->p->SendDataChannel(c_label, c_data);
+
+  // b = Boolean(resp);
+  // result.success(b);
+  webrtc::ScopedJavaLocalRef<jclass> boolcls = webrtc::GetClass(env, "java/lang/Boolean");
+  jmethodID ctorid = env->GetMethodID(boolcls.obj(), "<init>", "(Z)V");
+  webrtc::ScopedJavaLocalRef<jobject> boolobj(env, env->NewObject(boolcls.obj(), ctorid, resp));
+  webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
+  jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
+  env->CallVoidMethod(result, successid, boolobj.obj());
+}

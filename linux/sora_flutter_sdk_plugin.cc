@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <string>
+#include <iostream>
 
 #include "sora_client.h"
 #include "config_reader.h"
@@ -122,6 +123,30 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     it->second->Destroy();
     data->clients.erase(it);
     fl_method_call_respond_success(method_call, nullptr, nullptr);
+  } else if (strcmp(method, "sendDataChannel") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    if (args == nullptr) {
+      fl_method_call_respond_error(method_call, "Bad Arguments", "Null constraints arguments received", nullptr, nullptr);
+      return;
+    }
+
+    int client_id = (int)get_as_integer(args, "client_id");
+    auto it = data->clients.find(client_id);
+    if (it == data->clients.end()) {
+      fl_method_call_respond_success(method_call, nullptr, nullptr);
+      return;
+    }
+
+    std::string label = get_as_string(args, "label");
+    FlValue* fl_data = fl_value_lookup_string(args, "data");
+    const uint8_t* data_bytes = fl_value_get_uint8_list(fl_data);
+    size_t data_len = fl_value_get_length(fl_data);
+    std::vector<uint8_t> data_vec(data_bytes, data_bytes + data_len);
+    std::string data(data_vec.begin(), data_vec.end());
+    bool status = it->second->SendDataChannel(label, data);
+    g_autoptr(FlValue) resp = fl_value_new_bool(status);
+
+    fl_method_call_respond_success(method_call, resp, nullptr);
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
     fl_method_call_respond(method_call, response, nullptr);
