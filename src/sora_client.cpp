@@ -245,8 +245,8 @@ void SoraClient::DoConnect() {
   config.pc_factory = factory();
   config.io_context = ioc_.get();
   config.observer = shared_from_this();
-  config.network_manager = signaling_thread()->Invoke<rtc::NetworkManager*>(RTC_FROM_HERE, [this]() { return connection_context()->default_network_manager(); });
-  config.socket_factory = signaling_thread()->Invoke<rtc::PacketSocketFactory*>(RTC_FROM_HERE, [this]() { return connection_context()->default_socket_factory(); });
+  config.network_manager = signaling_thread()->BlockingCall([this]() { return connection_context()->default_network_manager(); });
+  config.socket_factory = signaling_thread()->BlockingCall([this]() { return connection_context()->default_socket_factory(); });
   conn_ = sora::SoraSignaling::Create(config);
 
   boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
