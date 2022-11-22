@@ -43,23 +43,40 @@ enum SoraVideoCodecType {
   h265,
 }
 
+/// 音声コーデックを表します。
 enum SoraAudioCodecType {
   @JsonValue("OPUS")
   opus,
 }
 
+/// DataChannel の設定です。
 @JsonSerializable()
 class SoraDataChannel {
+  /// オブジェクトを生成します。
   SoraDataChannel({
     required this.label,
     required this.direction,
   });
+
+  /// メッセージのラベル
   String label;
+
+  /// メッセージの方向
   SoraRole direction;
+
+  /// 順序保証
   bool? ordered;
+
+  /// 最大再送時間
   int? maxPacketLifeTime;
+
+  /// 最大再送回数
   int? maxRetransmits;
+
+  /// プロトコル
   String? protocol;
+
+  /// メッセージの圧縮の可否
   bool? compress;
 
   factory SoraDataChannel.fromJson(Map<String, dynamic> json) =>
@@ -84,29 +101,65 @@ class SoraClientConfig {
 
   /// チャネル ID
   String channelId;
+
+  /// クライアント ID
   String? clientId;
+
+  /// バンドル ID
   String? bundleId;
 
+  /// クライアント名
   String soraClient = "Sora Flutter SDK";
 
+  /// 証明書の検証の可否。 true を指定すると検証を行いません。
   bool? insecure;
+
+  /// 映像の可否
   bool? video;
+
+  /// 音声の可否
   bool? audio;
+
   /// 映像コーデック
   SoraVideoCodecType? videoCodecType;
+
+  /// 音声コーデック
   SoraAudioCodecType? audioCodecType;
+
+  /// 映像ビットレート
   int? videoBitRate;
+
+  /// 音声ビットレート
   int? audioBitRate;
+
+  /// メタデータ
   dynamic metadata;
+
+  /// type: notify で指定するメタデータ
   dynamic signalingNotifyMetadata;
+
   /// ロール
   SoraRole role;
+
+  /// マルチストリームの可否
   bool? multistream;
+
+  /// スポットライト機能の可否
   bool? spotlight;
+
+  /// スポットライト数
   int? spotlightNumber;
+
+  ///スポットライト機能の利用時にフォーカスする rid
   String? spotlightFocusRid;
+
+  ///スポットライト機能の利用時にフォーカスしない rid
   String? spotlightUnfocusRid;
+
+  /// サイマルキャスト機能の可否
   bool? simulcast;
+
+  /// サイマルキャスト機能の利用時の rid
   String? simulcastRid;
   bool? dataChannelSignaling;
   int? dataChannelSignalingTimeout;
