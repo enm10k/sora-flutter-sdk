@@ -62,6 +62,24 @@ enum SoraSimulcastRid {
   r2,
 }
 
+enum SoraSpotlightRid {
+  /// none
+  @JsonValue("none")
+  none,
+
+  /// rid0
+  @JsonValue("r0")
+  r0,
+
+  /// rid1
+  @JsonValue("r1")
+  r1,
+
+  /// rid2
+  @JsonValue("r2")
+  r2,
+}
+
 @JsonSerializable()
 class SoraDataChannel {
   SoraDataChannel({
@@ -118,8 +136,8 @@ class SoraClientConfig {
   bool? multistream;
   bool? spotlight;
   int? spotlightNumber;
-  String? spotlightFocusRid;
-  String? spotlightUnfocusRid;
+  SoraSpotlightRid? spotlightFocusRid;
+  SoraSpotlightRid? spotlightUnfocusRid;
   bool? simulcast;
   SoraSimulcastRid? simulcastRid;
   bool? dataChannelSignaling;
