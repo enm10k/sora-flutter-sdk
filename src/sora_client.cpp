@@ -348,7 +348,11 @@ void SoraClient::OnMessage(std::string label, std::string data) {
   boost::json::object obj;
   obj["event"] = "Message";
   obj["label"] = label;
-  obj["data"] = data;
+  boost::json::array bytes;
+  for (int i = 0; i < data.length(); i++) {
+    bytes.push_back(data[i]);
+  }
+  obj["data"] = bytes;
   SendEvent(obj);
 }
 
