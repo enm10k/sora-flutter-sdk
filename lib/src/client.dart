@@ -245,28 +245,28 @@ class SoraClient {
   int clientId = 0;
 
   /// type: offer の受信時に呼ばれるコールバック
-  void Function(String)? onSetOffer;
+  void Function(String sdp)? onSetOffer;
 
   /// 切断時に呼ばれるコールバック
-  void Function(String, String)? onDisconnect;
+  void Function(String errorCode, String message)? onDisconnect;
 
   /// type: notify の受信時に呼ばれるコールバック
-  void Function(String)? onNotify;
+  void Function(String text)? onNotify;
 
   /// プッシュ通知の受信時に呼ばれるコールバック
-  void Function(String)? onPush;
+  void Function(String text)? onPush;
 
   /// DataChannel メッセージの受信時に呼ばれるコールバック
-  void Function(String, String)? onMessage;
+  void Function(String label, String data)? onMessage;
 
   /// 映像トラックが追加されたときに呼ばれるコールバック
-  void Function(SoraVideoTrack)? onAddTrack;
+  void Function(SoraVideoTrack track)? onAddTrack;
 
   /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
-  void Function(SoraVideoTrack)? onRemoveTrack;
+  void Function(SoraVideoTrack track)? onRemoveTrack;
 
   /// DataChannel の確立時に呼ばれるコールバック
-  void Function(String)? onDataChannel;
+  void Function(String label)? onDataChannel;
 
   /// 映像トラックのリスト
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
