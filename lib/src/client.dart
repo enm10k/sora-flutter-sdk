@@ -161,34 +161,67 @@ class SoraClientConfig {
 
   /// サイマルキャスト機能の利用時の rid
   String? simulcastRid;
+
+  /// DataChannel 経由のシグナリング
   bool? dataChannelSignaling;
+
+  /// DataChannel 経由のシグナリング切断までのタイムアウト時間
   int? dataChannelSignalingTimeout;
+
+  /// WebSocket が閉じても接続の切断とみなさずに無視する
   bool? ignoreDisconnectWebsocket;
+
+  /// 切断までのタイムアウト時間
   int? disconnectWaitTimeout;
+
+  /// DataChannel の設定
   List<SoraDataChannel>? dataChannels;
 
+  /// クライアント証明書ファイル名
   String? clientCert;
+
+  /// クライアント証明書の秘密鍵ファイル名
   String? clientKey;
 
+  /// WebSocket が閉じるまでのタイムアウト時間
   int? websocketCloseTimeout;
+
+  /// WebSocket 切断までのタイムアウト時間
   int? websocketConnectionTimeout;
 
+  /// HTTP プロキシサーバーの URL
   String? proxyUrl;
+
+  /// HTTP プロキシのユーザー名
   String? proxyUsername;
+
+  /// HTTP プロキシのパスワード
   String? proxyPassword;
+
+  /// HTTP プロキシのエージェント
   String? proxyAgent;
 
+  /// シグナリング URL リストのランダムな並び替えの可否。
+  /// `true` を指定すると、 [signalingUrls] の順に接続します。
+  /// `false` を指定すると、ランダムな順序で接続します。
   bool? disableSignalingUrlRandomization;
 
-  // SoraClientConfig の設定
-
+  /// 音声デバイスの利用の可否
   bool? useAudioDeivce;
+
+  /// ハードウェアエンコーダーの使用の可否
   bool? useHardwareEncoder;
+
+  /// 利用する映像デバイス名
   String? videoDeviceName;
-  /// 送信する映像の横幅
+
+  /// 映像デバイスの横幅
   int? videoDeviceWidth;
-  /// 送信する映像の縦幅
+
+  /// 映像デバイスの縦幅
   int? videoDeviceHeight;
+
+  /// 映像デバイスのフレームレート
   int? videoDeviceFps;
 
   factory SoraClientConfig.fromJson(Map<String, dynamic> json) =>
@@ -210,16 +243,31 @@ class SoraClient {
 
   /// クライアント ID
   int clientId = 0;
+
+  /// type: offer の受信時に呼ばれるコールバック
   void Function(String)? onSetOffer;
+
+  /// 切断時に呼ばれるコールバック
   void Function(String, String)? onDisconnect;
+
+  /// type: notify の受信時に呼ばれるコールバック
   void Function(String)? onNotify;
+
+  /// プッシュ通知の受信時に呼ばれるコールバック
   void Function(String)? onPush;
+
+  /// DataChannel メッセージの受信時に呼ばれるコールバック
   void Function(String, String)? onMessage;
+
   /// 映像トラックが追加されたときに呼ばれるコールバック
   void Function(SoraVideoTrack)? onAddTrack;
+
   /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
   void Function(SoraVideoTrack)? onRemoveTrack;
+
+  /// DataChannel の確立時に呼ばれるコールバック
   void Function(String)? onDataChannel;
+
   /// 映像トラックのリスト
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
 
