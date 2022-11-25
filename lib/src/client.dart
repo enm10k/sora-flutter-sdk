@@ -161,7 +161,7 @@ class SoraClient {
   void Function(String, String)? onDisconnect;
   void Function(String)? onNotify;
   void Function(String)? onPush;
-  void Function(String, String)? onMessage;
+  void Function(String label, Uint8List data)? onMessage;
   /// 映像トラックが追加されたときに呼ばれるコールバック
   void Function(SoraVideoTrack)? onAddTrack;
   /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
@@ -219,7 +219,8 @@ class SoraClient {
         break;
       case 'Message':
         String label = js['label'];
-        String data = js['data'];
+        List<dynamic> rawData = js['data'];
+        final data = Uint8List.fromList(rawData.cast<int>());
         if (onMessage != null) {
           onMessage!(label, data);
         }
