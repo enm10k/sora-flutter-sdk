@@ -1,0 +1,3 @@
+-keep class io.flutter.** { *; }
+-keep class org.webrtc.** { *; }
+-keep class jp.shiguredo.** { *; }
