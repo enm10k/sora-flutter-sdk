@@ -176,9 +176,13 @@ class SoraClientConfig {
   List<SoraDataChannel>? dataChannels;
 
   /// クライアント証明書ファイル名
+  ///
+  /// このプロパティは Linux でのみ有効です。
   String? clientCert;
 
   /// クライアント証明書の秘密鍵ファイル名
+  ///
+  /// このプロパティは Linux でのみ有効です。
   String? clientKey;
 
   /// WebSocket が閉じるまでのタイムアウト時間
