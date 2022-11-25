@@ -219,8 +219,9 @@ class SoraClient {
         break;
       case 'Message':
         String label = js['label'];
-        List<int> rawData = js['data'];
-        final data = Uint8List.fromList(rawData);
+        List<dynamic> rawData = js['data'];
+        final data = Uint8List.fromList(
+            rawData.map((e) => int.parse(e.toString())).toList());
         if (onMessage != null) {
           onMessage!(label, data);
         }
