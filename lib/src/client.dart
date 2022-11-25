@@ -94,8 +94,6 @@ class SoraClientConfig {
     required this.role,
   });
 
-  // SoraSignalingConfig の設定
-
   /// シグナリング URL のリスト
   List<Uri> signalingUrls;
 
