@@ -372,6 +372,9 @@ class SoraClient {
     await _disposer(this);
   }
 
+  /// DataChannel を利用してメッセージを送信します。
+  ///
+  /// メッセージの送信に成功すると `true` を返します。
   Future<bool> sendDataChannel({
     required String label,
     required Uint8List data,
