@@ -270,6 +270,14 @@ bool SoraClient::SendDataChannel(std::string label, std::string data) {
   return conn_->SendDataChannel(label, data);
 }
 
+void SoraClient::SetVideoEnabled(bool flag) {
+  video_track_->set_enabled(flag);
+}
+
+void SoraClient::SetAudioEnabled(bool flag) {
+  audio_track_->set_enabled(flag);
+}
+
 void SoraClient::OnSetOffer(std::string offer) {
   std::string stream_id = rtc::CreateRandomString(16);
   if (audio_track_ != nullptr) {
