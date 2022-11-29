@@ -19,6 +19,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   SoraClient? _soraClient;
   var _isConnected = false;
+  var _videoEnabled = true;
+  var _audioEnabled = true;
 
   @override
   void initState() {
@@ -49,18 +51,15 @@ class _MyAppState extends State<MyApp> {
         children: [
           SizedBox(
             height: screenSize.height * 0.8,
-            child:
-            SingleChildScrollView(
-              child:
-              Center(
+            child: SingleChildScrollView(
+              child: Center(
                 child: _buildRenderers(),
               ),
             ),
           ),
           SizedBox(
             height: screenSize.height * 0.2,
-            child:
-            Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Center(
@@ -83,6 +82,32 @@ class _MyAppState extends State<MyApp> {
                     ],
                   ),
                 ),
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            _videoEnabled = !_videoEnabled;
+                            _soraClient?.setVideoEnabled(_videoEnabled);
+                          });
+                        },
+                        child: Text('映像ミュート'),
+                      ),
+                      const SizedBox(width: 20),
+                      ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            _audioEnabled = !_audioEnabled;
+                            _soraClient?.setAudioEnabled(_audioEnabled);
+                          });
+                        },
+                        child: Text('音声ミュート'),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
           ),
@@ -97,10 +122,10 @@ class _MyAppState extends State<MyApp> {
     if (_soraClient != null) {
       renderers = _soraClient!.tracks
           .map((track) => SoraRenderer(
-        width: 320,
-        height: 240,
-        track: track,
-      ))
+                width: 320,
+                height: 240,
+                track: track,
+              ))
           .toList();
     }
 
