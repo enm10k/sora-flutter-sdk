@@ -145,3 +145,25 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_sendDataChannel(JNIEnv
   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
   env->CallVoidMethod(result, successid, boolobj.obj());
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_setVideoEnabled(JNIEnv* env,
+                                         jobject /* this */, jlong client, jboolean flag, jobject call, jobject result) {
+ reinterpret_cast<SoraClientWrapper*>(client)->p->SetVideoEnabled(flag);
+
+   // result.success(null);
+   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
+   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
+   env->CallVoidMethod(result, successid, nullptr);
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_setAudioEnabled(JNIEnv* env,
+                                         jobject /* this */, jlong client, jboolean flag, jobject call, jobject result) {
+ reinterpret_cast<SoraClientWrapper*>(client)->p->SetAudioEnabled(flag);
+
+   // result.success(null);
+   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
+   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
+   env->CallVoidMethod(result, successid, nullptr);
+}
