@@ -168,6 +168,40 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     bool status = it->second->SendDataChannel(label, data);
     auto resp = flutter::EncodableValue(status);
     result->Success(resp);
+  } else if (method_call.method_name().compare("setVideoEnabled") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
+    bool flag = std::get<bool>(params.at(flutter::EncodableValue("flag")));
+    it->second->SetVideoEnabled(flag);
+    result->Success();
+  } else if (method_call.method_name().compare("setAudioEnabled") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
+    bool flag = std::get<bool>(params.at(flutter::EncodableValue("flag")));
+    it->second->SetAudioEnabled(flag);
+    result->Success();
   } else {
     result->NotImplemented();
   }
