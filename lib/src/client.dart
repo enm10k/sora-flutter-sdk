@@ -285,9 +285,23 @@ class SoraClient {
     );
   }
 
+  /// 映像のキャプチャーと描画を一時的に停止、または再開します。
+  ///
+  /// `false` を指定すると映像のキャプチャーと描画を停止し、
+  /// 送受信した映像がローカルとリモートの双方に描画されなくなります。
+  ///  `true` を指定すると再開します。
+  ///
+  /// 映像を停止しても、カメラの動作と映像の送受信は停止しないので注意してください。
   Future<void> setVideoEnabled(bool flag) async =>
       await SoraFlutterSdk.setVideoEnabled(client: this, flag: flag);
 
+  /// 音声のキャプチャーと描画を一時的に停止、または再開します。
+  ///
+  /// `false` を指定すると音声のキャプチャーと描画を停止し、
+  /// 送受信した音声がローカルとリモートの双方に描画されなくなります。
+  ///  `true` を指定すると再開します。
+  ///
+  /// 音声を停止しても、マイクの動作と音声の送受信は停止しないので注意してください。
   Future<void> setAudioEnabled(bool flag) async =>
       await SoraFlutterSdk.setAudioEnabled(client: this, flag: flag);
 }
