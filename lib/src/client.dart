@@ -148,16 +148,16 @@ class SoraClientConfig {
   /// スポットライト数
   int? spotlightNumber;
 
-  ///スポットライト機能の利用時にフォーカスする rid
+  ///スポットライト機能の利用時にフォーカスしている映像の rid
   String? spotlightFocusRid;
 
-  ///スポットライト機能の利用時にフォーカスしない rid
+  ///スポットライト機能の利用時にフォーカスしない映像の rid
   String? spotlightUnfocusRid;
 
   /// サイマルキャスト機能の可否
   bool? simulcast;
 
-  /// サイマルキャスト機能の利用時の rid
+  /// サイマルキャスト機能の利用時受信する映像の rid
   String? simulcastRid;
 
   /// DataChannel 経由のシグナリング
