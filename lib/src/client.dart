@@ -49,15 +49,15 @@ enum SoraAudioCodecType {
 }
 
 enum SoraSimulcastRid {
-  /// rid0
+  /// r0
   @JsonValue("r0")
   r0,
 
-  /// rid1
+  /// r1
   @JsonValue("r1")
   r1,
 
-  /// rid2
+  /// r2
   @JsonValue("r2")
   r2,
 }
@@ -67,15 +67,15 @@ enum SoraSpotlightRid {
   @JsonValue("none")
   none,
 
-  /// rid0
+  /// r0
   @JsonValue("r0")
   r0,
 
-  /// rid1
+  /// r1
   @JsonValue("r1")
   r1,
 
-  /// rid2
+  /// r2
   @JsonValue("r2")
   r2,
 }
