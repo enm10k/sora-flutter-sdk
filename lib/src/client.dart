@@ -291,7 +291,9 @@ class SoraClient {
   /// 送受信した映像がローカルとリモートの双方に描画されなくなります。
   ///  `true` を指定すると再開します。
   ///
-  /// 映像を停止しても、カメラの動作と映像の送受信は停止しないので注意してください。
+  /// 映像を停止しても、映像の送受信は停止しないので注意してください。
+  /// また、カメラの動作も停止しません。
+  /// カメラの映像の代わりに黒 1 色の映像が送信されます。
   Future<void> setVideoEnabled(bool flag) async =>
       await SoraFlutterSdk.setVideoEnabled(client: this, flag: flag);
 
@@ -301,7 +303,9 @@ class SoraClient {
   /// 送受信した音声がローカルとリモートの双方に描画されなくなります。
   ///  `true` を指定すると再開します。
   ///
-  /// 音声を停止しても、マイクの動作と音声の送受信は停止しないので注意してください。
+  /// 音声を停止しても、音声の送受信は停止しないので注意してください。
+  /// また、マイクの動作も停止しません。
+  /// マイクの音声の代わりに無音の音声が送信されます。
   Future<void> setAudioEnabled(bool flag) async =>
       await SoraFlutterSdk.setAudioEnabled(client: this, flag: flag);
 }
