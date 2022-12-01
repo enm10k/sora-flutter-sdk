@@ -178,7 +178,7 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     int client_id = (int)get_as_integer(params, "client_id");
     auto it = clients_.find(client_id);
     if (it == clients_.end()) {
-      result->Success();
+      result->Error("Client Not Found", "");
       return;
     }
 
@@ -195,7 +195,7 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     int client_id = (int)get_as_integer(params, "client_id");
     auto it = clients_.find(client_id);
     if (it == clients_.end()) {
-      result->Success();
+      result->Error("Client Not Found", "");
       return;
     }
 
