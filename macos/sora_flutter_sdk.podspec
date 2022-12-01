@@ -48,7 +48,7 @@ Pod::Spec.new do |s|
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/third_party/libyuv/include\" " +
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/boost/include\" ",
     "CLANG_CXX_LANGUAGE_STANDARD" => "gnu++17",
-    "GCC_PREPROCESSOR_DEFINITIONS" => "WEBRTC_MAC=1 WEBRTC_POSIX=1 OPENSSL_IS_BORINGSSL=1",
+    "GCC_PREPROCESSOR_DEFINITIONS" => "WEBRTC_MAC=1 WEBRTC_POSIX=1 OPENSSL_IS_BORINGSSL=1 NDEBUG",
     "OTHER_LDFLAGS" => "-ObjC",
     "OTHER_CPLUSPLUSFLAGS" => "-x objective-c++",
   }

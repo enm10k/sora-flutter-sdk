@@ -49,8 +49,43 @@ enum SoraAudioCodecType {
   opus,
 }
 
-/// DataChannel の設定です。
+/// サイマルキャスト受信映像の rid を表します。
+enum SoraSimulcastRid {
+  /// r0
+  @JsonValue("r0")
+  r0,
+
+  /// r1
+  @JsonValue("r1")
+  r1,
+
+  /// r2
+  @JsonValue("r2")
+  r2,
+}
+
+/// スポットライト受信映像の rid を表します。
+enum SoraSpotlightRid {
+  /// none
+  @JsonValue("none")
+  none,
+
+  /// r0
+  @JsonValue("r0")
+  r0,
+
+  /// r1
+  @JsonValue("r1")
+  r1,
+
+  /// r2
+  @JsonValue("r2")
+  r2,
+}
+
 @JsonSerializable()
+
+/// DataChannel の設定です。
 class SoraDataChannel {
   /// オブジェクトを生成します。
   SoraDataChannel({
@@ -149,16 +184,16 @@ class SoraClientConfig {
   int? spotlightNumber;
 
   ///スポットライト機能の利用時にフォーカスしている映像の rid
-  String? spotlightFocusRid;
+  SoraSpotlightRid? spotlightFocusRid;
 
   ///スポットライト機能の利用時にフォーカスしない映像の rid
-  String? spotlightUnfocusRid;
+  SoraSpotlightRid? spotlightUnfocusRid;
 
   /// サイマルキャスト機能の可否
   bool? simulcast;
 
   /// サイマルキャスト機能の利用時受信する映像の rid
-  String? simulcastRid;
+  SoraSimulcastRid? simulcastRid;
 
   /// DataChannel 経由のシグナリング
   bool? dataChannelSignaling;
@@ -259,7 +294,7 @@ class SoraClient {
   void Function(String text)? onPush;
 
   /// DataChannel メッセージの受信時に呼ばれるコールバック
-  void Function(String label, String data)? onMessage;
+  void Function(String label, Uint8List data)? onMessage;
 
   /// 映像トラックが追加されたときに呼ばれるコールバック
   void Function(SoraVideoTrack track)? onAddTrack;
@@ -322,7 +357,8 @@ class SoraClient {
         break;
       case 'Message':
         String label = js['label'];
-        String data = js['data'];
+        List<dynamic> rawData = js['data'];
+        final data = Uint8List.fromList(rawData.cast<int>());
         if (onMessage != null) {
           onMessage!(label, data);
         }

@@ -59,10 +59,13 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
       ..multistream = json['multistream'] as bool?
       ..spotlight = json['spotlight'] as bool?
       ..spotlightNumber = json['spotlightNumber'] as int?
-      ..spotlightFocusRid = json['spotlightFocusRid'] as String?
-      ..spotlightUnfocusRid = json['spotlightUnfocusRid'] as String?
+      ..spotlightFocusRid = $enumDecodeNullable(
+          _$SoraSpotlightRidEnumMap, json['spotlightFocusRid'])
+      ..spotlightUnfocusRid = $enumDecodeNullable(
+          _$SoraSpotlightRidEnumMap, json['spotlightUnfocusRid'])
       ..simulcast = json['simulcast'] as bool?
-      ..simulcastRid = json['simulcastRid'] as String?
+      ..simulcastRid =
+          $enumDecodeNullable(_$SoraSimulcastRidEnumMap, json['simulcastRid'])
       ..dataChannelSignaling = json['dataChannelSignaling'] as bool?
       ..dataChannelSignalingTimeout =
           json['dataChannelSignalingTimeout'] as int?
@@ -108,10 +111,12 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
       'multistream': instance.multistream,
       'spotlight': instance.spotlight,
       'spotlightNumber': instance.spotlightNumber,
-      'spotlightFocusRid': instance.spotlightFocusRid,
-      'spotlightUnfocusRid': instance.spotlightUnfocusRid,
+      'spotlightFocusRid':
+          _$SoraSpotlightRidEnumMap[instance.spotlightFocusRid],
+      'spotlightUnfocusRid':
+          _$SoraSpotlightRidEnumMap[instance.spotlightUnfocusRid],
       'simulcast': instance.simulcast,
-      'simulcastRid': instance.simulcastRid,
+      'simulcastRid': _$SoraSimulcastRidEnumMap[instance.simulcastRid],
       'dataChannelSignaling': instance.dataChannelSignaling,
       'dataChannelSignalingTimeout': instance.dataChannelSignalingTimeout,
       'ignoreDisconnectWebsocket': instance.ignoreDisconnectWebsocket,
@@ -145,4 +150,17 @@ const _$SoraVideoCodecTypeEnumMap = {
 
 const _$SoraAudioCodecTypeEnumMap = {
   SoraAudioCodecType.opus: 'OPUS',
+};
+
+const _$SoraSpotlightRidEnumMap = {
+  SoraSpotlightRid.none: 'none',
+  SoraSpotlightRid.r0: 'r0',
+  SoraSpotlightRid.r1: 'r1',
+  SoraSpotlightRid.r2: 'r2',
+};
+
+const _$SoraSimulcastRidEnumMap = {
+  SoraSimulcastRid.r0: 'r0',
+  SoraSimulcastRid.r1: 'r1',
+  SoraSimulcastRid.r2: 'r2',
 };
