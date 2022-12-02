@@ -127,7 +127,9 @@ class SoraClientConfig {
     required this.signalingUrls,
     required this.channelId,
     required this.role,
-  });
+  }) {
+    soraClient = 'Sora Flutter SDK ${Version.sdkVersion}';
+  }
 
   /// シグナリング URL のリスト
   List<Uri> signalingUrls;
@@ -142,7 +144,7 @@ class SoraClientConfig {
   String? bundleId;
 
   /// クライアント名
-  String soraClient = "Sora Flutter SDK";
+  late String soraClient;
 
   /// 証明書の検証の可否。 true を指定すると検証を行いません。
   bool? insecure;
