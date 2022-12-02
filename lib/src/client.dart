@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'video_track.dart';
 import 'sdk.dart';
+import 'version.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
 // flutter pub run build_runner build
