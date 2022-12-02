@@ -43,11 +43,13 @@ enum SoraVideoCodecType {
   h265,
 }
 
+/// 音声コーデックを表します。
 enum SoraAudioCodecType {
   @JsonValue("OPUS")
   opus,
 }
 
+/// サイマルキャスト受信映像の rid を表します。
 enum SoraSimulcastRid {
   /// r0
   @JsonValue("r0")
@@ -62,6 +64,7 @@ enum SoraSimulcastRid {
   r2,
 }
 
+/// スポットライト受信映像の rid を表します。
 enum SoraSpotlightRid {
   /// none
   @JsonValue("none")
@@ -81,17 +84,34 @@ enum SoraSpotlightRid {
 }
 
 @JsonSerializable()
+
+/// DataChannel の設定です。
 class SoraDataChannel {
+  /// オブジェクトを生成します。
   SoraDataChannel({
     required this.label,
     required this.direction,
   });
+
+  /// メッセージのラベル
   String label;
+
+  /// メッセージの方向
   SoraRole direction;
+
+  /// 順序保証
   bool? ordered;
+
+  /// 最大再送時間
   int? maxPacketLifeTime;
+
+  /// 最大再送回数
   int? maxRetransmits;
+
+  /// プロトコル
   String? protocol;
+
+  /// メッセージの圧縮の可否
   bool? compress;
 
   factory SoraDataChannel.fromJson(Map<String, dynamic> json) =>
@@ -109,65 +129,136 @@ class SoraClientConfig {
     required this.role,
   });
 
-  // SoraSignalingConfig の設定
-
   /// シグナリング URL のリスト
   List<Uri> signalingUrls;
 
   /// チャネル ID
   String channelId;
+
+  /// クライアント ID
   String? clientId;
+
+  /// バンドル ID
   String? bundleId;
 
+  /// クライアント名
   String soraClient = "Sora Flutter SDK";
 
+  /// 証明書の検証の可否。 true を指定すると検証を行いません。
   bool? insecure;
+
+  /// 映像の可否
   bool? video;
+
+  /// 音声の可否
   bool? audio;
+
   /// 映像コーデック
   SoraVideoCodecType? videoCodecType;
+
+  /// 音声コーデック
   SoraAudioCodecType? audioCodecType;
+
+  /// 映像ビットレート
   int? videoBitRate;
+
+  /// 音声ビットレート
   int? audioBitRate;
+
+  /// メタデータ
   dynamic metadata;
+
+  /// type: notify で指定するメタデータ
   dynamic signalingNotifyMetadata;
+
   /// ロール
   SoraRole role;
+
+  /// マルチストリームの可否
   bool? multistream;
+
+  /// スポットライト機能の可否
   bool? spotlight;
+
+  /// スポットライト数
   int? spotlightNumber;
+
+  ///スポットライト機能の利用時にフォーカスしている映像の rid
   SoraSpotlightRid? spotlightFocusRid;
+
+  ///スポットライト機能の利用時にフォーカスしない映像の rid
   SoraSpotlightRid? spotlightUnfocusRid;
+
+  /// サイマルキャスト機能の可否
   bool? simulcast;
+
+  /// サイマルキャスト機能の利用時受信する映像の rid
   SoraSimulcastRid? simulcastRid;
+
+  /// DataChannel 経由のシグナリング
   bool? dataChannelSignaling;
+
+  /// DataChannel 経由のシグナリング切断までのタイムアウト時間
   int? dataChannelSignalingTimeout;
+
+  /// WebSocket が閉じても接続の切断とみなさずに無視する
   bool? ignoreDisconnectWebsocket;
+
+  /// 切断までのタイムアウト時間
   int? disconnectWaitTimeout;
+
+  /// DataChannel の設定
   List<SoraDataChannel>? dataChannels;
 
+  /// クライアント証明書ファイル名
+  ///
+  /// このプロパティは Linux でのみ有効です。
   String? clientCert;
+
+  /// クライアント証明書の秘密鍵ファイル名
+  ///
+  /// このプロパティは Linux でのみ有効です。
   String? clientKey;
 
+  /// WebSocket が閉じるまでのタイムアウト時間
   int? websocketCloseTimeout;
+
+  /// WebSocket 切断までのタイムアウト時間
   int? websocketConnectionTimeout;
 
+  /// HTTP プロキシサーバーの URL
   String? proxyUrl;
+
+  /// HTTP プロキシのユーザー名
   String? proxyUsername;
+
+  /// HTTP プロキシのパスワード
   String? proxyPassword;
+
+  /// HTTP プロキシのエージェント
   String? proxyAgent;
 
+  /// シグナリング URL リストのランダムな並び替えの可否。
+  /// `true` を指定すると、 [signalingUrls] の順に接続します。
+  /// `false` を指定すると、ランダムな順序で接続します。
   bool? disableSignalingUrlRandomization;
 
-  // SoraClientConfig の設定
-
+  /// 音声デバイスの利用の可否
   bool? useAudioDeivce;
+
+  /// ハードウェアエンコーダーの使用の可否
   bool? useHardwareEncoder;
+
+  /// 利用する映像デバイス名
   String? videoDeviceName;
-  /// 送信する映像の横幅
+
+  /// 映像デバイスの横幅
   int? videoDeviceWidth;
-  /// 送信する映像の縦幅
+
+  /// 映像デバイスの縦幅
   int? videoDeviceHeight;
+
+  /// 映像デバイスのフレームレート
   int? videoDeviceFps;
 
   factory SoraClientConfig.fromJson(Map<String, dynamic> json) =>
@@ -189,16 +280,31 @@ class SoraClient {
 
   /// クライアント ID
   int clientId = 0;
-  void Function(String)? onSetOffer;
-  void Function(String, String)? onDisconnect;
-  void Function(String)? onNotify;
-  void Function(String)? onPush;
+
+  /// type: offer の受信時に呼ばれるコールバック
+  void Function(String sdp)? onSetOffer;
+
+  /// 切断時に呼ばれるコールバック
+  void Function(String errorCode, String message)? onDisconnect;
+
+  /// type: notify の受信時に呼ばれるコールバック
+  void Function(String text)? onNotify;
+
+  /// プッシュ通知の受信時に呼ばれるコールバック
+  void Function(String text)? onPush;
+
+  /// DataChannel メッセージの受信時に呼ばれるコールバック
   void Function(String label, Uint8List data)? onMessage;
+
   /// 映像トラックが追加されたときに呼ばれるコールバック
-  void Function(SoraVideoTrack)? onAddTrack;
+  void Function(SoraVideoTrack track)? onAddTrack;
+
   /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
-  void Function(SoraVideoTrack)? onRemoveTrack;
-  void Function(String)? onDataChannel;
+  void Function(SoraVideoTrack track)? onRemoveTrack;
+
+  /// DataChannel の確立時に呼ばれるコールバック
+  void Function(String label)? onDataChannel;
+
   /// 映像トラックのリスト
   List<SoraVideoTrack> tracks = List<SoraVideoTrack>.empty(growable: true);
 
@@ -306,6 +412,9 @@ class SoraClient {
     await _disposer(this);
   }
 
+  /// DataChannel を利用してメッセージを送信します。
+  ///
+  /// メッセージの送信に成功すると `true` を返します。
   Future<bool> sendDataChannel({
     required String label,
     required Uint8List data,
