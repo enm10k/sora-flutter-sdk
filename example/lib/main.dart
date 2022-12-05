@@ -40,7 +40,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Builder(builder: _buildMain),
+      home: Scaffold(
+        body: Builder(builder: _buildMain),
+      ),
     );
   }
 
@@ -62,52 +64,53 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _connect();
-                        },
-                        child: const Text('接続する'),
-                      ),
-                      const SizedBox(width: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _disconnect();
-                        },
-                        child: const Text('切断する'),
-                      ),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _connect();
+                      },
+                      child: const Text('接続する'),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _disconnect();
+                      },
+                      child: const Text('切断する'),
+                    ),
+                  ],
                 ),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            _videoEnabled = !_videoEnabled;
-                            _soraClient?.setVideoEnabled(_videoEnabled);
-                          });
-                        },
-                        child: Text('映像ミュート'),
-                      ),
-                      const SizedBox(width: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          setState(() {
-                            _audioEnabled = !_audioEnabled;
-                            _soraClient?.setAudioEnabled(_audioEnabled);
-                          });
-                        },
-                        child: Text('音声ミュート'),
-                      ),
-                    ],
-                  ),
-                )
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('ミュート:'),
+                    const SizedBox(width: 20),
+                    const Text('映像'),
+                    Switch(
+                      value: _videoEnabled,
+                      onChanged: (value) {
+                        setState(() {
+                          _videoEnabled = value;
+                          _soraClient?.setVideoEnabled(_videoEnabled);
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    const Text('音声'),
+                    Switch(
+                      value: _audioEnabled,
+                      onChanged: (value) {
+                        setState(() {
+                          _audioEnabled = value;
+                          _soraClient?.setAudioEnabled(_audioEnabled);
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
