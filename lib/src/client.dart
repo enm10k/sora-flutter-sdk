@@ -340,8 +340,8 @@ class SoraClient {
         if (onDisconnect != null) {
           onDisconnect!(errorCode, message);
         }
-        _destructor(this);
         _eventSubscription?.cancel();
+        _destructor(this);
         break;
       case 'Notify':
         String text = js['text'];
