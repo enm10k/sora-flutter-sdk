@@ -123,13 +123,24 @@ class SoraDataChannel {
 /// 接続設定です。
 @JsonSerializable()
 class SoraClientConfig {
+  /// アプリケーションが利用する Flutter のバージョンを指定します。
+  /// 指定したバージョンはシグナリングでクライアント情報に含まれます。
+  /// 必ず指定してください。
+  static String? flutterVersion;
+
   /// 本オブジェクトを生成します。
   SoraClientConfig({
     required this.signalingUrls,
     required this.channelId,
     required this.role,
   }) {
-    soraClient = 'Sora Flutter SDK ${Version.sdkVersion}';
+    if (flutterVersion == null) {
+      throw UnimplementedError(
+          'SoraClientConfig.flutterVersion must be specified');
+    }
+    soraClient = 'Sora Flutter SDK ${Version.sdkVersion} '
+        '(Flutter ${SoraClientConfig.flutterVersion!}, '
+        'Dart ${Platform.version})';
   }
 
   /// シグナリング URL のリスト
