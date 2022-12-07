@@ -37,4 +37,8 @@ abstract class SoraFlutterSdkPlatform extends PlatformInterface {
   }) async {
     throw UnimplementedError('sendDataChannel() has not been implemented.');
   }
+
+  Future<void> videoCapturers(String callback) async {
+    throw UnimplementedError('videoCapturers() has not been implemented.');
+  }
 }

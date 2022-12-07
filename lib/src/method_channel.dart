@@ -53,4 +53,8 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
       'data': data,
     });
   }
+
+  @override
+  Future<void> videoCapturers(String callback) async =>
+      await methodChannel.invokeMethod('enumVideoCapturers', callback);
 }
