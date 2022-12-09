@@ -19,7 +19,6 @@
 #endif
 
 #include <sora/audio_device_module.h>
-#include <sora/camera_device_capturer.h>
 #include <sora/java_context.h>
 #include <sora/sora_video_decoder_factory.h>
 #include <sora/sora_video_encoder_factory.h>
@@ -281,6 +280,9 @@ void SoraClient::OnSetOffer(std::string offer) {
     webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>>
         video_result =
             conn_->GetPeerConnection()->AddTrack(video_track_, {stream_id});
+   if (video_result.ok()) {
+     video_sender_ = video_result.value();
+   }
   }
 
   if (video_track_ != nullptr) {
@@ -305,12 +307,9 @@ void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
   RTC_LOG(LS_INFO) << "OnDisconnect: " << message;
   ioc_->stop();
 
-#if defined(__ANDROID__)
-  static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
-#endif
-  video_source_ = nullptr;
+  StopVideoCapturer();
+
   renderer_ = nullptr;
-  video_track_ = nullptr;
   audio_track_ = nullptr;
 
   boost::json::object obj;
@@ -436,6 +435,27 @@ void SoraClient::SendEvent(const boost::json::value& v) {
     fl_event_channel_send(event_channel_.get(), params, nullptr, nullptr);
   }
 #endif
+}
+
+void SoraClient::StopVideoCapturer() {
+#if defined(__ANDROID__)
+  static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
+#endif
+  video_source_ = nullptr;
+  video_track_ = nullptr;
+}
+
+void SoraClient::ReplaceVideoCapturer(const sora::CameraDeviceCapturerConfig &config) {
+  auto source = sora::CreateCameraDeviceCapturer(config);
+  if (source == nullptr) {
+    return;
+  }
+  video_source_ = source;
+
+  std::string video_track_id = rtc::CreateRandomString(16);
+  video_track_ = factory()->CreateVideoTrack(video_track_id, video_source_.get());
+
+  video_sender_->SetTrack(video_track_.get());
 }
 
 }
