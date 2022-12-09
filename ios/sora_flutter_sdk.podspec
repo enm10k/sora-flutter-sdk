@@ -43,6 +43,7 @@ Pod::Spec.new do |s|
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/third_party/abseil-cpp\" " +
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/third_party/boringssl/src/include\" " +
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/third_party/libyuv/include\" " +
+                             "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/sdk/objc\" " +
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/sdk/objc/base\" " +
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/boost/include\" ",
     "CLANG_CXX_LANGUAGE_STANDARD" => "gnu++17",
