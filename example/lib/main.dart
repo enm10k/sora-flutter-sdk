@@ -8,6 +8,13 @@ import 'environment.dart';
 void main() {
   SoraClientConfig.flutterVersion = Environment.flutterVersion;
 
+  // 映像キャプチャーデバイス一覧
+  WidgetsFlutterBinding.ensureInitialized();
+  final devices = await DeviceList.videoCapturers();
+  for (final device in devices) {
+    print('device => ${device.device}, ${device.unique}');
+  }
+
   runApp(const MyApp());
 }
 
