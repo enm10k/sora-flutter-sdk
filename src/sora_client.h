@@ -17,6 +17,7 @@
 #endif
 
 #include <sora/sora_default_client.h>
+#include <sora/camera_device_capturer.h>
 
 #include "sora_renderer.h"
 
@@ -61,6 +62,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void Connect();
   void Disconnect();
   bool SendDataChannel(std::string label, std::string data);
+  void ReplaceVideoCapturer(const sora::CameraDeviceCapturerConfig &config);
 
   void OnSetOffer(std::string offer) override;
   void OnDisconnect(sora::SoraSignalingErrorCode ec,
@@ -86,12 +88,15 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
  private:
   void DoConnect();
   void SendEvent(const boost::json::value& v);
+  void StopVideoCapturer();
 
  private:
   SoraClientConfig config_;
   rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> video_source_;
   rtc::scoped_refptr<webrtc::AudioTrackInterface> audio_track_;
   rtc::scoped_refptr<webrtc::VideoTrackInterface> video_track_;
+  rtc::scoped_refptr<webrtc::RtpSenderInterface> video_sender_;
+
   std::shared_ptr<sora::SoraSignaling> conn_;
   std::unique_ptr<boost::asio::io_context> ioc_;
   std::unique_ptr<rtc::Thread> io_thread_;
