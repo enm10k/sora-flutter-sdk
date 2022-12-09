@@ -5,7 +5,14 @@ import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
 import 'environment.dart';
 
-void main() {
+void main() async {
+  // 映像キャプチャーデバイス一覧
+  WidgetsFlutterBinding.ensureInitialized();
+  final devices = await DeviceList.videoCapturers();
+  for (final device in devices) {
+    print('device => ${device.device}, ${device.unique}');
+  }
+
   runApp(const MyApp());
 }
 
