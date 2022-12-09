@@ -8,6 +8,7 @@
 
 #include "sora_client.h"
 #include "config_reader.h"
+#include "device_list.h"
 
 using namespace sora_flutter_sdk;
 
@@ -184,6 +185,20 @@ FlutterError *badArgumentsError(NSString *message) {
 
         bool resp = client.client->SendDataChannel(label, data);
         result(@(resp));
+
+    } else if ([call.method isEqualToString: @"enumVideoCapturers"]) {
+        NSMutableArray *resp = [[NSMutableArray alloc] init];
+        DeviceList::EnumVideoCapturer(
+                          [resp](std::string device_name, std::string unique_name) {
+                            NSDictionary *info = @{
+                            @"device": [SoraUtils stringForStdString: device_name],
+                            @"unique": [SoraUtils stringForStdString: unique_name],
+                            };
+                            [resp addObject: info];
+                          });
+
+        result(resp);
+
     } else {
         result(FlutterMethodNotImplemented);
     }

@@ -55,6 +55,11 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
   }
 
   @override
-  Future<void> videoCapturers(String callback) async =>
-      await methodChannel.invokeMethod('enumVideoCapturers', callback);
+  Future<List<Map<String, dynamic>>> videoCapturers() async {
+    List<Object?> list = await methodChannel.invokeMethod('enumVideoCapturers');
+    return list.map((e) {
+      final map = e as Map<dynamic, dynamic>;
+      return Map<String,dynamic>.from(map);
+    }).toList();
+  }
 }
