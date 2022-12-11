@@ -417,6 +417,10 @@ void SoraRenderer::Sink::OnFrame(const webrtc::VideoFrame& frame) {
     }
   }
 #if defined(__ANDROID__)
+  if (frame_->video_frame_buffer()->type() == webrtc::VideoFrameBuffer::Type::kNative) {
+    frame_->set_video_frame_buffer(frame_->video_frame_buffer()->ToI420());
+  }
+
   auto env = webrtc::AttachCurrentThreadIfNeeded();
 
   if (width_ != frame.width() || height_ != frame.height()) {
