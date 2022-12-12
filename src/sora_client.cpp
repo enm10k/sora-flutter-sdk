@@ -445,7 +445,7 @@ void SoraClient::StopVideoCapturer() {
   video_track_ = nullptr;
 }
 
-void SoraClient::ReplaceVideoCapturer(const sora::CameraDeviceCapturerConfig &config) {
+void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
   auto source = sora::CreateCameraDeviceCapturer(config);
   if (source == nullptr) {
     return;

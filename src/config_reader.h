@@ -8,6 +8,7 @@
 
 // Sora C++ SDK
 #include <sora/sora_signaling.h>
+#include <sora/camera_device_capturer.h>
 
 #include "sora_client.h"
 
@@ -237,6 +238,27 @@ SoraClientConfig JsonToClientConfig(const std::string& json) {
   F(SetInteger, "videoDeviceWidth", &c.video_device_width);
   F(SetInteger, "videoDeviceHeight", &c.video_device_height);
   F(SetInteger, "videoDeviceFps", &c.video_device_fps);
+
+#undef F
+  for (const auto& e : errors) {
+    RTC_LOG(LS_ERROR) << e;
+  }
+
+  return c;
+}
+
+sora::CameraDeviceCapturerConfig JsonToCameraDeviceCapturerConfig(const std::string& json) {
+  boost::json::value v = boost::json::parse(json);
+  sora::CameraDeviceCapturerConfig c;
+  std::vector<std::string> errors;
+#define F(func, name, field) \
+  if (std::string error; !func(v, name, field, error)) \
+    errors.push_back(error)
+
+  F(SetString, "name", &c.device_name);
+  F(SetInteger, "width", &c.width);
+  F(SetInteger, "height", &c.height);
+  F(SetInteger, "fps", &c.fps);
 
 #undef F
   for (const auto& e : errors) {
