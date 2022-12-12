@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import 'video_track.dart';
 import 'sdk.dart';
+import 'platform_interface.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
 // flutter pub run build_runner build
@@ -425,4 +426,18 @@ class SoraClient {
       data: data,
     );
   }
+
+  Future<void> switchVideoDevice({
+    required String name,
+    int? width,
+    int? height,
+    int? fps,
+  }) async =>
+      await SoraFlutterSdkPlatform.instance.switchVideoDevice(
+        client: this,
+        name: name,
+        width: width,
+        height: height,
+        fps: fps,
+      );
 }

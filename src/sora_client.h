@@ -62,7 +62,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void Connect();
   void Disconnect();
   bool SendDataChannel(std::string label, std::string data);
-  void ReplaceVideoCapturer(const sora::CameraDeviceCapturerConfig &config);
+  void SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
 
   void OnSetOffer(std::string offer) override;
   void OnDisconnect(sora::SoraSignalingErrorCode ec,

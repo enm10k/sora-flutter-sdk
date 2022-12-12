@@ -62,4 +62,22 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
       return Map<String,dynamic>.from(map);
     }).toList();
   }
+
+  @override
+  Future<void> switchVideoDevice({
+    required SoraClient client,
+    required String name,
+    required int? width,
+    required int? height,
+    required int? fps,
+  }) async =>
+      await methodChannel.invokeMethod('switchVideoDevice', {
+        'client_id': client.clientId,
+        'config': {
+          'name': name,
+          'width': width,
+          'height': height,
+          'fps': fps,
+        },
+      });
 }
