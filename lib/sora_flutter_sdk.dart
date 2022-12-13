@@ -8,6 +8,6 @@ export 'src/client.dart'
         SoraDataChannel,
         SoraSimulcastRid,
         SoraSpotlightRid;
-export 'src/device_list.dart' show DeviceList;
+export 'src/device_list.dart' show DeviceList, DeviceName;
 export 'src/renderer.dart' show SoraRenderer;
 export 'src/video_track.dart' show SoraVideoTrack;
