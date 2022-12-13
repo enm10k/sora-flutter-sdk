@@ -446,6 +446,8 @@ void SoraClient::StopVideoCapturer() {
 }
 
 void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
+  StopVideoCapturer();
+
   auto source = sora::CreateCameraDeviceCapturer(config);
   if (source == nullptr) {
     return;
