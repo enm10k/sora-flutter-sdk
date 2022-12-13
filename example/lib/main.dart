@@ -44,6 +44,10 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
+  Future<void> initAppState() async {
+    _capturers = await DeviceList.videoCapturers();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -88,6 +92,23 @@ class _MyAppState extends State<MyApp> {
                           await _disconnect();
                         },
                         child: const Text('切断する'),
+                      ),
+                      const SizedBox(width: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_soraClient == null || _capturers.isEmpty) {
+                            return;
+                          }
+                          setState(() {
+                            _captureNum++;
+                            if (_captureNum > _capturers.length) {
+                              _captureNum = 0;
+                            }
+                            final name = _capturers[0].device;
+                            _soraClient!.switchVideoDevice(name: name);
+                          });
+                        },
+                        child: Icon(Icons.flip_camera_ios),
                       ),
                     ],
                   ),
