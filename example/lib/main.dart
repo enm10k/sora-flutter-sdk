@@ -28,11 +28,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   SoraClient? _soraClient;
   var _isConnected = false;
+  List<DeviceName> _capturers = List<DeviceName>.empty();
+  var _captureNum = 0;
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    initAppState();
   }
 
   Future<void> initPlatformState() async {
