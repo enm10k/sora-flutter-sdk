@@ -29,7 +29,7 @@ class _MyAppState extends State<MyApp> {
   SoraClient? _soraClient;
   var _isConnected = false;
   List<DeviceName> _capturers = List<DeviceName>.empty();
-  var _captureNum = 0;
+  var _capturerNum = 0;
 
   @override
   void initState() {
@@ -103,9 +103,9 @@ class _MyAppState extends State<MyApp> {
                             return;
                           }
                           setState(() {
-                            _captureNum++;
-                            if (_captureNum > _capturers.length) {
-                              _captureNum = 0;
+                            _capturerNum++;
+                            if (_capturerNum > _capturers.length) {
+                              _capturerNum = 0;
                             }
                             final name = _capturers[0].device;
                             _soraClient!.switchVideoDevice(name: name);
