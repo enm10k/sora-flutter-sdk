@@ -73,11 +73,11 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
   }) async =>
       await methodChannel.invokeMethod('switchVideoDevice', {
         'client_id': client.clientId,
-        'config': {
+        'config': json.encode({
           'name': name,
           'width': width,
           'height': height,
           'fps': fps,
-        },
+        }),
       });
 }
