@@ -105,7 +105,7 @@ class _MyAppState extends State<MyApp> {
                             if (_capturerNum > _capturers.length) {
                               _capturerNum = 0;
                             }
-                            final name = _capturers[0].device;
+                            final name = _capturers[_capturerNum].device;
                             _soraClient!.switchVideoDevice(name: name);
                           });
                         },
