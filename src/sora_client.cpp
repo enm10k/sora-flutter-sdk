@@ -463,7 +463,22 @@ void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &confi
   std::string video_track_id = rtc::CreateRandomString(16);
   video_track_ = factory()->CreateVideoTrack(video_track_id, video_source_.get());
 
+  std::string stream_id = rtc::CreateRandomString(16);
+  webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>>
+      video_result =
+            conn_->GetPeerConnection()->AddTrack(video_track_, {stream_id});
+  if (video_result.ok()) {
+    video_sender_ = video_result.value();
+  }
   video_sender_->SetTrack(video_track_.get());
+
+  // TODO: Flutter 側でイベントを受け取る
+  auto texture_id = renderer_->AddTrack(video_track_.get());
+  boost::json::object obj;
+  obj["event"] = "SwitchVideoTrack";
+  obj["connection_id"] = "";
+  obj["texture_id"] = texture_id;
+  SendEvent(obj);
 }
 
 }
