@@ -438,11 +438,17 @@ void SoraClient::SendEvent(const boost::json::value& v) {
 }
 
 void SoraClient::StopVideoCapturer() {
+  if (video_track_ != nullptr) {
+    conn_->GetPeerConnection()->RemoveTrackOrError(video_sender_);
+    renderer_->RemoveTrack(video_track_.get());
+  }
+
 #if defined(__ANDROID__)
   static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
 #endif
   video_source_ = nullptr;
   video_track_ = nullptr;
+  video_sender_ = nullptr;
 }
 
 void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
