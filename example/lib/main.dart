@@ -102,7 +102,7 @@ class _MyAppState extends State<MyApp> {
                           }
                           setState(() {
                             _capturerNum++;
-                            if (_capturerNum > _capturers.length) {
+                            if (_capturerNum >= _capturers.length) {
                               _capturerNum = 0;
                             }
                             final name = _capturers[_capturerNum].device;
