@@ -303,6 +303,8 @@ class SoraClient {
   /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
   void Function(SoraVideoTrack track)? onRemoveTrack;
 
+  void Function(SoraVideoTrack track)? onSwitchTrack;
+
   /// DataChannel の確立時に呼ばれるコールバック
   void Function(String label)? onDataChannel;
 
@@ -383,6 +385,22 @@ class SoraClient {
           tracks.remove(track);
           if (onRemoveTrack != null) {
             onRemoveTrack!(track);
+          }
+        }
+        break;
+      case 'SwitchVideoTrack':
+        String connectionId = js['connection_id'];
+        int oldTextureId = js['old_texture_id'];
+        int newTextureId = js['new_texture_id'];
+        SoraVideoTrack? oldTrack = tracks.firstWhereOrNull((element) =>
+            element.connectionId == connectionId &&
+            element.textureId == oldTextureId);
+        if (oldTrack != null) {
+          tracks.remove(oldTrack);
+          final newTrack = SoraVideoTrack(connectionId, newTextureId);
+          tracks.add(newTrack);
+          if (onSwitchTrack != null) {
+            onSwitchTrack!(newTrack);
           }
         }
         break;
