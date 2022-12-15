@@ -437,10 +437,16 @@ void SoraClient::SendEvent(const boost::json::value& v) {
 #endif
 }
 
-void SoraClient::StopVideoCapturer() {
-  if (video_track_ != nullptr) {
-    conn_->GetPeerConnection()->RemoveTrackOrError(video_sender_);
-    renderer_->RemoveTrack(video_track_.get());
+// 削除したトラックのテクスチャ ID を返す
+int64_t SoraClient::StopVideoCapturer() {
+  int64_t texture_id = -1;
+
+  auto pc = conn_->GetPeerConnection();
+  if (pc != nullptr && video_sender_ != nullptr) {
+    pc->RemoveTrackOrError(video_sender_);
+  }
+  if (renderer_ != nullptr && video_track_ != nullptr) {
+    texture_id = renderer_->RemoveTrack(video_track_.get());
   }
 
 #if defined(__ANDROID__)
@@ -449,10 +455,12 @@ void SoraClient::StopVideoCapturer() {
   video_source_ = nullptr;
   video_track_ = nullptr;
   video_sender_ = nullptr;
+
+  return texture_id;
 }
 
 void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
-  StopVideoCapturer();
+  auto old_texture_id = StopVideoCapturer();
 
   auto source = sora::CreateCameraDeviceCapturer(config);
   if (source == nullptr) {
@@ -472,12 +480,12 @@ void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &confi
   }
   video_sender_->SetTrack(video_track_.get());
 
-  // TODO: Flutter 側でイベントを受け取る
-  auto texture_id = renderer_->AddTrack(video_track_.get());
+  auto new_texture_id = renderer_->AddTrack(video_track_.get());
   boost::json::object obj;
   obj["event"] = "SwitchVideoTrack";
   obj["connection_id"] = "";
-  obj["texture_id"] = texture_id;
+  obj["old_texture_id"] = old_texture_id;
+  obj["new_texture_id"] = new_texture_id;
   SendEvent(obj);
 }
 
