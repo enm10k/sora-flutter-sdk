@@ -88,7 +88,6 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
  private:
   void DoConnect();
   void SendEvent(const boost::json::value& v);
-  int64_t StopVideoCapturer();
 
  private:
   SoraClientConfig config_;
