@@ -443,6 +443,10 @@ void SoraClient::SendEvent(const boost::json::value& v) {
 void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
   auto old_texture_id = renderer_->RemoveTrack(video_track_.get());
 
+#if defined(__ANDROID__)
+  static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
+#endif
+
   auto source = sora::CreateCameraDeviceCapturer(config);
   if (source == nullptr) {
     return;
