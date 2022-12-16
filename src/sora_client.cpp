@@ -460,7 +460,7 @@ int64_t SoraClient::StopVideoCapturer() {
 }
 
 void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
-  auto old_texture_id = StopVideoCapturer();
+  auto old_texture_id = renderer_->RemoveTrack(video_track_.get());
 
   auto source = sora::CreateCameraDeviceCapturer(config);
   if (source == nullptr) {
@@ -471,13 +471,8 @@ void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &confi
   std::string video_track_id = rtc::CreateRandomString(16);
   video_track_ = factory()->CreateVideoTrack(video_track_id, video_source_.get());
 
-  std::string stream_id = rtc::CreateRandomString(16);
-  webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>>
-      video_result =
-            conn_->GetPeerConnection()->AddTrack(video_track_, {stream_id});
-  if (video_result.ok()) {
-    video_sender_ = video_result.value();
-  }
+  // pc に新しいトラックを追加して sender を作り直すと映像が送信されないので
+  // 既存の sender のトラックを置き換える
   video_sender_->SetTrack(video_track_.get());
 
   auto new_texture_id = renderer_->AddTrack(video_track_.get());
