@@ -307,9 +307,12 @@ void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
   RTC_LOG(LS_INFO) << "OnDisconnect: " << message;
   ioc_->stop();
 
-  StopVideoCapturer();
-
+#if defined(__ANDROID__)
+  static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
+#endif
+  video_source_ = nullptr;
   renderer_ = nullptr;
+  video_track_ = nullptr;
   audio_track_ = nullptr;
 
   boost::json::object obj;
@@ -435,28 +438,6 @@ void SoraClient::SendEvent(const boost::json::value& v) {
     fl_event_channel_send(event_channel_.get(), params, nullptr, nullptr);
   }
 #endif
-}
-
-// 削除したトラックのテクスチャ ID を返す
-int64_t SoraClient::StopVideoCapturer() {
-  int64_t texture_id = -1;
-
-  auto pc = conn_->GetPeerConnection();
-  if (pc != nullptr && video_sender_ != nullptr) {
-    pc->RemoveTrackOrError(video_sender_);
-  }
-  if (renderer_ != nullptr && video_track_ != nullptr) {
-    texture_id = renderer_->RemoveTrack(video_track_.get());
-  }
-
-#if defined(__ANDROID__)
-  static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
-#endif
-  video_source_ = nullptr;
-  video_track_ = nullptr;
-  video_sender_ = nullptr;
-
-  return texture_id;
 }
 
 void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
