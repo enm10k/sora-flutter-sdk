@@ -9,15 +9,17 @@
 #include <rtc_base/logging.h>
 
 #ifdef __ANDROID__
+#include <sora/android/android_capturer.h>
 #include <sdk/android/native_api/audio_device_module/audio_device_android.h>
 #include <sdk/android/native_api/jni/jvm.h>
 #endif
 
 #if defined(__APPLE__)
 #include <sora/mac/mac_capturer.h>
-#elif defined(__ANDROID__)
-#include <sora/android/android_capturer.h>
-#include "android_helper/android_context.h"
+#endif
+
+#if defined(__ANDROID__)
+void* GetAndroidApplicationContext(void*);
 #endif
 
 namespace sora_flutter_sdk {
@@ -31,8 +33,12 @@ bool DeviceList::EnumVideoCapturer(
 #elif defined(__ANDROID__)
 
   JNIEnv* env = webrtc::AttachCurrentThreadIfNeeded();
-  auto context = GetAndroidApplicationContext(env);
-  return sora::AndroidCapturer::EnumVideoDevice(env, context.obj(), f);
+  auto context = (jobject)GetAndroidApplicationContext(env);
+  if (context != nullptr) {
+    return sora::AndroidCapturer::EnumVideoDevice(env, context, f);
+  } else {
+    return false;
+  }
 
 #else
 
