@@ -39,6 +39,7 @@ add_library(sora_flutter_sdk
     native-lib.cpp
     ../../../../src/sora_client.cpp
     ../../../../src/sora_renderer.cpp
+    ../../../../src/device_list.cpp
 )
 
 target_include_directories(sora_flutter_sdk PRIVATE "../../../../src")
