@@ -151,7 +151,7 @@ extern "C" JNIEXPORT void JNICALL
 Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_enumVideoCapturers(JNIEnv* env,
                                          jobject /* this */, jobject call, jobject result) {
   // alist = ArrayList();
-  webrtc::ScopedJavaLocalRef<jclass> alistcls = webrtc::GetClass(env, "java/lang/ArrayList");
+  webrtc::ScopedJavaLocalRef<jclass> alistcls = webrtc::GetClass(env, "java/util/ArrayList");
   jmethodID alist_ctorid = env->GetMethodID(alistcls.obj(), "<init>", "()V");
   webrtc::ScopedJavaLocalRef<jobject> alistobj(env, env->NewObject(alistcls.obj(), alist_ctorid));
   jmethodID alist_addid = env->GetMethodID(alistcls.obj(), "add", "(Ljava/lang/Object;)Z");
@@ -169,7 +169,7 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_enumVideoCapturers(JNI
     webrtc::ScopedJavaLocalRef<jobject> mapobj(env, env->NewObject(mapcls.obj(), map_ctorid));
     env->CallObjectMethod(mapobj.obj(), map_putid, env->NewStringUTF("device"), env->NewStringUTF(device_name.c_str()));
     env->CallObjectMethod(mapobj.obj(), map_putid, env->NewStringUTF("unique"), env->NewStringUTF(unique_name.c_str()));
-    env->CallObjectMethod(alistobj.obj(), alist_addid, mapobj.obj());
+    env->CallBooleanMethod(alistobj.obj(), alist_addid, mapobj.obj());
   });
 
   // result.success(alist);
