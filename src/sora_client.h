@@ -88,6 +88,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
  private:
   void DoConnect();
   void SendEvent(const boost::json::value& v);
+  void DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
 
  private:
   SoraClientConfig config_;
