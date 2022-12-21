@@ -441,6 +441,12 @@ void SoraClient::SendEvent(const boost::json::value& v) {
 }
 
 void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
+  boost::asio::post(*ioc_, [self = shared_from_this(), config]() {
+    self->DoSwitchVideoDevice(config);
+  });
+}
+
+void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
   auto old_texture_id = renderer_->RemoveTrack(video_track_.get());
 
 #if defined(__ANDROID__)
