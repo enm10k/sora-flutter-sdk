@@ -446,12 +446,20 @@ void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &confi
   });
 }
 
-void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
+void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &baseConfig) {
   auto old_texture_id = renderer_->RemoveTrack(video_track_.get());
 
 #if defined(__ANDROID__)
   static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
 #endif
+
+  sora::CameraDeviceCapturerConfig config = baseConfig;
+#if defined(__ANDROID__)
+  auto env = io_env_;
+  config.jni_env = env;
+  config.application_context = GetAndroidApplicationContext(env);
+#endif
+  config.signaling_thread = signaling_thread();
 
   auto source = sora::CreateCameraDeviceCapturer(config);
   if (source == nullptr) {
