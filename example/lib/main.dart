@@ -170,7 +170,7 @@ class _MyAppState extends State<MyApp> {
         print("OnNotify: $text");
       }
       ..onSwitchTrack = (SoraVideoTrack track) {
-        setState(() {/* soraClient.tracks の数が変動したので描画し直す */});
+        setState(() {/* カメラのトラックが交換されたので描画し直す */});
       }
       ..onAddTrack = (SoraVideoTrack track) {
         setState(() {/* soraClient.tracks の数が変動したので描画し直す */});
