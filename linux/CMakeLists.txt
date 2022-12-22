@@ -52,6 +52,8 @@ add_library(${PLUGIN_NAME} SHARED
   "../src/sora_client.h"
   "../src/sora_renderer.cpp"
   "../src/sora_renderer.h"
+  "../src/device_list.h"
+  "../src/device_list.cpp"
 )
 
 # Apply a standard set of build settings that are configured in the
