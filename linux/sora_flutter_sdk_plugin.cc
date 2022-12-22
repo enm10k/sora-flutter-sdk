@@ -10,6 +10,7 @@
 
 #include "sora_client.h"
 #include "config_reader.h"
+#include "device_list.h"
 
 #define SORA_FLUTTER_SDK_PLUGIN(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST((obj), sora_flutter_sdk_plugin_get_type(), \
@@ -147,6 +148,35 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     g_autoptr(FlValue) resp = fl_value_new_bool(status);
 
     fl_method_call_respond_success(method_call, resp, nullptr);
+  } else if (strcmp(method, "enumVideoCapturers") == 0) {
+    g_autoptr(FlValue) capturers = fl_value_new_list();
+    sora_flutter_sdk::DeviceList::EnumVideoCapturer(
+      [capturers](std::string device_name, std::string unique_name) {
+      FlValue* map = fl_value_new_map();
+      fl_value_set_string_take(map, "device", fl_value_new_string(device_name.c_str()));
+      fl_value_set_string_take(map, "unique", fl_value_new_string(unique_name.c_str()));
+      fl_value_append_take(capturers, map);
+    });
+    fl_method_call_respond_success(method_call, capturers, nullptr);
+  } else if (strcmp(method, "switchVideoDevice") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    if (args == nullptr) {
+      fl_method_call_respond_error(method_call, "Bad Arguments", "Null constraints arguments received", nullptr, nullptr);
+      return;
+    }
+
+    int client_id = (int)get_as_integer(args, "client_id");
+    auto it = data->clients.find(client_id);
+    if (it == data->clients.end()) {
+      fl_method_call_respond_success(method_call, nullptr, nullptr);
+      return;
+    }
+
+    std::string json = get_as_string(args, "config");
+    sora::CameraDeviceCapturerConfig config = sora_flutter_sdk::JsonToCameraDeviceCapturerConfig(json);
+    it->second->SwitchVideoDevice(config);
+
+    fl_method_call_respond_success(method_call, nullptr, nullptr);
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
     fl_method_call_respond(method_call, response, nullptr);
