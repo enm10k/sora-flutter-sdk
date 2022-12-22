@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:sora_flutter_sdk/src/platform_interface.dart';
 
 class DeviceName {
@@ -9,10 +10,16 @@ class DeviceName {
 }
 
 class DeviceList {
-  static String? get frontCamera {
+  static Future<String?> frontCamera() async {
     try {
       if (Platform.isIOS) {
         return 'Front Camera';
+      } else if (Platform.isAndroid) {
+        return (await videoCapturers())
+            .firstWhereOrNull(
+              (DeviceName e) => e.device.contains('@+frontfacing'),
+            )
+            ?.device;
       } else {
         return null;
       }
@@ -21,10 +28,16 @@ class DeviceList {
     }
   }
 
-  static String? get backCamera {
+  static Future<String?> backCamera() async {
     try {
       if (Platform.isIOS) {
         return 'Back Camera';
+      } else if (Platform.isAndroid) {
+        return (await videoCapturers())
+            .firstWhereOrNull(
+              (DeviceName e) => e.device.contains('@+backfacing'),
+            )
+            ?.device;
       } else {
         return null;
       }

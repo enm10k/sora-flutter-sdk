@@ -12,6 +12,10 @@ void main() async {
   for (final device in devices) {
     print('device => ${device.device}, ${device.unique}');
   }
+  final frontCamera = await DeviceList.frontCamera();
+  final backCamera = await DeviceList.backCamera();
+  print('front camera => $frontCamera');
+  print('back camera => $backCamera');
 
   runApp(const MyApp());
 }
