@@ -14,6 +14,7 @@
 #include <sstream>
 
 #include "config_reader.h"
+#include "device_list.h"
 
 namespace sora_flutter_sdk {
 
@@ -168,6 +169,16 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     bool status = it->second->SendDataChannel(label, data);
     auto resp = flutter::EncodableValue(status);
     result->Success(resp);
+  } else if (method_call.method_name().compare("enumVideoCapturers") == 0) {
+    flutter::EncodableList capturers;
+    sora_flutter_sdk::DeviceList::EnumVideoCapturer(
+      [&capturers](std::string device_name, std::string unique_name) {
+      flutter::EncodableMap info;
+      info[flutter::EncodableValue("device")] = flutter::EncodableValue(device_name.c_str());
+      info[flutter::EncodableValue("unique")] = flutter::EncodableValue(unique_name.c_str());
+      capturers.push_back(info);
+    });
+    result->Success(capturers);
   } else {
     result->NotImplemented();
   }
