@@ -179,6 +179,26 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
       capturers.push_back(info);
     });
     result->Success(capturers);
+  } else if (method_call.method_name().compare("switchVideoDevice") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
+    const flutter::EncodableMap req =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    std::string json = std::get<std::string>(req.at(flutter::EncodableValue("config")));
+    sora::CameraDeviceCapturerConfig config = sora_flutter_sdk::JsonToCameraDeviceCapturerConfig(json);
+    it->second->SwitchVideoDevice(config);
+    result->Success();
   } else {
     result->NotImplemented();
   }
