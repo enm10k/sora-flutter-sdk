@@ -87,18 +87,17 @@ VSCode の場合は、使用するデバイスを接続してからサイドバ�
 
 コマンドラインの場合は `flutter run` で実行できる。オプションでデバイスを指定するか、何も指定しなければ現在接続されているデバイスで実行される。選択可能なデバイスは `flutter devices` で表示できる。
 
-ただし Windows はリリースモードでしか動作しない。そのため `flutter run` ではなく `flutter run --release` を利用すること。
+ビルドはリリースモードを推奨。 `flutter run` ではなく `flutter run --release` を利用すること。
 
 コマンドラインの例:
 
 ```
-flutter run # 接続中のデバイスまたは OS で起動
-flutter run --release # Windows で動かす場合は --release が必須
-flutter run -d iPhone
-flutter run -d iPad
-flutter run -d macOS
+flutter run --release # 接続中のデバイスまたは OS で起動
+flutter run -d iPhone --release
+flutter run -d iPad --release
+flutter run -d macOS --release
 flutter run -d windows --release
-flutter run -d Pixel
+flutter run -d Pixel --release
 ```
 
 ## トラブルシューティング
