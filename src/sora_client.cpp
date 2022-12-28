@@ -465,10 +465,15 @@ void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &bas
   if (source == nullptr) {
     return;
   }
-  video_source_ = source;
 
   std::string video_track_id = rtc::CreateRandomString(16);
-  video_track_ = factory()->CreateVideoTrack(video_track_id, video_source_.get());
+  auto track = factory()->CreateVideoTrack(video_track_id, source.get());
+  if (track == nullptr) {
+    return;
+  }
+
+  video_source_ = source;
+  video_track_ = track;
 
   // pc に新しいトラックを追加して sender を作り直すと映像が送信されないので
   // 既存の sender のトラックを置き換える
