@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
@@ -32,6 +33,7 @@ class _MyAppState extends State<MyApp> {
   var _isConnected = false;
   List<DeviceName> _capturers = List<DeviceName>.empty();
   var _capturerNum = 0;
+  String? _connectDevice;
 
   @override
   void initState() {
@@ -51,12 +53,17 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> initAppState() async {
     _capturers = await DeviceList.videoCapturers();
+    setState(() {
+      _connectDevice = _capturers.firstOrNull?.device;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Builder(builder: _buildMain),
+      home: Scaffold(
+        body: Builder(builder: _buildMain),
+      ),
     );
   }
 
@@ -81,6 +88,7 @@ class _MyAppState extends State<MyApp> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                _buildDeviceList(),
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -104,13 +112,21 @@ class _MyAppState extends State<MyApp> {
                           if (_soraClient == null || _capturers.isEmpty) {
                             return;
                           }
-                          setState(() {
-                            _capturerNum++;
-                            if (_capturerNum >= _capturers.length) {
+                          setState(() async {
+                            var next = _capturerNum + 1;
+                            if (next >= _capturers.length) {
                               _capturerNum = 0;
                             }
-                            final name = _capturers[_capturerNum].device;
-                            _soraClient!.switchVideoDevice(name: name);
+                            final name = _capturers[next].device;
+                            print('switch => ${name}');
+                            final result = await _soraClient!
+                                .switchVideoDevice(name: name);
+                            if (result) {
+                              _capturerNum = next;
+                              _connectDevice = name;
+                            } else {
+                              print('switch failed');
+                            }
                           });
                         },
                         child: Icon(Icons.flip_camera_ios),
@@ -146,6 +162,27 @@ class _MyAppState extends State<MyApp> {
       children: renderers,
     );
   }
+
+  Widget _buildDeviceList() => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('カメラ: '),
+          DropdownButton(
+            value: _connectDevice,
+            items: _capturers
+                .map((DeviceName name) => DropdownMenuItem(
+                      child: Text(name.device),
+                      value: name.device,
+                    ))
+                .toList(),
+            onChanged: (String? value) {
+              setState(() {
+                _connectDevice = value;
+              });
+            },
+          ),
+        ],
+      );
 
   Future<void> _connect() async {
     if (_isConnected) {
