@@ -460,12 +460,18 @@ class SoraClient {
     );
   }
 
-  Future<void> switchVideoDevice({
+  bool _switchingDevice = false;
+
+  Future<bool> switchVideoDevice({
     required String name,
     int? width,
     int? height,
     int? fps,
-  }) async =>
+  }) async {
+    if (_switchingDevice) {
+      return false;
+    } else {
+      _switchingDevice = true;
       await SoraFlutterSdkPlatform.instance.switchVideoDevice(
         client: this,
         name: name,
@@ -473,4 +479,10 @@ class SoraClient {
         height: height,
         fps: fps,
       );
+      Timer.periodic(const Duration(seconds: 2), (timer) {
+        _switchingDevice = false;
+      });
+      return true;
+    }
+  }
 }
