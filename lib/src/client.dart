@@ -454,6 +454,10 @@ class SoraClient {
     int? height,
     int? fps,
   }) async {
+    if (!(Platform.isIOS || Platform.isAndroid)) {
+      return false;
+    }
+
     if (_switchingVideoDevice) {
       return false;
     } else {
