@@ -115,7 +115,7 @@ class _MyAppState extends State<MyApp> {
                           setState(() async {
                             var next = _capturerNum + 1;
                             if (next >= _capturers.length) {
-                              _capturerNum = 0;
+                              next = 0;
                             }
                             final name = _capturers[next].device;
                             print('switch => ${name}');
