@@ -110,27 +110,9 @@ class _MyAppState extends State<MyApp> {
                       ),
                       const SizedBox(width: 20),
                       ElevatedButton(
-                        onPressed: () {
-                          if (_soraClient == null || _capturers.isEmpty) {
-                            return;
-                          }
-                          setState(() async {
-                            var next = _capturerNum + 1;
-                            if (next >= _capturers.length) {
-                              next = 0;
-                            }
-                            final name = _capturers[next].device;
-                            print('switch => ${name}');
-                            final result = await _soraClient!
-                                .switchVideoDevice(name: name);
-                            if (result) {
-                              _capturerNum = next;
-                              _connectDevice = name;
-                            } else {
-                              print('switch failed');
-                            }
-                          });
-                        },
+                        onPressed: _soraClient?.switchingVideoDevice == true
+                            ? null
+                            : _switchCamera,
                         child: Icon(Icons.flip_camera_ios),
                       ),
                     ],
@@ -177,11 +159,8 @@ class _MyAppState extends State<MyApp> {
                       value: name.device,
                     ))
                 .toList(),
-            onChanged: (String? value) {
-              setState(() {
-                _connectDevice = value;
-              });
-            },
+            onChanged:
+                _soraClient?.switchingVideoDevice == true ? null : _setCamera,
           ),
         ],
       );
@@ -250,5 +229,49 @@ class _MyAppState extends State<MyApp> {
       _soraClient = null;
       _isConnected = false;
     });
+  }
+
+  Future<void> _setCamera(String? name) async {
+    if (name == null) {
+      return;
+    }
+
+    if (_soraClient != null) {
+      final result = await _soraClient!.switchVideoDevice(name: name);
+      if (result) {
+        setState(() {
+          _connectDevice = name;
+        });
+      } else {
+        print('switch failed');
+      }
+    } else {
+      setState(() {
+        _connectDevice = name;
+      });
+    }
+  }
+
+  Future<void> _switchCamera() async {
+    if (_soraClient == null || _capturers.isEmpty) {
+      return;
+    }
+
+    var next = _capturerNum + 1;
+    if (next >= _capturers.length) {
+      next = 0;
+    }
+    final name = _capturers[next].device;
+    print('switch => $next, ${name}');
+    final result = await _soraClient!.switchVideoDevice(name: name);
+    if (result) {
+      setState(() {
+        print('switched device => $name, ${_soraClient!.switchingVideoDevice}');
+        _capturerNum = next;
+        _connectDevice = name;
+      });
+    } else {
+      print('switch failed');
+    }
   }
 }
