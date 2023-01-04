@@ -463,6 +463,15 @@ class SoraClient {
     );
   }
 
+  /// 使用中のカメラを指定したカメラに切り替えます。
+  /// カメラの切替に成功すると [true] を返します。
+  /// 指定できるカメラ名は [DeviceList.videoCapturers] で取得できます。
+  ///
+  /// 本メソッドの呼び出し後、再度の切替は一定時間 (0.5 秒程度) の経過後にできるようになります。
+  /// この時間内に本メソッドを呼ぶと何もせずに [false] を返します。
+  ///
+  /// 現在、本メソッドは iOS と Android にのみ対応しています。
+  /// 他のプラットフォームでは何もせずに [false] を返します。
   Future<bool> switchVideoDevice({
     required String name,
     int? width,
