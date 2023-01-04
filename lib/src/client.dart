@@ -282,6 +282,8 @@ class SoraClient {
   /// クライアント ID
   int clientId = 0;
 
+  bool get switchingVideoDevice => _switchingVideoDevice;
+
   /// type: offer の受信時に呼ばれるコールバック
   void Function(String sdp)? onSetOffer;
 
@@ -316,6 +318,7 @@ class SoraClient {
   final Future<void> Function(SoraClient) _disposer;
   final Future<void> Function(SoraClient) _destructor;
   StreamSubscription<dynamic>? _eventSubscription;
+  bool _switchingVideoDevice = false;
 
   /// 本コンストラクタは内部実装で使われるので使わないでください。
   /// 本オブジェクトを生成するには [create] を使ってください。
@@ -445,18 +448,16 @@ class SoraClient {
     );
   }
 
-  bool _switchingDevice = false;
-
   Future<bool> switchVideoDevice({
     required String name,
     int? width,
     int? height,
     int? fps,
   }) async {
-    if (_switchingDevice) {
+    if (_switchingVideoDevice) {
       return false;
     } else {
-      _switchingDevice = true;
+      _switchingVideoDevice = true;
       await SoraFlutterSdkPlatform.instance.switchVideoDevice(
         client: this,
         name: name,
@@ -464,9 +465,9 @@ class SoraClient {
         height: height,
         fps: fps,
       );
-      Timer.periodic(const Duration(seconds: 2), (timer) {
-        _switchingDevice = false;
-      });
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      _switchingVideoDevice = false;
       return true;
     }
   }
