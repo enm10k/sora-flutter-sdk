@@ -282,6 +282,8 @@ class SoraClient {
   /// クライアント ID
   int clientId = 0;
 
+  /// カメラの切替中であれば [true] 。
+  /// 詳細は [switchVideoDevice] を参照してください。
   bool get switchingVideoDevice => _switchingVideoDevice;
 
   /// type: offer の受信時に呼ばれるコールバック
@@ -448,7 +450,7 @@ class SoraClient {
     );
   }
 
-  /// 使用中のカメラを指定したカメラに切り替えます。
+  /// 複数のカメラがある場合、使用中のカメラを指定したカメラに切り替えます。
   /// カメラの切替に成功すると [true] を返します。
   /// 指定できるカメラ名は [DeviceList.videoCapturers] で取得できます。
   ///
