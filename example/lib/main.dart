@@ -35,6 +35,8 @@ class _MyAppState extends State<MyApp> {
   var _isConnected = false;
   List<DeviceName> _capturers = List<DeviceName>.empty();
   var _capturerNum = 0;
+
+  // 接続時に使用するカメラ、または使用中のカメラ
   String? _connectDevice;
 
   @override
@@ -110,6 +112,7 @@ class _MyAppState extends State<MyApp> {
                       ),
                       const SizedBox(width: 20),
                       ElevatedButton(
+                        // カメラの切替中はボタンを無効にする
                         onPressed: _soraClient?.switchingVideoDevice == true
                             ? null
                             : _switchCamera,
@@ -159,6 +162,8 @@ class _MyAppState extends State<MyApp> {
                       value: name.device,
                     ))
                 .toList(),
+
+            // カメラの切替中はボタンを無効にする
             onChanged:
                 _soraClient?.switchingVideoDevice == true ? null : _setCamera,
           ),
@@ -237,15 +242,10 @@ class _MyAppState extends State<MyApp> {
     }
 
     if (_soraClient != null) {
-      final result = await _soraClient!.switchVideoDevice(name: name);
-      if (result) {
-        setState(() {
-          _connectDevice = name;
-        });
-      } else {
-        print('switch failed');
-      }
+      // 接続済みであれば切り替える
+      await _doSwitchCamera(name);
     } else {
+      // 接続済みでなければ接続設定にする
       setState(() {
         _connectDevice = name;
       });
@@ -257,21 +257,42 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
+    // 次に使用するカメラを決める
     var next = _capturerNum + 1;
     if (next >= _capturers.length) {
       next = 0;
     }
     final name = _capturers[next].device;
-    print('switch => $next, ${name}');
-    final result = await _soraClient!.switchVideoDevice(name: name);
+    final result = await _doSwitchCamera(name);
     if (result) {
       setState(() {
-        print('switched device => $name, ${_soraClient!.switchingVideoDevice}');
         _capturerNum = next;
-        _connectDevice = name;
       });
-    } else {
-      print('switch failed');
     }
+  }
+
+  Future<bool> _doSwitchCamera(String name) async {
+    print('switch => ${name}');
+
+    // カメラの切替中は切替ボタンを無効にしたいので、
+    // switchVideoDevice を非同期で呼んでから画面を更新する。
+    // 切替中は _soraClient.switchingVideoDevice が true になる
+    final future = _soraClient!.switchVideoDevice(name: name);
+
+    // _soraClient.switchingVideoDevice で有効・無効を判断するボタンは
+    // この更新で無効になる
+    setState(() {});
+
+    // 切替終了まで待って残りの処理を行う
+    final result = await future;
+    setState(() {
+      if (result) {
+        print('switched device => $name, ${_soraClient!.switchingVideoDevice}');
+        _connectDevice = name;
+      } else {
+        print('switch failed');
+      }
+    });
+    return result;
   }
 }
