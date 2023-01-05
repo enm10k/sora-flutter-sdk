@@ -448,10 +448,14 @@ void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &confi
 
 void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &baseConfig) {
   auto old_texture_id = renderer_->RemoveTrack(video_track_.get());
+  video_sender_->SetTrack(nullptr);
+  video_track_ = nullptr;
 
 #if defined(__ANDROID__)
   static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
 #endif
+
+  video_source_ = nullptr;
 
   sora::CameraDeviceCapturerConfig config = baseConfig;
 #if defined(__ANDROID__)
