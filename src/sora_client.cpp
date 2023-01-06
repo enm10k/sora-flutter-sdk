@@ -276,11 +276,15 @@ bool SoraClient::SendDataChannel(std::string label, std::string data) {
 }
 
 void SoraClient::SetVideoEnabled(bool flag) {
-  video_track_->set_enabled(flag);
+  if (video_track_ != nullptr) {
+    video_track_->set_enabled(flag);
+  }
 }
 
 void SoraClient::SetAudioEnabled(bool flag) {
-  audio_track_->set_enabled(flag);
+  if (audio_track_ != nullptr) {
+    audio_track_->set_enabled(flag);
+  }
 }
 
 void SoraClient::OnSetOffer(std::string offer) {
