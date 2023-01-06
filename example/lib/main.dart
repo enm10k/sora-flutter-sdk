@@ -152,9 +152,10 @@ class _MyAppState extends State<MyApp> {
       signalingUrls: Environment.urlCandidates,
       channelId: Environment.channelId,
       role: SoraRole.sendrecv,
-    );
-
-    config.metadata = Environment.signalingMetadata;
+    )
+      ..metadata = Environment.signalingMetadata
+      ..video = _videoEnabled
+      ..audio = _audioEnabled;
 
     final soraClient = await SoraClient.create(config)
       ..onDisconnect = (String errorCode, String message) {

@@ -220,26 +220,31 @@ void SoraClient::DoConnect() {
   renderer_.reset(new SoraRenderer(config_.texture_registrar));
 #endif
 
-  sora::CameraDeviceCapturerConfig cam_config;
-  cam_config.device_name = config_.video_device_name;
-  cam_config.width = config_.video_device_width;
-  cam_config.height = config_.video_device_height;
-  cam_config.fps = config_.video_device_fps;
+  if (config_.signaling_config.video) {
+    sora::CameraDeviceCapturerConfig cam_config;
+    cam_config.device_name = config_.video_device_name;
+    cam_config.width = config_.video_device_width;
+    cam_config.height = config_.video_device_height;
+    cam_config.fps = config_.video_device_fps;
 #if defined(__ANDROID__)
-  auto env = io_env_;
-  cam_config.jni_env = env;
-  cam_config.application_context = GetAndroidApplicationContext(env);
+    auto env = io_env_;
+    cam_config.jni_env = env;
+    cam_config.application_context = GetAndroidApplicationContext(env);
 #endif
-  cam_config.signaling_thread = signaling_thread();
-  video_source_ = sora::CreateCameraDeviceCapturer(cam_config);
+    cam_config.signaling_thread = signaling_thread();
+    video_source_ = sora::CreateCameraDeviceCapturer(cam_config);
 
-  std::string audio_track_id = rtc::CreateRandomString(16);
-  std::string video_track_id = rtc::CreateRandomString(16);
-  audio_track_ = factory()->CreateAudioTrack(
-      audio_track_id,
-      factory()->CreateAudioSource(cricket::AudioOptions()).get());
-  video_track_ =
-      factory()->CreateVideoTrack(video_track_id, video_source_.get());
+    std::string video_track_id = rtc::CreateRandomString(16);
+    video_track_ =
+        factory()->CreateVideoTrack(video_track_id, video_source_.get());
+  }
+
+  if (config_.signaling_config.audio) {
+    std::string audio_track_id = rtc::CreateRandomString(16);
+    audio_track_ = factory()->CreateAudioTrack(
+        audio_track_id,
+        factory()->CreateAudioSource(cricket::AudioOptions()).get());
+  }
 
   sora::SoraSignalingConfig config = config_.signaling_config;
   config.pc_factory = factory();
