@@ -91,23 +91,27 @@ class _MyAppState extends State<MyApp> {
                     const Text('映像'),
                     Switch(
                       value: _videoEnabled,
-                      onChanged: (value) {
-                        setState(() {
-                          _videoEnabled = value;
-                          _soraClient?.setVideoEnabled(_videoEnabled);
-                        });
-                      },
+                      onChanged: _isConnected
+                          ? (value) {
+                              setState(() {
+                                _videoEnabled = value;
+                                _soraClient?.setVideoEnabled(_videoEnabled);
+                              });
+                            }
+                          : null,
                     ),
                     const SizedBox(width: 8),
                     const Text('音声'),
                     Switch(
                       value: _audioEnabled,
-                      onChanged: (value) {
-                        setState(() {
-                          _audioEnabled = value;
-                          _soraClient?.setAudioEnabled(_audioEnabled);
-                        });
-                      },
+                      onChanged: _isConnected
+                          ? (value) {
+                              setState(() {
+                                _audioEnabled = value;
+                                _soraClient?.setAudioEnabled(_audioEnabled);
+                              });
+                            }
+                          : null,
                     ),
                   ],
                 ),
