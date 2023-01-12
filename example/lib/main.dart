@@ -110,10 +110,9 @@ class _MyAppState extends State<MyApp> {
                       ),
                       const SizedBox(width: 20),
                       ElevatedButton(
+                        // iOS, Android のみサポート
                         // カメラの切替中はボタンを無効にする
-                        onPressed: _soraClient?.switchingVideoDevice == true
-                            ? null
-                            : _switchCamera,
+                        onPressed: _canSwitchCamera,
                         child: Icon(Icons.flip_camera_ios),
                       ),
                     ],
@@ -247,6 +246,16 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         _connectDevice = name;
       });
+    }
+  }
+
+  void Function()? get _canSwitchCamera {
+    if ((Platform.isIOS || Platform.isAndroid) &&
+        _soraClient != null &&
+        _soraClient?.switchingVideoDevice != true) {
+      return _switchCamera;
+    } else {
+      return null;
     }
   }
 
