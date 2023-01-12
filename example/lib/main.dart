@@ -202,6 +202,8 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _soraClient = null;
       _isConnected = false;
+      _videoEnabled = true;
+      _audioEnabled = true;
     });
   }
 }
