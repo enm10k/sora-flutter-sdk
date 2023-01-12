@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
@@ -7,6 +8,7 @@ import 'dart:convert';
 
 import 'video_track.dart';
 import 'sdk.dart';
+import 'version.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
 // flutter pub run build_runner build
@@ -122,12 +124,25 @@ class SoraDataChannel {
 /// 接続設定です。
 @JsonSerializable()
 class SoraClientConfig {
+  /// アプリケーションが利用する Flutter のバージョンを指定します。
+  /// 指定したバージョンはシグナリングでクライアント情報に含まれます。
+  /// 必ず指定してください。
+  static String? flutterVersion;
+
   /// 本オブジェクトを生成します。
   SoraClientConfig({
     required this.signalingUrls,
     required this.channelId,
     required this.role,
-  });
+  }) {
+    if (flutterVersion == null) {
+      throw UnimplementedError(
+          'SoraClientConfig.flutterVersion must be specified');
+    }
+    soraClient = 'Sora Flutter SDK ${Version.sdkVersion} '
+        '(Flutter ${SoraClientConfig.flutterVersion!}, '
+        'Dart ${Platform.version})';
+  }
 
   /// シグナリング URL のリスト
   List<Uri> signalingUrls;
@@ -142,7 +157,7 @@ class SoraClientConfig {
   String? bundleId;
 
   /// クライアント名
-  String soraClient = "Sora Flutter SDK";
+  late String soraClient;
 
   /// 証明書の検証の可否。 true を指定すると検証を行いません。
   bool? insecure;

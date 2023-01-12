@@ -6,6 +6,8 @@ import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 import 'environment.dart';
 
 void main() {
+  SoraClientConfig.flutterVersion = Environment.flutterVersion;
+
   runApp(const MyApp());
 }
 
