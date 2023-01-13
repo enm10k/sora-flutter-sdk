@@ -181,8 +181,6 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_enumVideoCapturers(JNI
 extern "C" JNIEXPORT void JNICALL
 Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_switchVideoDevice(JNIEnv* env,
                                          jobject /* this */, jobject client, jobject call, jobject result) {
-   reinterpret_cast<SoraClientWrapper*>(client)->p->Connect();
-
   sora::CameraDeviceCapturerConfig config;
   // var json = call.argument<String[]>("config");
   webrtc::ScopedJavaLocalRef<jclass> callcls(env, env->GetObjectClass(call));
