@@ -7,7 +7,7 @@ import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
 import 'environment.dart';
 
-void main() {
+void main() async {
   SoraClientConfig.flutterVersion = Environment.flutterVersion;
 
   // 映像キャプチャーデバイス一覧
