@@ -118,9 +118,8 @@ class _MyAppState extends State<MyApp> {
     if (_isConnected) {
       return;
     }
-    if (_soraClient != null) {
-      dispose();
-    }
+
+    await _soraClient?.dispose();
 
     final config = SoraClientConfig(
       signalingUrls: Environment.urlCandidates,
@@ -133,6 +132,7 @@ class _MyAppState extends State<MyApp> {
     final soraClient = await SoraClient.create(config)
       ..onDisconnect = (String errorCode, String message) {
         print("OnDisconnect: ec=$errorCode message=$message");
+        _disconnect();
       }
       ..onSetOffer = (String offer) {
         print("OnSetOffer: $offer");
