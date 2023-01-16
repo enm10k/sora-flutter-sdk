@@ -184,6 +184,49 @@ FlutterError *badArgumentsError(NSString *message) {
 
         bool resp = client.client->SendDataChannel(label, data);
         result(@(resp));
+
+    } else if ([call.method isEqualToString: @"setVideoEnabled"]) {
+       if (call.arguments == NULL) {
+           result(nullArgumentsError());
+           return;
+       } else if (![call.arguments isKindOfClass: [NSDictionary class]]) {
+           result(invalidArgumentsError());
+           return;
+       }
+
+       NSDictionary *arguments = (NSDictionary *)call.arguments;
+       int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
+       SoraClientWrapper *client = self.clients[@(clientId)];
+       if (client == nil) {
+           result(badArgumentsError(@"Client Not Found"));
+           return;
+       }
+
+      bool flag = [(NSNumber *)arguments[@"flag"] boolValue];
+      client.client->SetVideoEnabled(flag);
+       result(nil);
+
+     } else if ([call.method isEqualToString: @"setAudioEnabled"]) {
+       if (call.arguments == NULL) {
+           result(nullArgumentsError());
+           return;
+       } else if (![call.arguments isKindOfClass: [NSDictionary class]]) {
+           result(invalidArgumentsError());
+           return;
+       }
+
+       NSDictionary *arguments = (NSDictionary *)call.arguments;
+       int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
+       SoraClientWrapper *client = self.clients[@(clientId)];
+       if (client == nil) {
+           result(badArgumentsError(@"Client Not Found"));
+           return;
+       }
+
+      bool flag = [(NSNumber *)arguments[@"flag"] boolValue];
+      client.client->SetAudioEnabled(flag);
+       result(nil);
+
     } else {
         result(FlutterMethodNotImplemented);
     }

@@ -19,4 +19,18 @@ class SoraFlutterSdk {
       data: data,
     );
   }
+
+  static Future<void> setVideoEnabled({
+    required SoraClient client,
+    required bool flag,
+  }) async =>
+      await SoraFlutterSdkPlatform.instance
+          .setVideoEnabled(client: client, flag: flag);
+
+  static Future<void> setAudioEnabled({
+    required SoraClient client,
+    required bool flag,
+  }) async =>
+      await SoraFlutterSdkPlatform.instance
+          .setAudioEnabled(client: client, flag: flag);
 }

@@ -21,6 +21,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   SoraClient? _soraClient;
   var _isConnected = false;
+  var _videoEnabled = true;
+  var _audioEnabled = true;
 
   @override
   void initState() {
@@ -40,7 +42,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Builder(builder: _buildMain),
+      home: Scaffold(
+        body: Builder(builder: _buildMain),
+      ),
     );
   }
 
@@ -51,39 +55,67 @@ class _MyAppState extends State<MyApp> {
         children: [
           SizedBox(
             height: screenSize.height * 0.8,
-            child:
-            SingleChildScrollView(
-              child:
-              Center(
+            child: SingleChildScrollView(
+              child: Center(
                 child: _buildRenderers(),
               ),
             ),
           ),
           SizedBox(
             height: screenSize.height * 0.2,
-            child:
-            Column(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _connect();
-                        },
-                        child: const Text('接続する'),
-                      ),
-                      const SizedBox(width: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _disconnect();
-                        },
-                        child: const Text('切断する'),
-                      ),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _connect();
+                      },
+                      child: const Text('接続する'),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _disconnect();
+                      },
+                      child: const Text('切断する'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('ミュート:'),
+                    const SizedBox(width: 20),
+                    const Text('映像'),
+                    Switch(
+                      value: _videoEnabled,
+                      onChanged: _isConnected
+                          ? (value) {
+                              setState(() {
+                                _videoEnabled = value;
+                                _soraClient?.setVideoEnabled(_videoEnabled);
+                              });
+                            }
+                          : null,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text('音声'),
+                    Switch(
+                      value: _audioEnabled,
+                      onChanged: _isConnected
+                          ? (value) {
+                              setState(() {
+                                _audioEnabled = value;
+                                _soraClient?.setAudioEnabled(_audioEnabled);
+                              });
+                            }
+                          : null,
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -99,10 +131,10 @@ class _MyAppState extends State<MyApp> {
     if (_soraClient != null) {
       renderers = _soraClient!.tracks
           .map((track) => SoraRenderer(
-        width: 320,
-        height: 240,
-        track: track,
-      ))
+                width: 320,
+                height: 240,
+                track: track,
+              ))
           .toList();
     }
 
@@ -125,9 +157,7 @@ class _MyAppState extends State<MyApp> {
       signalingUrls: Environment.urlCandidates,
       channelId: Environment.channelId,
       role: SoraRole.sendrecv,
-    );
-
-    config.metadata = Environment.signalingMetadata;
+    )..metadata = Environment.signalingMetadata;
 
     final soraClient = await SoraClient.create(config)
       ..onDisconnect = (String errorCode, String message) {
@@ -174,6 +204,8 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _soraClient = null;
       _isConnected = false;
+      _videoEnabled = true;
+      _audioEnabled = true;
     });
   }
 }

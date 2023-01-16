@@ -62,6 +62,9 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void Disconnect();
   bool SendDataChannel(std::string label, std::string data);
 
+  void SetVideoEnabled(bool flag);
+  void SetAudioEnabled(bool flag);
+
   void OnSetOffer(std::string offer) override;
   void OnDisconnect(sora::SoraSignalingErrorCode ec,
                     std::string message) override;
