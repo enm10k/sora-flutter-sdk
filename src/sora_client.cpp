@@ -19,7 +19,6 @@
 #endif
 
 #include <sora/audio_device_module.h>
-#include <sora/camera_device_capturer.h>
 #include <sora/java_context.h>
 #include <sora/sora_video_decoder_factory.h>
 #include <sora/sora_video_encoder_factory.h>
@@ -298,6 +297,9 @@ void SoraClient::OnSetOffer(std::string offer) {
     webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>>
         video_result =
             conn_->GetPeerConnection()->AddTrack(video_track_, {stream_id});
+   if (video_result.ok()) {
+     video_sender_ = video_result.value();
+   }
   }
 
   if (video_track_ != nullptr) {
@@ -453,6 +455,58 @@ void SoraClient::SendEvent(const boost::json::value& v) {
     fl_event_channel_send(event_channel_.get(), params, nullptr, nullptr);
   }
 #endif
+}
+
+void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
+  boost::asio::post(*ioc_, [self = shared_from_this(), config]() {
+    self->DoSwitchVideoDevice(config);
+  });
+}
+
+void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &baseConfig) {
+  auto old_texture_id = renderer_->RemoveTrack(video_track_.get());
+  video_sender_->SetTrack(nullptr);
+  video_track_ = nullptr;
+
+#if defined(__ANDROID__)
+  static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
+#endif
+
+  video_source_ = nullptr;
+
+  sora::CameraDeviceCapturerConfig config = baseConfig;
+#if defined(__ANDROID__)
+  auto env = io_env_;
+  config.jni_env = env;
+  config.application_context = GetAndroidApplicationContext(env);
+#endif
+  config.signaling_thread = signaling_thread();
+
+  auto source = sora::CreateCameraDeviceCapturer(config);
+  if (source == nullptr) {
+    return;
+  }
+
+  std::string video_track_id = rtc::CreateRandomString(16);
+  auto track = factory()->CreateVideoTrack(video_track_id, source.get());
+  if (track == nullptr) {
+    return;
+  }
+
+  video_source_ = source;
+  video_track_ = track;
+
+  // pc に新しいトラックを追加して sender を作り直すと映像が送信されないので
+  // 既存の sender のトラックを置き換える
+  video_sender_->SetTrack(video_track_.get());
+
+  auto new_texture_id = renderer_->AddTrack(video_track_.get());
+  boost::json::object obj;
+  obj["event"] = "SwitchVideoTrack";
+  obj["connection_id"] = "";
+  obj["old_texture_id"] = old_texture_id;
+  obj["new_texture_id"] = new_texture_id;
+  SendEvent(obj);
 }
 
 }

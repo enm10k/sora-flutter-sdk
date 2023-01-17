@@ -14,6 +14,7 @@
 #include <sstream>
 
 #include "config_reader.h"
+#include "device_list.h"
 
 namespace sora_flutter_sdk {
 
@@ -168,6 +169,40 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     bool status = it->second->SendDataChannel(label, data);
     auto resp = flutter::EncodableValue(status);
     result->Success(resp);
+  } else if (method_call.method_name().compare("enumVideoCapturers") == 0) {
+    flutter::EncodableList capturers;
+    sora_flutter_sdk::DeviceList::EnumVideoCapturer(
+      [&capturers](std::string device_name, std::string unique_name) {
+      flutter::EncodableMap info;
+      info[flutter::EncodableValue("device")] = flutter::EncodableValue(device_name.c_str());
+      info[flutter::EncodableValue("unique")] = flutter::EncodableValue(unique_name.c_str());
+      capturers.push_back(info);
+    });
+    result->Success(capturers);
+  } else if (method_call.method_name().compare("switchVideoDevice") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+    const flutter::EncodableMap params =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    int client_id = (int)get_as_integer(params, "client_id");
+    auto it = clients_.find(client_id);
+    if (it == clients_.end()) {
+      result->Success();
+      return;
+    }
+
+    const flutter::EncodableMap req =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    std::string json = std::get<std::string>(req.at(flutter::EncodableValue("config")));
+    sora::CameraDeviceCapturerConfig config = sora_flutter_sdk::JsonToCameraDeviceCapturerConfig(json);
+    it->second->SwitchVideoDevice(config);
+
+   // result.success(null);
+   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
+   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
+   env->CallVoidMethod(result, successid, nullptr);
   } else if (method_call.method_name().compare("setVideoEnabled") == 0) {
     if (!method_call.arguments()) {
       result->Error("Bad Arguments", "Null constraints arguments received");
@@ -181,7 +216,7 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
       result->Error("Client Not Found", "");
       return;
     }
-
+    
     bool flag = std::get<bool>(params.at(flutter::EncodableValue("flag")));
     it->second->SetVideoEnabled(flag);
     result->Success();

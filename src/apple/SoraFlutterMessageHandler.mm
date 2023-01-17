@@ -8,6 +8,7 @@
 
 #include "sora_client.h"
 #include "config_reader.h"
+#include "device_list.h"
 
 using namespace sora_flutter_sdk;
 
@@ -184,6 +185,41 @@ FlutterError *badArgumentsError(NSString *message) {
 
         bool resp = client.client->SendDataChannel(label, data);
         result(@(resp));
+
+    } else if ([call.method isEqualToString: @"enumVideoCapturers"]) {
+        NSMutableArray *resp = [[NSMutableArray alloc] init];
+        DeviceList::EnumVideoCapturer(
+                          [resp](std::string device_name, std::string unique_name) {
+                            NSDictionary *info = @{
+                            @"device": [SoraUtils stringForStdString: device_name],
+                            @"unique": [SoraUtils stringForStdString: unique_name],
+                            };
+                            [resp addObject: info];
+                          });
+
+        result(resp);
+
+    } else if ([call.method isEqualToString: @"switchVideoDevice"]) {
+        if (call.arguments == NULL) {
+            result(nullArgumentsError());
+            return;
+        } else if (![call.arguments isKindOfClass: [NSDictionary class]]) {
+            result(invalidArgumentsError());
+            return;
+        }
+
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
+        int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
+        SoraClientWrapper *client = self.clients[@(clientId)];
+        if (client == nil) {
+            result(badArgumentsError(@"Client Not Found"));
+            return;
+        }
+
+        std::string json = [SoraUtils stdString: arguments forKey: @"config"];
+        sora::CameraDeviceCapturerConfig config = sora_flutter_sdk::JsonToCameraDeviceCapturerConfig(json);
+        client.client->SwitchVideoDevice(config);
+        result(nil);
 
     } else if ([call.method isEqualToString: @"setVideoEnabled"]) {
        if (call.arguments == NULL) {

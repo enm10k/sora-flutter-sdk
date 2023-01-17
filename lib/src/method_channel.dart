@@ -55,6 +55,32 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
   }
 
   @override
+  Future<List<Map<String, dynamic>>> videoCapturers() async {
+    List<Object?> list = await methodChannel.invokeMethod('enumVideoCapturers');
+    return list.map((e) {
+      final map = e as Map<dynamic, dynamic>;
+      return Map<String,dynamic>.from(map);
+    }).toList();
+  }
+
+  @override
+  Future<void> switchVideoDevice({
+    required SoraClient client,
+    required String name,
+    required int? width,
+    required int? height,
+    required int? fps,
+  }) async =>
+      await methodChannel.invokeMethod('switchVideoDevice', {
+        'client_id': client.clientId,
+        'config': json.encode({
+          'name': name,
+          'width': width,
+          'height': height,
+          'fps': fps,
+        }),
+
+  @override
   Future<void> setVideoEnabled({
     required SoraClient client,
     required bool flag,

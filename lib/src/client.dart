@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'video_track.dart';
 import 'sdk.dart';
 import 'version.dart';
+import 'platform_interface.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
 // flutter pub run build_runner build
@@ -296,6 +297,10 @@ class SoraClient {
   /// クライアント ID
   int clientId = 0;
 
+  /// カメラの切替中であれば [true] 。
+  /// 詳細は [switchVideoDevice] を参照してください。
+  bool get switchingVideoDevice => _switchingVideoDevice;
+
   /// type: offer の受信時に呼ばれるコールバック
   void Function(String sdp)? onSetOffer;
 
@@ -317,6 +322,8 @@ class SoraClient {
   /// 映像トラックが本オブジェクトから除去されたときに呼ばれるコールバック
   void Function(SoraVideoTrack track)? onRemoveTrack;
 
+  void Function(SoraVideoTrack track)? onSwitchTrack;
+
   /// DataChannel の確立時に呼ばれるコールバック
   void Function(String label)? onDataChannel;
 
@@ -328,6 +335,7 @@ class SoraClient {
   final Future<void> Function(SoraClient) _disposer;
   final Future<void> Function(SoraClient) _destructor;
   StreamSubscription<dynamic>? _eventSubscription;
+  bool _switchingVideoDevice = false;
 
   /// 本コンストラクタは内部実装で使われるので使わないでください。
   /// 本オブジェクトを生成するには [create] を使ってください。
@@ -400,6 +408,22 @@ class SoraClient {
           }
         }
         break;
+      case 'SwitchVideoTrack':
+        String connectionId = js['connection_id'];
+        int oldTextureId = js['old_texture_id'];
+        int newTextureId = js['new_texture_id'];
+        SoraVideoTrack? oldTrack = tracks.firstWhereOrNull((element) =>
+            element.connectionId == connectionId &&
+            element.textureId == oldTextureId);
+        if (oldTrack != null) {
+          tracks.remove(oldTrack);
+          final newTrack = SoraVideoTrack(connectionId, newTextureId);
+          tracks.add(newTrack);
+          if (onSwitchTrack != null) {
+            onSwitchTrack!(newTrack);
+          }
+        }
+        break;
       case 'DataChannel':
         String label = js['label'];
         if (onDataChannel != null) {
@@ -439,6 +463,43 @@ class SoraClient {
       label: label,
       data: data,
     );
+  }
+
+  /// 複数のカメラがある場合、使用中のカメラを指定したカメラに切り替えます。
+  /// カメラの切替に成功すると [true] を返します。
+  /// 指定できるカメラ名は [DeviceList.videoCapturers] で取得できます。
+  ///
+  /// 本メソッドの呼び出し後、再度の切替は一定時間 (0.5 秒程度) の経過後にできるようになります。
+  /// この時間内に本メソッドを呼ぶと何もせずに [false] を返します。
+  ///
+  /// 現在、本メソッドは iOS と Android にのみ対応しています。
+  /// 他のプラットフォームでは何もせずに [false] を返します。
+  Future<bool> switchVideoDevice({
+    required String name,
+    int? width,
+    int? height,
+    int? fps,
+  }) async {
+    if (!(Platform.isIOS || Platform.isAndroid)) {
+      return false;
+    }
+
+    if (_switchingVideoDevice) {
+      return false;
+    } else {
+      _switchingVideoDevice = true;
+      await SoraFlutterSdkPlatform.instance.switchVideoDevice(
+        client: this,
+        name: name,
+        width: width,
+        height: height,
+        fps: fps,
+      );
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      _switchingVideoDevice = false;
+      return true;
+    }
   }
 
   /// 映像のキャプチャーと描画を一時的に停止、または再開します。

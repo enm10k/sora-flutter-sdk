@@ -38,6 +38,20 @@ abstract class SoraFlutterSdkPlatform extends PlatformInterface {
     throw UnimplementedError('sendDataChannel() has not been implemented.');
   }
 
+  Future<List<Map<String, dynamic>>> videoCapturers() async {
+    throw UnimplementedError('videoCapturers() has not been implemented.');
+  }
+
+  Future<void> switchVideoDevice({
+    required SoraClient client,
+    required String name,
+    required int? width,
+    required int? height,
+    required int? fps,
+  }) async {
+    throw UnimplementedError('switchVideoDevice() has not been implemented.');
+  }
+
   Future<void> setVideoEnabled({
     required SoraClient client,
     required bool flag,

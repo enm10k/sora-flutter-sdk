@@ -65,6 +65,8 @@ list(APPEND PLUGIN_SOURCES
   "../src/sora_client.h"
   "../src/sora_renderer.cpp"
   "../src/sora_renderer.h"
+  "../src/device_list.h"
+  "../src/device_list.cpp"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
