@@ -26,7 +26,9 @@ Pod::Spec.new do |s|
   s.vendored_libraries = [
     "#{sdk_dir}/sora/lib/libsora.a",
     "#{sdk_dir}/webrtc/lib/libwebrtc.a",
+    "#{sdk_dir}/boost/lib/libboost_atomic.a",
     "#{sdk_dir}/boost/lib/libboost_container.a",
+    "#{sdk_dir}/boost/lib/libboost_filesystem.a",
     "#{sdk_dir}/boost/lib/libboost_json.a",
   ]
 
