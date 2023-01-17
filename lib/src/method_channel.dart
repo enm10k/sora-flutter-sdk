@@ -59,7 +59,7 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
     List<Object?> list = await methodChannel.invokeMethod('enumVideoCapturers');
     return list.map((e) {
       final map = e as Map<dynamic, dynamic>;
-      return Map<String,dynamic>.from(map);
+      return Map<String, dynamic>.from(map);
     }).toList();
   }
 
