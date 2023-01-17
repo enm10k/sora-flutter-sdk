@@ -195,10 +195,10 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_switchVideoDevice(JNIE
   config = sora_flutter_sdk::JsonToCameraDeviceCapturerConfig(json);
   reinterpret_cast<SoraClientWrapper*>(client)->p->SwitchVideoDevice(config);
   
-  // result.success(alist);
+  // result.success(null);
   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
-  env->CallVoidMethod(result, successid, alistobj.obj());
+  env->CallVoidMethod(result, successid, nullptr);
 }
 
 extern "C" JNIEXPORT void JNICALL

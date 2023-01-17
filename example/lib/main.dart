@@ -93,32 +93,31 @@ class _MyAppState extends State<MyApp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildDeviceList(),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _connect();
-                        },
-                        child: const Text('接続する'),
-                      ),
-                      const SizedBox(width: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await _disconnect();
-                        },
-                        child: const Text('切断する'),
-                      ),
-                      const SizedBox(width: 20),
-                      ElevatedButton(
-                        // iOS, Android のみサポート
-                        // カメラの切替中はボタンを無効にする
-                        onPressed: _canSwitchCamera,
-                        child: Icon(Icons.flip_camera_ios),
-                      ),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _connect();
+                      },
+                      child: const Text('接続する'),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _disconnect();
+                      },
+                      child: const Text('切断する'),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      // iOS, Android のみサポート
+                      // カメラの切替中はボタンを無効にする
+                      onPressed: _canSwitchCamera,
+                      child: Icon(Icons.flip_camera_ios),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

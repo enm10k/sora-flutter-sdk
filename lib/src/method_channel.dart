@@ -79,6 +79,7 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
           'height': height,
           'fps': fps,
         }),
+      });
 
   @override
   Future<void> setVideoEnabled({
