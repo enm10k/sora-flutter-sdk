@@ -39,30 +39,21 @@ class _MyAppState extends State<MyApp> {
 
   // 接続時に使用するカメラ、または使用中のカメラ
   String? _connectDevice;
-  var _videoEnabled = true;
-  var _audioEnabled = true;
+  var _video = true;
+  var _audio = true;
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-    initAppState();
-  }
 
-  Future<void> initPlatformState() async {
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) {
-      return;
-    }
-  }
-
-  Future<void> initAppState() async {
-    _capturers = await DeviceList.videoCapturers();
-    setState(() {
-      _connectDevice = _capturers.firstOrNull?.device;
-    });
+    // initState は async にできないのでクロージャーで実行する
+    () async {
+      final capturers = await DeviceList.videoCapturers();
+      setState(() {
+        _capturers = capturers;
+        _connectDevice = _capturers.firstOrNull?.device;
+      });
+    }();
   }
 
   @override
@@ -81,10 +72,8 @@ class _MyAppState extends State<MyApp> {
         children: [
           SizedBox(
             height: screenSize.height * 0.8,
-            child: SingleChildScrollView(
-              child: Center(
-                child: _buildRenderers(),
-              ),
+            child: VideoGroupView(
+              soraClient: _soraClient,
             ),
           ),
           SizedBox(
@@ -92,64 +81,36 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildDeviceList(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        await _connect();
-                      },
-                      child: const Text('接続する'),
-                    ),
-                    const SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await _disconnect();
-                      },
-                      child: const Text('切断する'),
-                    ),
-                    const SizedBox(width: 20),
-                    ElevatedButton(
-                      // iOS, Android のみサポート
-                      // カメラの切替中はボタンを無効にする
-                      onPressed: _canSwitchCamera,
-                      child: Icon(Icons.flip_camera_ios),
-                    ),
-                  ],
+                DeviceListDropdownButton(
+                    connectDevice: _connectDevice,
+                    capturers: _capturers,
+                    onChanged: (device) {
+                      setState(() {
+                        _connectDevice = device;
+                        if (_soraClient?.switchingVideoDevice == true) {
+                          _setCamera(device);
+                        }
+                      });
+                    }),
+                ConnectButtons(
+                  onConnect: _connect,
+                  onDisconnect: _disconnect,
+                  canSwitchCamera: _canSwitchCamera,
+                  onSwitchCamera: _switchCamera,
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('ミュート:'),
-                    const SizedBox(width: 20),
-                    const Text('映像'),
-                    Switch(
-                      value: _videoEnabled,
-                      onChanged: _isConnected
-                          ? (value) {
-                              setState(() {
-                                _videoEnabled = value;
-                                _soraClient?.setVideoEnabled(_videoEnabled);
-                              });
-                            }
-                          : null,
-                    ),
-                    const SizedBox(width: 8),
-                    const Text('音声'),
-                    Switch(
-                      value: _audioEnabled,
-                      onChanged: _isConnected
-                          ? (value) {
-                              setState(() {
-                                _audioEnabled = value;
-                                _soraClient?.setAudioEnabled(_audioEnabled);
-                              });
-                            }
-                          : null,
-                    ),
-                  ],
+                MuteButtons(
+                  enabled: _isConnected,
+                  video: _video,
+                  audio: _audio,
+                  onChanged: (video, audio) {
+                    setState(() {
+                      _video = video;
+                      _audio = audio;
+                      _soraClient?.setVideoEnabled(_video);
+                      _soraClient?.setVideoEnabled(_audio);
+                    });
+                  },
                 ),
               ],
             ),
@@ -158,47 +119,6 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-
-  Widget _buildRenderers() {
-    print('build renderers');
-    var renderers = List<SoraRenderer>.empty();
-    if (_soraClient != null) {
-      renderers = _soraClient!.tracks
-          .map((track) => SoraRenderer(
-                width: 320,
-                height: 240,
-                track: track,
-              ))
-          .toList();
-    }
-
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      children: renderers,
-    );
-  }
-
-  Widget _buildDeviceList() => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('カメラ: '),
-          DropdownButton(
-            value: _connectDevice,
-            items: _capturers
-                .map((DeviceName name) => DropdownMenuItem(
-                      child: Text(name.device),
-                      value: name.device,
-                    ))
-                .toList(),
-
-            // カメラの切替中はボタンを無効にする
-            onChanged:
-                _soraClient?.switchingVideoDevice == true ? null : _setCamera,
-          ),
-        ],
-      );
 
   Future<void> _connect() async {
     if (_isConnected) {
@@ -263,8 +183,8 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _soraClient = null;
       _isConnected = false;
-      _videoEnabled = true;
-      _audioEnabled = true;
+      _video = true;
+      _audio = true;
     });
   }
 
@@ -284,13 +204,13 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void Function()? get _canSwitchCamera {
+  bool get _canSwitchCamera {
     if ((Platform.isIOS || Platform.isAndroid) &&
         _soraClient != null &&
         _soraClient?.switchingVideoDevice != true) {
-      return _switchCamera;
+      return true;
     } else {
-      return null;
+      return false;
     }
   }
 
@@ -336,5 +256,168 @@ class _MyAppState extends State<MyApp> {
       }
     });
     return result;
+  }
+}
+
+class DeviceListDropdownButton extends StatelessWidget {
+  DeviceListDropdownButton({
+    super.key,
+    required this.connectDevice,
+    required this.capturers,
+    required this.onChanged,
+  });
+
+  final String? connectDevice;
+  final List<DeviceName> capturers;
+  final void Function(String?) onChanged;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('カメラ: '),
+          DropdownButton(
+            value: connectDevice,
+            items: capturers
+                .map((DeviceName name) => DropdownMenuItem(
+                      child: Text(name.device),
+                      value: name.device,
+                    ))
+                .toList(),
+
+            // カメラの切替中はボタンを無効にする
+            onChanged: onChanged,
+          ),
+        ],
+      );
+}
+
+class ConnectButtons extends StatelessWidget {
+  ConnectButtons({
+    super.key,
+    required this.onConnect,
+    required this.onDisconnect,
+    required this.canSwitchCamera,
+    required this.onSwitchCamera,
+  });
+
+  final void Function() onConnect;
+  final void Function() onDisconnect;
+  final bool canSwitchCamera;
+  final void Function() onSwitchCamera;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          ElevatedButton(
+            onPressed: onConnect,
+            child: const Text('接続する'),
+          ),
+          const SizedBox(width: 20),
+          ElevatedButton(
+            onPressed: onDisconnect,
+            child: const Text('切断する'),
+          ),
+          const SizedBox(width: 20),
+          SwitchCameraButton(
+            enabled: canSwitchCamera,
+            onPressed: onSwitchCamera,
+          ),
+        ],
+      );
+}
+
+class MuteButtons extends StatelessWidget {
+  MuteButtons({
+    super.key,
+    required this.enabled,
+    required this.video,
+    required this.audio,
+    required this.onChanged,
+  });
+
+  final bool enabled;
+  final bool video;
+  final bool audio;
+  final void Function(bool video, bool audio) onChanged;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('ミュート:'),
+          const SizedBox(width: 20),
+          const Text('映像'),
+          Switch(
+            value: video,
+            onChanged: enabled
+                ? (flag) {
+                    onChanged(flag, audio);
+                  }
+                : null,
+          ),
+          const SizedBox(width: 8),
+          const Text('音声'),
+          Switch(
+            value: audio,
+            onChanged: enabled
+                ? (flag) {
+                    onChanged(video, flag);
+                  }
+                : null,
+          ),
+        ],
+      );
+}
+
+class SwitchCameraButton extends StatelessWidget {
+  SwitchCameraButton({
+    super.key,
+    required this.enabled,
+    required this.onPressed,
+  });
+
+  final bool enabled;
+  final void Function() onPressed;
+
+  @override
+  Widget build(BuildContext context) => ElevatedButton(
+        onPressed: enabled ? onPressed : null,
+        child: Icon(Icons.flip_camera_ios),
+      );
+}
+
+class VideoGroupView extends StatelessWidget {
+  VideoGroupView({
+    super.key,
+    required this.soraClient,
+  });
+
+  final SoraClient? soraClient;
+
+  @override
+  Widget build(BuildContext context) {
+    var renderers = List<SoraRenderer>.empty();
+    if (soraClient != null) {
+      renderers = soraClient!.tracks
+          .map((track) => SoraRenderer(
+                width: 320,
+                height: 240,
+                track: track,
+              ))
+          .toList();
+    }
+
+    return SingleChildScrollView(
+      child: Center(
+        child: GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          children: renderers,
+        ),
+      ),
+    );
   }
 }
