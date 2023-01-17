@@ -79,5 +79,24 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
           'height': height,
           'fps': fps,
         }),
+
+  @override
+  Future<void> setVideoEnabled({
+    required SoraClient client,
+    required bool flag,
+  }) async =>
+      await methodChannel.invokeMethod('setVideoEnabled', {
+        'client_id': client.clientId,
+        'flag': flag,
+      });
+
+  @override
+  Future<void> setAudioEnabled({
+    required SoraClient client,
+    required bool flag,
+  }) async =>
+      await methodChannel.invokeMethod('setAudioEnabled', {
+        'client_id': client.clientId,
+        'flag': flag,
       });
 }

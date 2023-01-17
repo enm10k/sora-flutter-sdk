@@ -95,6 +95,16 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
       var clientId = call.argument<Int>("client_id")
       var client = clients[clientId]
       switchVideoDevice(client!!, call, result)
+    } else if (call.method == "setVideoEnabled") {
+      var clientId = call.argument<Int>("client_id");
+      var client = clients[clientId]
+      var flag = call.argument<Boolean>("flag")!!;
+      setVideoEnabled(client!!, flag, call, result)
+    } else if (call.method == "setAudioEnabled") {
+      var clientId = call.argument<Int>("client_id");
+      var client = clients[clientId]
+      var flag = call.argument<Boolean>("flag")!!;
+      setAudioEnabled(client!!, flag, call, result)
     } else {
       result.notImplemented()
     }
@@ -118,6 +128,8 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
   external fun sendDataChannel(client: Long, label: String, data: ByteArray, call: MethodCall, result: Result)
   external fun enumVideoCapturers(call: MethodCall, result: Result);
   external fun switchVideoDevice(client: Long, call: MethodCall, result: Result);
+  external fun setVideoEnabled(client: Long, flag: Boolean, call: MethodCall, result: Result)
+  external fun setAudioEnabled(client: Long, flag: Boolean, call: MethodCall, result: Result)
 
   // ActivityAware
   override fun onDetachedFromActivity() {

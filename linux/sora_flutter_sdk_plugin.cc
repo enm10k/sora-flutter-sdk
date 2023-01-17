@@ -168,14 +168,50 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     int client_id = (int)get_as_integer(args, "client_id");
     auto it = data->clients.find(client_id);
     if (it == data->clients.end()) {
-      fl_method_call_respond_success(method_call, nullptr, nullptr);
+      fl_method_call_respond_error(method_call, "Client Not Found", "", nullptr, nullptr);
       return;
     }
 
     std::string json = get_as_string(args, "config");
     sora::CameraDeviceCapturerConfig config = sora_flutter_sdk::JsonToCameraDeviceCapturerConfig(json);
     it->second->SwitchVideoDevice(config);
+    
+    fl_method_call_respond_success(method_call, nullptr, nullptr);
+  } else if (strcmp(method, "setVideoEnabled") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    if (args == nullptr) {
+      fl_method_call_respond_error(method_call, "Bad Arguments", "Null constraints arguments received", nullptr, nullptr);
+      return;
+    }
 
+    int client_id = (int)get_as_integer(args, "client_id");
+    auto it = data->clients.find(client_id);
+    if (it == data->clients.end()) {
+      fl_method_call_respond_error(method_call, "Client Not Found", "", nullptr, nullptr);
+      return;
+    }
+    
+    FlValue* fl_flag = fl_value_lookup_string(args, "flag");
+    bool flag = fl_value_get_bool(fl_flag);
+    it->second->SetVideoEnabled(flag);
+    fl_method_call_respond_success(method_call, nullptr, nullptr);
+  } else if (strcmp(method, "setAudioEnabled") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    if (args == nullptr) {
+      fl_method_call_respond_error(method_call, "Bad Arguments", "Null constraints arguments received", nullptr, nullptr);
+      return;
+    }
+
+    int client_id = (int)get_as_integer(args, "client_id");
+    auto it = data->clients.find(client_id);
+    if (it == data->clients.end()) {
+      fl_method_call_respond_error(method_call, "Client Not Found", "", nullptr, nullptr);
+      return;
+    }
+
+    FlValue* fl_flag = fl_value_lookup_string(args, "flag");
+    bool flag = fl_value_get_bool(fl_flag);
+    it->second->SetAudioEnabled(flag);
     fl_method_call_respond_success(method_call, nullptr, nullptr);
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());

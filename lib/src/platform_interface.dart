@@ -51,4 +51,16 @@ abstract class SoraFlutterSdkPlatform extends PlatformInterface {
   }) async {
     throw UnimplementedError('switchVideoDevice() has not been implemented.');
   }
+
+  Future<void> setVideoEnabled({
+    required SoraClient client,
+    required bool flag,
+  }) async =>
+      throw UnimplementedError('setVideoEnabled() has not been implemented.');
+
+  Future<void> setAudioEnabled({
+    required SoraClient client,
+    required bool flag,
+  }) async =>
+      throw UnimplementedError('setAudioEnabled() has not been implemented.');
 }
