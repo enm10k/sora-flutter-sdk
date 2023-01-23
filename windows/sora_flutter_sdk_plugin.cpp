@@ -198,11 +198,7 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     std::string json = std::get<std::string>(req.at(flutter::EncodableValue("config")));
     sora::CameraDeviceCapturerConfig config = sora_flutter_sdk::JsonToCameraDeviceCapturerConfig(json);
     it->second->SwitchVideoDevice(config);
-
-   // result.success(null);
-   webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
-   jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
-   env->CallVoidMethod(result, successid, nullptr);
+    result->Success();
   } else if (method_call.method_name().compare("setVideoEnabled") == 0) {
     if (!method_call.arguments()) {
       result->Error("Bad Arguments", "Null constraints arguments received");
