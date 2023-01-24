@@ -19,4 +19,8 @@ class SoraFlutterSdk {
       data: data,
     );
   }
+
+  static Future<void> setLyraModelPath(String path) async {
+    SoraFlutterSdkPlatform.instance.setLyraModelPath(path);
+  }
 }

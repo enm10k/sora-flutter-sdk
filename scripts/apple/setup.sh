@@ -22,6 +22,10 @@ LYRA_URL=https://github.com/shiguredo/sora-cpp-sdk/releases/download/$SDK_VERSIO
 
 SETUP_DIR=_install
 
+# Lyra のモデルファイル
+LYRA_MODEL_DIR=lyra/share/model_coeffs
+LYRA_ASSET_DIR=../../assets/lyra
+
 
 cd ../../$(dirname $0)/$OS
 
@@ -49,3 +53,8 @@ if [ ! -e $LYRA_FILE ]; then
   curl -fLo $LYRA_FILE $LYRA_URL
   tar xzf $LYRA_FILE
 fi
+
+# Lyra のモデルファイルをアセットにコピー
+rm -rf $LYRA_ASSET_DIR
+mkdir -p $LYRA_ASSET_DIR
+cp -r $LYRA_MODEL_DIR $LYRA_ASSET_DIR

@@ -37,4 +37,8 @@ abstract class SoraFlutterSdkPlatform extends PlatformInterface {
   }) async {
     throw UnimplementedError('sendDataChannel() has not been implemented.');
   }
+
+  Future<void> setLyraModelPath(String path) async {
+    throw UnimplementedError('setLyraModelPath() has not been implemented.');
+  }
 }

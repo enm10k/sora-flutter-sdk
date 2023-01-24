@@ -53,4 +53,11 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
       'data': data,
     });
   }
+
+  @override
+  Future<void> setLyraModelPath(String path) async {
+    await methodChannel.invokeMethod('setLyraModelPath', {
+      'path': path,
+    });
+  }
 }

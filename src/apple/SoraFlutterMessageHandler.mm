@@ -184,6 +184,21 @@ FlutterError *badArgumentsError(NSString *message) {
 
         bool resp = client.client->SendDataChannel(label, data);
         result(@(resp));
+
+    } else if ([call.method isEqualToString: @"setLyraModelPath"]) {
+        if (call.arguments == NULL) {
+            result(nullArgumentsError());
+            return;
+        } else if (![call.arguments isKindOfClass: [NSDictionary class]]) {
+            result(invalidArgumentsError());
+            return;
+        }
+
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
+        NSString *path = (NSString *)arguments[@"path"];
+        int status = setenv("SORA_LYRA_MODEL_COEFFS_PATH", path.UTF8String, 1);
+        result(@(status));
+
     } else {
         result(FlutterMethodNotImplemented);
     }

@@ -6,6 +6,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
 import 'video_track.dart';
+import 'lyra.dart';
 import 'sdk.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
@@ -275,6 +276,10 @@ class SoraClient {
   /// 生成した時点では Sora に接続されていません。
   /// 接続するには [connect] を呼んでください。
   static Future<SoraClient> create(SoraClientConfig config) async {
+    // モデルファイルをドキュメントディレクトリに書き出す
+    // 接続の直前に実行すると書き出しの終了が間に合わないため、
+    // ここで早めに実行しておく
+    await Lyra.initialize();
     return await SoraFlutterSdk.createSoraClient(config);
   }
 
