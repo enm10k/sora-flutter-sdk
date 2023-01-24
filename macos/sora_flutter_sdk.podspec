@@ -28,8 +28,11 @@ Pod::Spec.new do |s|
   s.vendored_libraries = [
     "#{sdk_dir}/sora/lib/libsora.a",
     "#{sdk_dir}/webrtc/lib/libwebrtc.a",
+    "#{sdk_dir}/boost/lib/libboost_atomic.a",
     "#{sdk_dir}/boost/lib/libboost_container.a",
+    "#{sdk_dir}/boost/lib/libboost_filesystem.a",
     "#{sdk_dir}/boost/lib/libboost_json.a",
+    "#{sdk_dir}/lyra/lib/liblyra.a",
   ]
 
   s.user_target_xcconfig = {
@@ -48,7 +51,8 @@ Pod::Spec.new do |s|
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/third_party/libyuv/include\" " +
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/sdk/objc\" " +
                              "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/webrtc/include/sdk/objc/base\" " +
-                             "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/boost/include\" ",
+                             "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/boost/include\" " +
+                             "\"$(PODS_TARGET_SRCROOT)/#{sdk_dir}/lyra/include\" ",
     "CLANG_CXX_LANGUAGE_STANDARD" => "gnu++17",
     "GCC_PREPROCESSOR_DEFINITIONS" => "WEBRTC_MAC=1 WEBRTC_POSIX=1 OPENSSL_IS_BORINGSSL=1 NDEBUG",
     "OTHER_LDFLAGS" => "-ObjC",
