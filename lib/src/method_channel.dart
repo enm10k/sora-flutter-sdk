@@ -100,4 +100,11 @@ class MethodChannelSoraFlutterSdk extends SoraFlutterSdkPlatform {
         'client_id': client.clientId,
         'flag': flag,
       });
+
+  @override
+  Future<void> setLyraModelPath(String path) async {
+    await methodChannel.invokeMethod('setLyraModelPath', {
+      'path': path,
+    });
+  }
 }

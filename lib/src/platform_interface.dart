@@ -63,4 +63,8 @@ abstract class SoraFlutterSdkPlatform extends PlatformInterface {
     required bool flag,
   }) async =>
       throw UnimplementedError('setAudioEnabled() has not been implemented.');
+
+  Future<void> setLyraModelPath(String path) async {
+    throw UnimplementedError('setLyraModelPath() has not been implemented.');
+  }
 }
