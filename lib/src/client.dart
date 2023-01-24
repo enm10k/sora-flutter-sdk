@@ -1,13 +1,13 @@
 import 'dart:async';
-
-import 'package:flutter/services.dart';
-import 'package:collection/collection.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
 
-import 'video_track.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/services.dart';
+import 'package:json_annotation/json_annotation.dart';
+
 import 'lyra.dart';
 import 'sdk.dart';
+import 'video_track.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
 // flutter pub run build_runner build --delete-conflicting-outputs
@@ -30,15 +30,19 @@ enum SoraVideoCodecType {
   /// VP8
   @JsonValue("VP8")
   vp8,
+
   /// VP9
   @JsonValue("VP9")
   vp9,
+
   /// AV1
   @JsonValue("AV1")
   av1,
+
   /// H.264
   @JsonValue("H264")
   h264,
+
   /// H.265
   @JsonValue("H265")
   h265,
