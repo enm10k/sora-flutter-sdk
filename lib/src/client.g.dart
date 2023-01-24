@@ -6,6 +6,19 @@ part of 'client.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+SoraAudioCodecLyraParams _$SoraAudioCodecLyraParamsFromJson(
+        Map<String, dynamic> json) =>
+    SoraAudioCodecLyraParams()
+      ..version = json['version'] as String?
+      ..bitRate = json['bitRate'] as int?;
+
+Map<String, dynamic> _$SoraAudioCodecLyraParamsToJson(
+        SoraAudioCodecLyraParams instance) =>
+    <String, dynamic>{
+      'version': instance.version,
+      'bitRate': instance.bitRate,
+    };
+
 SoraDataChannel _$SoraDataChannelFromJson(Map<String, dynamic> json) =>
     SoraDataChannel(
       label: json['label'] as String,
@@ -54,6 +67,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
+      ..audioCodecLyraParams = SoraAudioCodecLyraParams.fromJson(
+          json['audioCodecLyraParams'] as Map<String, dynamic>)
       ..metadata = json['metadata']
       ..signalingNotifyMetadata = json['signalingNotifyMetadata']
       ..multistream = json['multistream'] as bool?
@@ -105,6 +120,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
       'audioCodecType': _$SoraAudioCodecTypeEnumMap[instance.audioCodecType],
       'videoBitRate': instance.videoBitRate,
       'audioBitRate': instance.audioBitRate,
+      'audioCodecLyraParams': instance.audioCodecLyraParams,
       'metadata': instance.metadata,
       'signalingNotifyMetadata': instance.signalingNotifyMetadata,
       'role': _$SoraRoleEnumMap[instance.role]!,
@@ -150,6 +166,7 @@ const _$SoraVideoCodecTypeEnumMap = {
 
 const _$SoraAudioCodecTypeEnumMap = {
   SoraAudioCodecType.opus: 'OPUS',
+  SoraAudioCodecType.lyra: 'LYRA',
 };
 
 const _$SoraSpotlightRidEnumMap = {
