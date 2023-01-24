@@ -51,6 +51,24 @@ enum SoraVideoCodecType {
 enum SoraAudioCodecType {
   @JsonValue("OPUS")
   opus,
+
+  @JsonValue("LYRA")
+  lyra,
+}
+
+@JsonSerializable(includeIfNull: false)
+class SoraAudioCodecLyraParams {
+  SoraAudioCodecLyraParams({
+    this.version,
+    this.bitRate,
+  });
+
+  String? version;
+  int? bitRate;
+
+  factory SoraAudioCodecLyraParams.fromJson(Map<String, dynamic> json) =>
+      _$SoraAudioCodecLyraParamsFromJson(json);
+  Map<String, dynamic> toJson() => _$SoraAudioCodecLyraParamsToJson(this);
 }
 
 /// サイマルキャスト受信映像の rid を表します。
@@ -181,6 +199,8 @@ class SoraClientConfig {
 
   /// 音声ビットレート
   int? audioBitRate;
+
+  SoraAudioCodecLyraParams? audioCodecLyraParams;
 
   /// メタデータ
   dynamic metadata;
