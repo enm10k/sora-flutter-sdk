@@ -58,6 +58,7 @@ enum SoraAudioCodecType {
 }
 
 @JsonSerializable(includeIfNull: false)
+/// 音声コーデック Lyra の設定です。
 class SoraAudioCodecLyraParams {
   SoraAudioCodecLyraParams({
     this.version,
