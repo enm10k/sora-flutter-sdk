@@ -63,12 +63,14 @@ enum SoraAudioCodecType {
 /// 音声コーデック Lyra の設定です。
 @JsonSerializable()
 class SoraAudioCodecLyraParams {
+  static const String defaultVersion = '1.3.0';
+
   SoraAudioCodecLyraParams({
-    this.version,
+    this.version = SoraAudioCodecLyraParams.defaultVersion,
     this.bitRate,
   });
 
-  String? version;
+  String version;
   int? bitRate;
 
   factory SoraAudioCodecLyraParams.fromJson(Map<String, dynamic> json) =>
@@ -205,7 +207,7 @@ class SoraClientConfig {
   /// 音声ビットレート
   int? audioBitRate;
 
-  SoraAudioCodecLyraParams? audioCodecLyraParams;
+  SoraAudioCodecLyraParams audioCodecLyraParams = SoraAudioCodecLyraParams();
 
   /// メタデータ
   dynamic metadata;

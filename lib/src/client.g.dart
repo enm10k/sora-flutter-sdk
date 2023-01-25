@@ -9,13 +9,16 @@ part of 'client.dart';
 SoraAudioCodecLyraParams _$SoraAudioCodecLyraParamsFromJson(
         Map<String, dynamic> json) =>
     SoraAudioCodecLyraParams(
-      version: json['version'] as String?,
+      version:
+          json['version'] as String? ?? SoraAudioCodecLyraParams.defaultVersion,
       bitRate: json['bitRate'] as int?,
     );
 
 Map<String, dynamic> _$SoraAudioCodecLyraParamsToJson(
     SoraAudioCodecLyraParams instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'version': instance.version,
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -23,7 +26,6 @@ Map<String, dynamic> _$SoraAudioCodecLyraParamsToJson(
     }
   }
 
-  writeNotNull('version', instance.version);
   writeNotNull('bitRate', instance.bitRate);
   return val;
 }
@@ -85,10 +87,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
-      ..audioCodecLyraParams = json['audioCodecLyraParams'] == null
-          ? null
-          : SoraAudioCodecLyraParams.fromJson(
-              json['audioCodecLyraParams'] as Map<String, dynamic>)
+      ..audioCodecLyraParams = SoraAudioCodecLyraParams.fromJson(
+          json['audioCodecLyraParams'] as Map<String, dynamic>)
       ..metadata = json['metadata']
       ..signalingNotifyMetadata = json['signalingNotifyMetadata']
       ..multistream = json['multistream'] as bool?
@@ -150,7 +150,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
       'audioCodecType', _$SoraAudioCodecTypeEnumMap[instance.audioCodecType]);
   writeNotNull('videoBitRate', instance.videoBitRate);
   writeNotNull('audioBitRate', instance.audioBitRate);
-  writeNotNull('audioCodecLyraParams', instance.audioCodecLyraParams);
+  val['audioCodecLyraParams'] = instance.audioCodecLyraParams;
   writeNotNull('metadata', instance.metadata);
   writeNotNull('signalingNotifyMetadata', instance.signalingNotifyMetadata);
   val['role'] = _$SoraRoleEnumMap[instance.role]!;
