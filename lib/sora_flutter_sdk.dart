@@ -5,9 +5,6 @@ export 'src/client.dart'
         SoraRole,
         SoraVideoCodecType,
         SoraAudioCodecType,
-        SoraDataChannel,
-        SoraSimulcastRid,
-        SoraSpotlightRid;
         SoraAudioCodecLyraParams,
         SoraDataChannel,
         SoraSimulcastRid,
