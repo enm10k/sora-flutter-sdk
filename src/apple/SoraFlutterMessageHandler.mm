@@ -273,7 +273,7 @@ FlutterError *badArgumentsError(NSString *message) {
             return;
         }
 
-       NSDictionary *arguments = (NSDictionary *)call.arguments;
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
         NSString *path = (NSString *)arguments[@"path"];
         int status = setenv("SORA_LYRA_MODEL_COEFFS_PATH", path.UTF8String, 1);
         result(@(status));
