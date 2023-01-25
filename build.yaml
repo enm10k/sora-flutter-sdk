@@ -2,3 +2,7 @@ targets:
   $default:
     sources:
       - lib/src/*.dart
+    builders:
+      json_serializable:
+        options:
+          include_if_null: false
