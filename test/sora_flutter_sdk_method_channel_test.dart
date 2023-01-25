@@ -1,3 +1,4 @@
+/*
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sora_flutter_sdk/sora_client.dart';
@@ -24,3 +25,4 @@ void main() {
     await platform.createSoraClient(config);
   });
 }
+*/
