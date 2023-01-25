@@ -8,16 +8,25 @@ part of 'client.dart';
 
 SoraAudioCodecLyraParams _$SoraAudioCodecLyraParamsFromJson(
         Map<String, dynamic> json) =>
-    SoraAudioCodecLyraParams()
-      ..version = json['version'] as String?
-      ..bitRate = json['bitRate'] as int?;
+    SoraAudioCodecLyraParams(
+      version: json['version'] as String?,
+      bitRate: json['bitRate'] as int?,
+    );
 
 Map<String, dynamic> _$SoraAudioCodecLyraParamsToJson(
-        SoraAudioCodecLyraParams instance) =>
-    <String, dynamic>{
-      'version': instance.version,
-      'bitRate': instance.bitRate,
-    };
+    SoraAudioCodecLyraParams instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('version', instance.version);
+  writeNotNull('bitRate', instance.bitRate);
+  return val;
+}
 
 SoraDataChannel _$SoraDataChannelFromJson(Map<String, dynamic> json) =>
     SoraDataChannel(
@@ -30,16 +39,25 @@ SoraDataChannel _$SoraDataChannelFromJson(Map<String, dynamic> json) =>
       ..protocol = json['protocol'] as String?
       ..compress = json['compress'] as bool?;
 
-Map<String, dynamic> _$SoraDataChannelToJson(SoraDataChannel instance) =>
-    <String, dynamic>{
-      'label': instance.label,
-      'direction': _$SoraRoleEnumMap[instance.direction]!,
-      'ordered': instance.ordered,
-      'maxPacketLifeTime': instance.maxPacketLifeTime,
-      'maxRetransmits': instance.maxRetransmits,
-      'protocol': instance.protocol,
-      'compress': instance.compress,
-    };
+Map<String, dynamic> _$SoraDataChannelToJson(SoraDataChannel instance) {
+  final val = <String, dynamic>{
+    'label': instance.label,
+    'direction': _$SoraRoleEnumMap[instance.direction]!,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('ordered', instance.ordered);
+  writeNotNull('maxPacketLifeTime', instance.maxPacketLifeTime);
+  writeNotNull('maxRetransmits', instance.maxRetransmits);
+  writeNotNull('protocol', instance.protocol);
+  writeNotNull('compress', instance.compress);
+  return val;
+}
 
 const _$SoraRoleEnumMap = {
   SoraRole.sendonly: 'sendonly',
@@ -67,8 +85,10 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
-      ..audioCodecLyraParams = SoraAudioCodecLyraParams.fromJson(
-          json['audioCodecLyraParams'] as Map<String, dynamic>)
+      ..audioCodecLyraParams = json['audioCodecLyraParams'] == null
+          ? null
+          : SoraAudioCodecLyraParams.fromJson(
+              json['audioCodecLyraParams'] as Map<String, dynamic>)
       ..metadata = json['metadata']
       ..signalingNotifyMetadata = json['signalingNotifyMetadata']
       ..multistream = json['multistream'] as bool?
@@ -106,55 +126,69 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
       ..videoDeviceHeight = json['videoDeviceHeight'] as int?
       ..videoDeviceFps = json['videoDeviceFps'] as int?;
 
-Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) =>
-    <String, dynamic>{
-      'signalingUrls': instance.signalingUrls.map((e) => e.toString()).toList(),
-      'channelId': instance.channelId,
-      'clientId': instance.clientId,
-      'bundleId': instance.bundleId,
-      'soraClient': instance.soraClient,
-      'insecure': instance.insecure,
-      'video': instance.video,
-      'audio': instance.audio,
-      'videoCodecType': _$SoraVideoCodecTypeEnumMap[instance.videoCodecType],
-      'audioCodecType': _$SoraAudioCodecTypeEnumMap[instance.audioCodecType],
-      'videoBitRate': instance.videoBitRate,
-      'audioBitRate': instance.audioBitRate,
-      'audioCodecLyraParams': instance.audioCodecLyraParams,
-      'metadata': instance.metadata,
-      'signalingNotifyMetadata': instance.signalingNotifyMetadata,
-      'role': _$SoraRoleEnumMap[instance.role]!,
-      'multistream': instance.multistream,
-      'spotlight': instance.spotlight,
-      'spotlightNumber': instance.spotlightNumber,
-      'spotlightFocusRid':
-          _$SoraSpotlightRidEnumMap[instance.spotlightFocusRid],
-      'spotlightUnfocusRid':
-          _$SoraSpotlightRidEnumMap[instance.spotlightUnfocusRid],
-      'simulcast': instance.simulcast,
-      'simulcastRid': _$SoraSimulcastRidEnumMap[instance.simulcastRid],
-      'dataChannelSignaling': instance.dataChannelSignaling,
-      'dataChannelSignalingTimeout': instance.dataChannelSignalingTimeout,
-      'ignoreDisconnectWebsocket': instance.ignoreDisconnectWebsocket,
-      'disconnectWaitTimeout': instance.disconnectWaitTimeout,
-      'dataChannels': instance.dataChannels,
-      'clientCert': instance.clientCert,
-      'clientKey': instance.clientKey,
-      'websocketCloseTimeout': instance.websocketCloseTimeout,
-      'websocketConnectionTimeout': instance.websocketConnectionTimeout,
-      'proxyUrl': instance.proxyUrl,
-      'proxyUsername': instance.proxyUsername,
-      'proxyPassword': instance.proxyPassword,
-      'proxyAgent': instance.proxyAgent,
-      'disableSignalingUrlRandomization':
-          instance.disableSignalingUrlRandomization,
-      'useAudioDeivce': instance.useAudioDeivce,
-      'useHardwareEncoder': instance.useHardwareEncoder,
-      'videoDeviceName': instance.videoDeviceName,
-      'videoDeviceWidth': instance.videoDeviceWidth,
-      'videoDeviceHeight': instance.videoDeviceHeight,
-      'videoDeviceFps': instance.videoDeviceFps,
-    };
+Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
+  final val = <String, dynamic>{
+    'signalingUrls': instance.signalingUrls.map((e) => e.toString()).toList(),
+    'channelId': instance.channelId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('clientId', instance.clientId);
+  writeNotNull('bundleId', instance.bundleId);
+  val['soraClient'] = instance.soraClient;
+  writeNotNull('insecure', instance.insecure);
+  writeNotNull('video', instance.video);
+  writeNotNull('audio', instance.audio);
+  writeNotNull(
+      'videoCodecType', _$SoraVideoCodecTypeEnumMap[instance.videoCodecType]);
+  writeNotNull(
+      'audioCodecType', _$SoraAudioCodecTypeEnumMap[instance.audioCodecType]);
+  writeNotNull('videoBitRate', instance.videoBitRate);
+  writeNotNull('audioBitRate', instance.audioBitRate);
+  writeNotNull('audioCodecLyraParams', instance.audioCodecLyraParams);
+  writeNotNull('metadata', instance.metadata);
+  writeNotNull('signalingNotifyMetadata', instance.signalingNotifyMetadata);
+  val['role'] = _$SoraRoleEnumMap[instance.role]!;
+  writeNotNull('multistream', instance.multistream);
+  writeNotNull('spotlight', instance.spotlight);
+  writeNotNull('spotlightNumber', instance.spotlightNumber);
+  writeNotNull('spotlightFocusRid',
+      _$SoraSpotlightRidEnumMap[instance.spotlightFocusRid]);
+  writeNotNull('spotlightUnfocusRid',
+      _$SoraSpotlightRidEnumMap[instance.spotlightUnfocusRid]);
+  writeNotNull('simulcast', instance.simulcast);
+  writeNotNull(
+      'simulcastRid', _$SoraSimulcastRidEnumMap[instance.simulcastRid]);
+  writeNotNull('dataChannelSignaling', instance.dataChannelSignaling);
+  writeNotNull(
+      'dataChannelSignalingTimeout', instance.dataChannelSignalingTimeout);
+  writeNotNull('ignoreDisconnectWebsocket', instance.ignoreDisconnectWebsocket);
+  writeNotNull('disconnectWaitTimeout', instance.disconnectWaitTimeout);
+  writeNotNull('dataChannels', instance.dataChannels);
+  writeNotNull('clientCert', instance.clientCert);
+  writeNotNull('clientKey', instance.clientKey);
+  writeNotNull('websocketCloseTimeout', instance.websocketCloseTimeout);
+  writeNotNull(
+      'websocketConnectionTimeout', instance.websocketConnectionTimeout);
+  writeNotNull('proxyUrl', instance.proxyUrl);
+  writeNotNull('proxyUsername', instance.proxyUsername);
+  writeNotNull('proxyPassword', instance.proxyPassword);
+  writeNotNull('proxyAgent', instance.proxyAgent);
+  writeNotNull('disableSignalingUrlRandomization',
+      instance.disableSignalingUrlRandomization);
+  writeNotNull('useAudioDeivce', instance.useAudioDeivce);
+  writeNotNull('useHardwareEncoder', instance.useHardwareEncoder);
+  writeNotNull('videoDeviceName', instance.videoDeviceName);
+  writeNotNull('videoDeviceWidth', instance.videoDeviceWidth);
+  writeNotNull('videoDeviceHeight', instance.videoDeviceHeight);
+  writeNotNull('videoDeviceFps', instance.videoDeviceFps);
+  return val;
+}
 
 const _$SoraVideoCodecTypeEnumMap = {
   SoraVideoCodecType.vp8: 'VP8',
