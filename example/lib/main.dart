@@ -41,6 +41,7 @@ class _MyAppState extends State<MyApp> {
   String? _connectDevice;
   var _video = true;
   var _audio = true;
+  var _audioCodec = SoraAudioCodecType.opus;
 
   @override
   void initState() {
@@ -71,13 +72,13 @@ class _MyAppState extends State<MyApp> {
       child: Column(
         children: [
           SizedBox(
-            height: screenSize.height * 0.8,
+            height: screenSize.height * 0.7,
             child: VideoGroupView(
               soraClient: _soraClient,
             ),
           ),
           SizedBox(
-            height: screenSize.height * 0.2,
+            height: screenSize.height * 0.3,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -92,6 +93,14 @@ class _MyAppState extends State<MyApp> {
                         }
                       });
                     }),
+                AudioCodecDropdownButton(
+                  codec: _audioCodec,
+                  onChanged: (codec) {
+                    setState(() {
+                      _audioCodec = codec ?? SoraAudioCodecType.opus;
+                    });
+                  },
+                ),
                 ConnectButtons(
                   onConnect: _connect,
                   onDisconnect: _disconnect,
@@ -132,6 +141,10 @@ class _MyAppState extends State<MyApp> {
       channelId: Environment.channelId,
       role: SoraRole.sendrecv,
     )
+      // Lyra の設定
+      // ..audioCodecLyraParams.version = ...
+      // ..audioCodecLyraParams.bitRate = ...
+      ..audioCodecType = _audioCodec
       ..metadata = Environment.signalingMetadata
       ..videoDeviceName = _connectDevice;
 
@@ -286,6 +299,35 @@ class DeviceListDropdownButton extends StatelessWidget {
                 .toList(),
 
             // カメラの切替中はボタンを無効にする
+            onChanged: onChanged,
+          ),
+        ],
+      );
+}
+
+class AudioCodecDropdownButton extends StatelessWidget {
+  AudioCodecDropdownButton({
+    super.key,
+    required this.codec,
+    required this.onChanged,
+  });
+
+  final SoraAudioCodecType codec;
+  final void Function(SoraAudioCodecType?) onChanged;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('音声コーデック: '),
+          DropdownButton(
+            value: codec,
+            items: SoraAudioCodecType.values
+                .map((codec) => DropdownMenuItem(
+                      child: Text(codec.name),
+                      value: codec,
+                    ))
+                .toList(),
             onChanged: onChanged,
           ),
         ],
