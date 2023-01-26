@@ -60,9 +60,9 @@ Sora Flutter SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の Flutter �
 Apache License 2.0
 
 ```
-Copyright 2022-2022, Wandbox LLC (Original Author)
-Copyright 2022-2022, SUZUKI Tetsuya (Original Author)
-Copyright 2022-2022, Shiguredo Inc.
+Copyright 2022-2023, Wandbox LLC (Original Author)
+Copyright 2022-2023, SUZUKI Tetsuya (Original Author)
+Copyright 2022-2023, Shiguredo Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
