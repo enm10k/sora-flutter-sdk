@@ -83,5 +83,7 @@ set(LYRA_MODEL_FILES
         test_playback.wav)
 file(MAKE_DIRECTORY "${ASSET_LYRA_DIR}")
 foreach (FILE ${LYRA_MODEL_FILES})
+    # ダミーファイルを消す
+    file(REMOVE "${ASSET_LYRA_DIR}/${FILE}")
     file(COPY "${Lyra_SHARE_DIR}/model_coeffs/${FILE}" DESTINATION "${ASSET_LYRA_DIR}")
 endforeach ()
