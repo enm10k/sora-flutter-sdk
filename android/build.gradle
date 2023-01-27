@@ -1,6 +1,11 @@
 group 'jp.shiguredo.sora_flutter_sdk'
 version '1.0-SNAPSHOT'
 
+def WEBRTC_VERSION = "m109.5414.2.0"
+def BOOST_VERSION = "1.81.0"
+def SORA_VERSION = "2023.1.0"
+def LYRA_VERSION = "1.3.0"
+
 buildscript {
     ext.kotlin_version = '1.6.10'
     repositories {
@@ -25,7 +30,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 task download(type:Exec) {
-    commandLine 'python3', "$projectDir/install_deps.py", "android", "--webrtc-version", "m107.5304.4.1", "--boost-version", "1.80.0", "--sora-version", "2022.16.0"
+    commandLine 'python3', "$projectDir/install_deps.py", "android", "--webrtc-version", WEBRTC_VERSION, "--boost-version", BOOST_VERSION, "--sora-version", SORA_VERSION, "--lyra-version", LYRA_VERSION
 }
 preBuild.dependsOn download
 
@@ -58,6 +63,8 @@ android {
                     "-DWEBRTC_INCLUDE_DIR=$projectDir/_install/webrtc/include",
                     "-DWEBRTC_LIBRARY_DIR=$projectDir/_install/webrtc/lib/arm64-v8a",
                     "-DLIBCXX_INCLUDE_DIR=$projectDir/_install/llvm/libcxx/include",
+                    "-DLyra_INCLUDE_DIR=$projectDir/_install/lyra/include",
+                    "-DLyra_LIBRARY=$projectDir/_install/lyra/lib/liblyra.a",
                     "-DANDROID_STL=none",
                     "-DANDROID_NATIVE_API_LEVEL=29",
                     "-DANDROID_PLATFORM=29",
