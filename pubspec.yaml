@@ -52,6 +52,9 @@ flutter:
         pluginClass: SoraFlutterSdkPluginCApi
 
   assets:
+    # Lyra のモデルファイル
+    # リポジトリに含まれるのはダミーの空データで、実際に使われるデータはビルド時にダウンロード＆コピーされる
+    # わざわざダミーを用意する理由は、コピーより先にアセットファイルの有無がチェックされるため
     - assets/lyra/model_coeffs/lyra_config.binarypb
     - assets/lyra/model_coeffs/lyragan.tflite
     - assets/lyra/model_coeffs/quantizer.tflite
