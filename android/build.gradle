@@ -65,6 +65,8 @@ android {
                     "-DLIBCXX_INCLUDE_DIR=$projectDir/_install/llvm/libcxx/include",
                     "-DLyra_INCLUDE_DIR=$projectDir/_install/lyra/include",
                     "-DLyra_LIBRARY=$projectDir/_install/lyra/lib/liblyra.a",
+                    "-DLyra_SHARE_DIR=$projectDir/_install/lyra/share",
+                    "-DASSET_LYRA_DIR=$projectDir/../assets/lyra/model_coeffs",
                     "-DANDROID_STL=none",
                     "-DANDROID_NATIVE_API_LEVEL=29",
                     "-DANDROID_PLATFORM=29",

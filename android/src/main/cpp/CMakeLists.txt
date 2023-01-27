@@ -73,3 +73,15 @@ target_link_options(sora_flutter_sdk
   PRIVATE
     "@${SORA_DIR}/share/webrtc.ldflags"
 )
+
+# Lyra のモデルファイルをアセットにコピーする
+set(LYRA_MODEL_FILES
+        lyra_config.binarypb
+        lyragan.tflite
+        quantizer.tflite
+        soundstream_encoder.tflite
+        test_playback.wav)
+file(MAKE_DIRECTORY "${ASSET_LYRA_DIR}")
+foreach (FILE ${LYRA_MODEL_FILES})
+    file(COPY "${Lyra_SHARE_DIR}/model_coeffs/${FILE}" DESTINATION "${ASSET_LYRA_DIR}")
+endforeach ()
