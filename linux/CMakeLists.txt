@@ -9,6 +9,7 @@ set(WEBRTC_LIBRARY_NAME webrtc)
 set(WEBRTC_LIBRARY_DIR ${INSTALL_DIR}/webrtc/lib)
 set(BOOST_ROOT ${INSTALL_DIR}/boost)
 set(SORA_DIR ${INSTALL_DIR}/sora)
+set(LYRA_DIR ${INSTALL_DIR}/lyra)
 set(LIBCXX_DIR ${INSTALL_DIR}/llvm/libcxx)
 
 #set(CMAKE_C_COMPILER ${LLVM_DIR}/clang/bin/clang)
@@ -34,6 +35,7 @@ set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib)
 find_package(Boost REQUIRED COMPONENTS json filesystem)
 find_package(WebRTC REQUIRED)
 find_package(Sora REQUIRED)
+find_package(Lyra REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Libdrm REQUIRED)
 find_package(Libva REQUIRED)
@@ -54,6 +56,7 @@ add_library(${PLUGIN_NAME} SHARED
   "../src/sora_renderer.h"
   "../src/device_list.h"
   "../src/device_list.cpp"
+  "../src/config_reader.h"
 )
 
 # Apply a standard set of build settings that are configured in the

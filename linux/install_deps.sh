@@ -11,7 +11,8 @@ INSTALL_DIR=$1/_install
 
 WEBRTC_VERSION=m107.5304.4.1
 BOOST_VERSION=1.80.0
-SORA_VERSION=2022.16.0
+SORA_VERSION=2022.19.0
+LYRA_VERSION=1.3.0
 
 mkdir -p $INSTALL_DIR
 
@@ -29,6 +30,12 @@ fi
 
 if [ ! -e $INSTALL_DIR/sora ]; then
   file=sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_x86_64.tar.gz
+  curl -Lo $INSTALL_DIR/$file https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/${file}
+  tar -xf $INSTALL_DIR/$file -C $INSTALL_DIR
+fi
+
+if [ ! -e $INSTALL_DIR/lyra ]; then
+  file=lyra-${LYRA_VERSION}_sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_x86_64.tar.gz
   curl -Lo $INSTALL_DIR/$file https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/${file}
   tar -xf $INSTALL_DIR/$file -C $INSTALL_DIR
 fi
