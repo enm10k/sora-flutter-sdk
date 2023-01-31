@@ -105,6 +105,9 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
       var client = clients[clientId]
       var flag = call.argument<Boolean>("flag")!!;
       setAudioEnabled(client!!, flag, call, result)
+    } else if (call.method == "setLyraModelPath") {
+      var path = call.argument<String>("path")!!;
+      setLyraModelPath(path, call, result)
     } else {
       result.notImplemented()
     }
@@ -130,6 +133,7 @@ class SoraFlutterSdkPlugin: FlutterPlugin, MethodCallHandler, RequestPermissions
   external fun switchVideoDevice(client: Long, call: MethodCall, result: Result);
   external fun setVideoEnabled(client: Long, flag: Boolean, call: MethodCall, result: Result)
   external fun setAudioEnabled(client: Long, flag: Boolean, call: MethodCall, result: Result)
+  external fun setLyraModelPath(path: String, call: MethodCall, result: Result)
 
   // ActivityAware
   override fun onDetachedFromActivity() {
