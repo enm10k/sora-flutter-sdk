@@ -8,6 +8,8 @@ import './sdk.dart';
 class Lyra {
   static const String _assetsDir = 'packages/sora_flutter_sdk/assets';
   static const String _modelDir = 'lyra/model_coeffs';
+  static const String _linuxModelDir = 'linux/_install/lyra/share/model_coeffs';
+  static const String _sdkAppDocDir = 'sora_flutter_sdk';
 
   static const List<String> _modelFiles = [
     'lyra_config.binarypb',
@@ -32,12 +34,17 @@ class Lyra {
   static Future<void> _installModelFiles() async {
     // アセットのパスを直接扱えないので、
     // ドキュメントディレクトリにファイルを作成してそのパスを使う
-    final appDocDir = await getApplicationDocumentsDirectory();
-    final outDir = Directory('${appDocDir.path}/$_modelDir');
+    final baseAppDocDir = await getApplicationDocumentsDirectory();
+    final appDocDir = '${baseAppDocDir.path}/$_sdkAppDocDir';
+    final outDir = Directory('$appDocDir/$_modelDir');
     await outDir.create(recursive: true);
-
     for (final file in _modelFiles) {
-      final asset = '$_assetsDir/$_modelDir/$file';
+      late String asset;
+      if (Platform.isLinux) {
+        asset = '$_linuxModelDir/$file';
+      }else {
+        asset = '$_assetsDir/$_modelDir/$file';
+      }
       final out = '${outDir.path}/$file';
       final outFile = File(out);
       if (!(await outFile.exists())) {
