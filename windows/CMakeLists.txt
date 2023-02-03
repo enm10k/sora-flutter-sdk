@@ -8,13 +8,26 @@ cmake_minimum_required(VERSION 3.18)
 set(PROJECT_NAME "sora_flutter_sdk")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
+set(WEBRTC_VERSION "m107.5304.4.1")
+set(SORA_VERSION "2022.19.0")
+set(BOOST_VERSION "1.80.0")
+set(LYRA_VERSION "1.3.0")
+
+message("WEBRTC_VERSION: ${WEBRTC_VERSION}")
+message("SORA_VERSION: ${SORA_VERSION}")
+message("BOOST_VERSION: ${BOOST_VERSION}")
+message("LYRA_VERSION: ${LYRA_VERSION}")
+
+message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+
 set(WEBRTC_INCLUDE_DIR ${CMAKE_BINARY_DIR}/webrtc/include)
 set(WEBRTC_LIBRARY_NAME webrtc)
 set(WEBRTC_LIBRARY_DIR ${CMAKE_BINARY_DIR}/webrtc/lib)
+message("WEBRTC_INCLUDE_DIR: ${WEBRTC_INCLUDE_DIR}")
 if (NOT EXISTS "${WEBRTC_LIBRARY_DIR}")
-  message("Download and extracting webrtc.windows_x86_64.m107.5304.4.1.zip")
-  file(DOWNLOAD https://github.com/shiguredo-webrtc-build/webrtc-build/releases/download/m107.5304.4.1/webrtc.windows_x86_64.zip ${CMAKE_BINARY_DIR}/webrtc.windows_x86_64.m107.5304.4.1.zip)
-  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/webrtc.windows_x86_64.m107.5304.4.1.zip DESTINATION ${CMAKE_BINARY_DIR})
+  message("Download and extracting webrtc.windows_x86_64.${WEBRTC_VERSION}.zip")
+  file(DOWNLOAD https://github.com/shiguredo-webrtc-build/webrtc-build/releases/download/${WEBRTC_VERSION}/webrtc.windows_x86_64.zip ${CMAKE_BINARY_DIR}/webrtc.windows_x86_64.${WEBRTC_VERSION}.zip)
+  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/webrtc.windows_x86_64.${WEBRTC_VERSION}.zip DESTINATION ${CMAKE_BINARY_DIR})
 
   # Dart はロングパスをサポートしていない (https://github.com/dart-lang/sdk/issues/27825) ため、
   # ディレクトリが奥深くまであるディレクトリは削除する。
@@ -23,17 +36,27 @@ if (NOT EXISTS "${WEBRTC_LIBRARY_DIR}")
 endif()
 
 set(BOOST_ROOT ${CMAKE_BINARY_DIR}/boost)
+message("BOOST_ROOT: ${BOOST_ROOT}")
 if (NOT EXISTS "${BOOST_ROOT}")
-  message("Download and extracting boost-1.80.0_sora-cpp-sdk-2022.16.0_windows_x86_64.zip")
-  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/2022.16.0/boost-1.80.0_sora-cpp-sdk-2022.16.0_windows_x86_64.zip ${CMAKE_BINARY_DIR}/boost-1.80.0_sora-cpp-sdk-2022.16.0_windows_x86_64.zip)
-  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/boost-1.80.0_sora-cpp-sdk-2022.16.0_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
+  message("Download and extracting boost-${BOOST_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip")
+  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/boost-${BOOST_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip ${CMAKE_BINARY_DIR}/boost-${BOOST_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip)
+  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/boost-${BOOST_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
 set(SORA_DIR ${CMAKE_BINARY_DIR}/sora)
+message("SORA_DIR: ${SORA_DIR}")
 if (NOT EXISTS "${SORA_DIR}")
-  message("Download and extracting sora-cpp-sdk-2022.16.0_windows_x86_64.zip")
-  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/2022.16.0/sora-cpp-sdk-2022.16.0_windows_x86_64.zip ${CMAKE_BINARY_DIR}/sora-cpp-sdk-2022.16.0_windows_x86_64.zip)
-  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/sora-cpp-sdk-2022.16.0_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
+  message("Download and extracting sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip")
+  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip ${CMAKE_BINARY_DIR}/sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip)
+  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
+endif()
+
+set(LYRA_DIR ${CMAKE_BINARY_DIR}/lyra)
+message("LYRA_DIR: ${LYRA_DIR}")
+if (NOT EXISTS "${LYRA_DIR}")
+  message("Download and extracting lyra-${LYRA_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip")
+  file(DOWNLOAD https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/lyra-${LYRA_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip ${CMAKE_BINARY_DIR}/lyra-${LYRA_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip)
+  file(ARCHIVE_EXTRACT INPUT ${CMAKE_BINARY_DIR}/lyra-${LYRA_VERSION}_sora-cpp-sdk-${SORA_VERSION}_windows_x86_64.zip DESTINATION ${CMAKE_BINARY_DIR})
 endif()
 
 list(APPEND CMAKE_PREFIX_PATH ${SORA_DIR})
@@ -52,6 +75,7 @@ set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost REQUIRED COMPONENTS json filesystem)
 find_package(WebRTC REQUIRED)
 find_package(Sora REQUIRED)
+find_package(Lyra REQUIRED)
 
 # This value is used when generating builds using this plugin, so it must
 # not be changed
