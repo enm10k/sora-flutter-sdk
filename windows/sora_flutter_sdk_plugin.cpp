@@ -39,10 +39,6 @@ void SoraFlutterSdkPlugin::RegisterWithRegistrar(
 SoraFlutterSdkPlugin::SoraFlutterSdkPlugin(flutter::PluginRegistrar * registrar)
   : messenger_(registrar->messenger())
   , texture_registrar_(registrar->texture_registrar())
-#ifdef _WIN32
-  , init_(
-      webrtc::ScopedCOMInitializer::kMTA)
-#endif
 {
   if (!init_.Succeeded()) {
     std::cerr << "CoInitializeEx failed" << std::endl;
