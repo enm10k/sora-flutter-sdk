@@ -33,3 +33,4 @@ ios/_install
 macos/_install
 assets/lyra/model_coeffs
 ios/Assets.bundle/model_coeffs
+.fvm/flutter_sdk
