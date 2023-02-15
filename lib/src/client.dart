@@ -70,7 +70,10 @@ class SoraAudioCodecLyraParams {
     this.bitRate,
   });
 
-  String version;
+  /// バージョン
+  String version = defaultVersion;
+
+  /// ビットレート
   int? bitRate;
 
   factory SoraAudioCodecLyraParams.fromJson(Map<String, dynamic> json) =>
@@ -207,6 +210,7 @@ class SoraClientConfig {
   /// 音声ビットレート
   int? audioBitRate;
 
+  /// Lyra の設定
   SoraAudioCodecLyraParams audioCodecLyraParams = SoraAudioCodecLyraParams();
 
   /// メタデータ
