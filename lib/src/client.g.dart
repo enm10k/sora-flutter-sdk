@@ -12,7 +12,7 @@ SoraAudioCodecLyraParams _$SoraAudioCodecLyraParamsFromJson(
       version:
           json['version'] as String? ?? SoraAudioCodecLyraParams.defaultVersion,
       bitRate: json['bitRate'] as int?,
-    )..useDtx = json['usedtx'] as bool?;
+    )..usedtx = json['usedtx'] as bool?;
 
 Map<String, dynamic> _$SoraAudioCodecLyraParamsToJson(
     SoraAudioCodecLyraParams instance) {
@@ -27,7 +27,7 @@ Map<String, dynamic> _$SoraAudioCodecLyraParamsToJson(
   }
 
   writeNotNull('bitRate', instance.bitRate);
-  writeNotNull('usedtx', instance.useDtx);
+  writeNotNull('usedtx', instance.usedtx);
   return val;
 }
 
