@@ -76,6 +76,10 @@ class SoraAudioCodecLyraParams {
   /// ビットレート
   int? bitRate;
 
+  /// `true` であれば無音のときにデータを送らない
+  @JsonKey(name: "usedtx")
+  bool? useDtx;
+
   factory SoraAudioCodecLyraParams.fromJson(Map<String, dynamic> json) =>
       _$SoraAudioCodecLyraParamsFromJson(json);
   Map<String, dynamic> toJson() => _$SoraAudioCodecLyraParamsToJson(this);
