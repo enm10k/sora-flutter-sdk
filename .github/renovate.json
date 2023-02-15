@@ -11,5 +11,12 @@
   },
   "cocoapods": {
     "enabled": false
-  }
+  },
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["gradle"],
+      "groupName": "gradle",
+      "enabled": false
+    }
+  ]
 }
