@@ -3,12 +3,16 @@
 # the plugin to fail to compile for some customers of the plugin.
 cmake_minimum_required(VERSION 3.10)
 
+message("CMAKE_VERRSION: ${CMAKE_VERSION}")
+message("CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR}")
+
 set(INSTALL_DIR ${CMAKE_SOURCE_DIR}/_install)
 set(WEBRTC_INCLUDE_DIR ${INSTALL_DIR}/webrtc/include)
 set(WEBRTC_LIBRARY_NAME webrtc)
 set(WEBRTC_LIBRARY_DIR ${INSTALL_DIR}/webrtc/lib)
 set(BOOST_ROOT ${INSTALL_DIR}/boost)
 set(SORA_DIR ${INSTALL_DIR}/sora)
+set(LYRA_DIR ${INSTALL_DIR}/lyra)
 set(LIBCXX_DIR ${INSTALL_DIR}/llvm/libcxx)
 
 #set(CMAKE_C_COMPILER ${LLVM_DIR}/clang/bin/clang)
@@ -34,6 +38,7 @@ set(BOOST_LIBRARYDIR ${BOOST_ROOT}/lib)
 find_package(Boost REQUIRED COMPONENTS json filesystem)
 find_package(WebRTC REQUIRED)
 find_package(Sora REQUIRED)
+find_package(Lyra REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Libdrm REQUIRED)
 find_package(Libva REQUIRED)
@@ -54,6 +59,7 @@ add_library(${PLUGIN_NAME} SHARED
   "../src/sora_renderer.h"
   "../src/device_list.h"
   "../src/device_list.cpp"
+  "../src/config_reader.h"
 )
 
 # Apply a standard set of build settings that are configured in the
@@ -99,3 +105,27 @@ set(sora_flutter_sdk_bundled_libraries
   ""
   PARENT_SCOPE
 )
+
+
+# Lyra モデルファイルをアセットにコピー
+file(STRINGS ${CMAKE_BINARY_DIR}/../../../../.dart_tool/package_config.json PKG_CONFIG)
+string(STRIP "${PKG_CONFIG}" PKG_CONFIG_LINE)
+string(REGEX MATCH "\"name\":[ ]*\"sora_flutter_sdk\",[ ]*;[ ]*\"rootUri\":[ ]*\"([^\"]+)\"" _ "${PKG_CONFIG_LINE}")
+set(SDK_PATH ${CMAKE_MATCH_1})
+message("Sora Flutter SDK path: ${SDK_PATH}")
+
+if (IS_ABSOLUTE ${SDK_PATH})
+    set(LYRA_MODEL_ASSET_DIR ${SDK_PATH}/assets/lyra/model_coeffs)
+else()
+    get_filename_component(SDK_REAL_PATH ${SDK_PATH} REALPATH)
+    message("Sora Flutter SDK real path: ${SDK_REAL_PATH}")
+    set(LYRA_MODEL_ASSET_DIR ${SDK_REAL_PATH}/sora_flutter_sdk/assets/lyra/model_coeffs)
+endif()
+
+set(LYRA_MODEL_SRC_DIR ${LYRA_DIR}/share/model_coeffs)
+message("Copy Lyra model files to ${LYRA_MODEL_ASSET_DIR}")
+file(COPY ${LYRA_MODEL_SRC_DIR}/lyra_config.binarypb DESTINATION ${LYRA_MODEL_ASSET_DIR})
+file(COPY ${LYRA_MODEL_SRC_DIR}/lyragan.tflite DESTINATION ${LYRA_MODEL_ASSET_DIR})
+file(COPY ${LYRA_MODEL_SRC_DIR}/quantizer.tflite DESTINATION ${LYRA_MODEL_ASSET_DIR})
+file(COPY ${LYRA_MODEL_SRC_DIR}/soundstream_encoder.tflite DESTINATION ${LYRA_MODEL_ASSET_DIR})
+file(COPY ${LYRA_MODEL_SRC_DIR}/test_playback.wav DESTINATION ${LYRA_MODEL_ASSET_DIR})

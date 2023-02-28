@@ -209,6 +209,7 @@ FlutterError *badArgumentsError(NSString *message) {
         }
 
         NSDictionary *arguments = (NSDictionary *)call.arguments;
+
         int64_t clientId = [SoraUtils intValue: arguments forKey: @"client_id"];
         SoraClientWrapper *client = self.clients[@(clientId)];
         if (client == nil) {
@@ -259,9 +260,23 @@ FlutterError *badArgumentsError(NSString *message) {
            return;
        }
 
-      bool flag = [(NSNumber *)arguments[@"flag"] boolValue];
-      client.client->SetAudioEnabled(flag);
+       bool flag = [(NSNumber *)arguments[@"flag"] boolValue];
+       client.client->SetAudioEnabled(flag);
        result(nil);
+
+    } else if ([call.method isEqualToString: @"setLyraModelPath"]) {
+        if (call.arguments == NULL) {
+            result(nullArgumentsError());
+            return;
+        } else if (![call.arguments isKindOfClass: [NSDictionary class]]) {
+            result(invalidArgumentsError());
+            return;
+        }
+
+        NSDictionary *arguments = (NSDictionary *)call.arguments;
+        NSString *path = (NSString *)arguments[@"path"];
+        int status = setenv("SORA_LYRA_MODEL_COEFFS_PATH", path.UTF8String, 1);
+        result(@(status));
 
     } else {
         result(FlutterMethodNotImplemented);

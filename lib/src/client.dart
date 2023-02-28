@@ -1,18 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'dart:convert';
 
-import 'video_track.dart';
+import 'lyra.dart';
+import 'platform_interface.dart';
 import 'sdk.dart';
 import 'version.dart';
-import 'platform_interface.dart';
+import 'video_track.dart';
 
 // 次のコマンドで生成できる (build_runner のインストールが必要)
-// flutter pub run build_runner build
+// flutter pub run build_runner build --delete-conflicting-outputs
 part 'client.g.dart';
 
 /// 接続時のロールを表します。
@@ -32,15 +33,19 @@ enum SoraVideoCodecType {
   /// VP8
   @JsonValue("VP8")
   vp8,
+
   /// VP9
   @JsonValue("VP9")
   vp9,
+
   /// AV1
   @JsonValue("AV1")
   av1,
+
   /// H.264
   @JsonValue("H264")
   h264,
+
   /// H.265
   @JsonValue("H265")
   h265,
@@ -50,6 +55,33 @@ enum SoraVideoCodecType {
 enum SoraAudioCodecType {
   @JsonValue("OPUS")
   opus,
+
+  @JsonValue("LYRA")
+  lyra,
+}
+
+/// 音声コーデック Lyra の設定です。
+@JsonSerializable()
+class SoraAudioCodecLyraParams {
+  static const String defaultVersion = '1.3.0';
+
+  SoraAudioCodecLyraParams({
+    this.version = SoraAudioCodecLyraParams.defaultVersion,
+    this.bitRate,
+  });
+
+  /// バージョン
+  String version = defaultVersion;
+
+  /// ビットレート
+  int? bitRate;
+
+  /// `true` であれば無音のときにデータを送らない
+  bool? usedtx;
+
+  factory SoraAudioCodecLyraParams.fromJson(Map<String, dynamic> json) =>
+      _$SoraAudioCodecLyraParamsFromJson(json);
+  Map<String, dynamic> toJson() => _$SoraAudioCodecLyraParamsToJson(this);
 }
 
 /// サイマルキャスト受信映像の rid を表します。
@@ -181,6 +213,9 @@ class SoraClientConfig {
   /// 音声ビットレート
   int? audioBitRate;
 
+  /// Lyra の設定
+  SoraAudioCodecLyraParams audioCodecLyraParams = SoraAudioCodecLyraParams();
+
   /// メタデータ
   dynamic metadata;
 
@@ -291,6 +326,10 @@ class SoraClient {
   /// 生成した時点では Sora に接続されていません。
   /// 接続するには [connect] を呼んでください。
   static Future<SoraClient> create(SoraClientConfig config) async {
+    // モデルファイルをドキュメントディレクトリに書き出す
+    // 接続の直前に実行すると書き出しの終了が間に合わないため、
+    // ここで早めに実行しておく
+    await Lyra.initialize();
     return await SoraFlutterSdk.createSoraClient(config);
   }
 

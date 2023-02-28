@@ -384,6 +384,18 @@ def install_sora(version, source_dir, install_dir, platform: str):
     extract(archive, output_dir=install_dir, output_dirname='sora')
 
 
+@versioned
+def install_lyra(version, sora_version, source_dir, install_dir, platform: str):
+    win = platform.startswith("windows_")
+    filename = f'lyra-{version}_sora-cpp-sdk-{sora_version}_{platform}.{"zip" if win else "tar.gz"}'
+    rm_rf(os.path.join(source_dir, filename))
+    archive = download(
+        f'https://github.com/shiguredo/sora-cpp-sdk/releases/download/{sora_version}/{filename}',
+        output_dir=source_dir)
+    rm_rf(os.path.join(install_dir, 'lyra'))
+    extract(archive, output_dir=install_dir, output_dirname='lyra')
+
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -396,6 +408,7 @@ def main():
     parser.add_argument("--webrtc-version", required=True)
     parser.add_argument("--boost-version", required=True)
     parser.add_argument("--sora-version", required=True)
+    parser.add_argument("--lyra-version", required=True)
 
     args = parser.parse_args()
     source_dir = os.path.join(BASE_DIR, '_install')
@@ -460,6 +473,16 @@ def main():
         }
         install_sora(**install_sora_args)
 
+        # Lyra
+        install_lyra_args = {
+            'version': args.lyra_version,
+            'sora_version': args.sora_version,
+            'version_file': os.path.join(install_dir, 'lyra.version'),
+            'source_dir': source_dir,
+            'install_dir': install_dir,
+            'platform': args.target,
+        }
+        install_lyra(**install_lyra_args)
 
 if __name__ == '__main__':
     main()

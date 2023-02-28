@@ -33,4 +33,8 @@ class SoraFlutterSdk {
   }) async =>
       await SoraFlutterSdkPlatform.instance
           .setAudioEnabled(client: client, flag: flag);
+
+  static Future<void> setLyraModelPath(String path) async {
+    SoraFlutterSdkPlatform.instance.setLyraModelPath(path);
+  }
 }

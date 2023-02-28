@@ -39,10 +39,6 @@ void SoraFlutterSdkPlugin::RegisterWithRegistrar(
 SoraFlutterSdkPlugin::SoraFlutterSdkPlugin(flutter::PluginRegistrar * registrar)
   : messenger_(registrar->messenger())
   , texture_registrar_(registrar->texture_registrar())
-#ifdef _WIN32
-  , init_(
-      webrtc::ScopedCOMInitializer::kMTA)
-#endif
 {
   if (!init_.Succeeded()) {
     std::cerr << "CoInitializeEx failed" << std::endl;
@@ -233,6 +229,17 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     bool flag = std::get<bool>(params.at(flutter::EncodableValue("flag")));
     it->second->SetAudioEnabled(flag);
     result->Success();
+  } else if (method_call.method_name().compare("setLyraModelPath") == 0) {
+    if (!method_call.arguments()) {
+      result->Error("Bad Arguments", "Null constraints arguments received");
+      return;
+    }
+
+    const flutter::EncodableMap args =
+        std::get<flutter::EncodableMap>(*method_call.arguments());
+    std::string path = std::get<std::string>(args.at(flutter::EncodableValue("path")));
+    int status = _putenv_s("SORA_LYRA_MODEL_COEFFS_PATH", path.c_str());
+    result->Success(status);
   } else {
     result->NotImplemented();
   }

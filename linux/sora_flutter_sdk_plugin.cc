@@ -213,6 +213,17 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     bool flag = fl_value_get_bool(fl_flag);
     it->second->SetAudioEnabled(flag);
     fl_method_call_respond_success(method_call, nullptr, nullptr);
+  } else if (strcmp(method, "setLyraModelPath") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    if (args == nullptr) {
+      fl_method_call_respond_error(method_call, "Bad Arguments", "Null constraints arguments received", nullptr, nullptr);
+      return;
+    }
+
+    std::string path = get_as_string(args, "path");
+    int status = setenv("SORA_LYRA_MODEL_COEFFS_PATH", path.c_str(), 1);
+    g_autoptr(FlValue) resp = fl_value_new_int(status);
+    fl_method_call_respond_success(method_call, resp, nullptr);
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
     fl_method_call_respond(method_call, response, nullptr);

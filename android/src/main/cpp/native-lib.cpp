@@ -222,3 +222,16 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_setAudioEnabled(JNIEnv
    jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
    env->CallVoidMethod(result, successid, nullptr);
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_setLyraModelPath(JNIEnv* env,
+                                         jobject /* this */, jstring path, jobject call, jobject result) {
+  const char *cpath = env->GetStringUTFChars(path, nullptr);
+  int status = setenv("SORA_LYRA_MODEL_COEFFS_PATH", cpath, 1);
+  env->ReleaseStringUTFChars(path, cpath);
+
+  // result.success(status);
+  webrtc::ScopedJavaLocalRef<jclass> resultcls(env, env->GetObjectClass(result));
+  jmethodID successid = env->GetMethodID(resultcls.obj(), "success", "(Ljava/lang/Object;)V");
+  env->CallVoidMethod(result, successid, status);
+}

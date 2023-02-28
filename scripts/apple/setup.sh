@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# USAGE: setup.sh (ios|macos) (arm64) SDK_VERSION BOOST_VERSION WEBRTC_VERSION
+# USAGE: setup.sh (ios|macos) (arm64) SDK_VERSION BOOST_VERSION WEBRTC_VERSION LYRA_VERSION
 
 # バイナリをダウンロードする
 
@@ -9,15 +9,22 @@ ARCH=$2
 SDK_VERSION=$3
 BOOST_VERSION=$4
 WEBRTC_VERSION=$5
+LYRA_VERSION=$6
 
 SDK_FILE=sora-cpp-sdk-${SDK_VERSION}_${ARCH}.tar.gz
 BOOST_FILE=boost-${BOOST_VERSION}_sora-cpp-sdk-${SDK_VERSION}_${ARCH}.tar.gz
 WEBRTC_FILE=webrtc.$ARCH.tar.gz
+LYRA_FILE=lyra-${LYRA_VERSION}_sora-cpp-sdk-${SDK_VERSION}_${ARCH}.tar.gz
 SDK_URL=https://github.com/shiguredo/sora-cpp-sdk/releases/download/$SDK_VERSION/$SDK_FILE
 BOOST_URL=https://github.com/shiguredo/sora-cpp-sdk/releases/download/$SDK_VERSION/$BOOST_FILE
 WEBRTC_URL=https://github.com/shiguredo-webrtc-build/webrtc-build/releases/download/$WEBRTC_VERSION/$WEBRTC_FILE
+LYRA_URL=https://github.com/shiguredo/sora-cpp-sdk/releases/download/$SDK_VERSION/$LYRA_FILE
 
 SETUP_DIR=_install
+
+# Lyra のモデルファイル
+LYRA_MODEL_DIR=lyra/share/model_coeffs
+LYRA_ASSET_DIR=../../assets/lyra
 
 
 cd ../../$(dirname $0)/$OS
@@ -41,3 +48,13 @@ if [ ! -e $WEBRTC_FILE ]; then
   curl -fLo $WEBRTC_FILE $WEBRTC_URL
   tar xzf $WEBRTC_FILE
 fi
+if [ ! -e $LYRA_FILE ]; then
+  echo "Download $LYRA_FILE..."
+  curl -fLo $LYRA_FILE $LYRA_URL
+  tar xzf $LYRA_FILE
+fi
+
+# Lyra のモデルファイルをアセットにコピー
+rm -rf $LYRA_ASSET_DIR
+mkdir -p $LYRA_ASSET_DIR
+cp -r $LYRA_MODEL_DIR $LYRA_ASSET_DIR

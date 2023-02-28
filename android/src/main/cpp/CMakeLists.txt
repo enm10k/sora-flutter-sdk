@@ -27,6 +27,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE NEVER)
 find_package(Boost REQUIRED COMPONENTS json filesystem)
 find_package(WebRTC REQUIRED)
 find_package(Sora REQUIRED)
+find_package(Lyra REQUIRED)
 find_package(Threads REQUIRED)
 
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
@@ -72,3 +73,17 @@ target_link_options(sora_flutter_sdk
   PRIVATE
     "@${SORA_DIR}/share/webrtc.ldflags"
 )
+
+# Lyra のモデルファイルをアセットにコピーする
+set(LYRA_MODEL_FILES
+        lyra_config.binarypb
+        lyragan.tflite
+        quantizer.tflite
+        soundstream_encoder.tflite
+        test_playback.wav)
+file(MAKE_DIRECTORY "${ASSET_LYRA_DIR}")
+foreach (FILE ${LYRA_MODEL_FILES})
+    # ダミーファイルを消す
+    file(REMOVE "${ASSET_LYRA_DIR}/${FILE}")
+    file(COPY "${Lyra_SHARE_DIR}/model_coeffs/${FILE}" DESTINATION "${ASSET_LYRA_DIR}")
+endforeach ()
