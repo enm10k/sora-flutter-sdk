@@ -327,10 +327,11 @@ void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
 #if defined(__ANDROID__)
   static_cast<sora::AndroidCapturer*>(video_source_.get())->Stop();
 #endif
-  video_source_ = nullptr;
   renderer_ = nullptr;
   video_track_ = nullptr;
   audio_track_ = nullptr;
+  video_sender_ = nullptr;
+  video_source_ = nullptr;
 
   boost::json::object obj;
   obj["event"] = "Disconnect";
