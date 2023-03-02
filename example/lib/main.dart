@@ -146,6 +146,7 @@ class _MyAppState extends State<MyApp> {
       // ..audioCodecLyraParams.bitRate = ...
       ..audioCodecType = _audioCodec
       ..metadata = Environment.signalingMetadata
+      ..audioStreamingLanguageCode = "ja-JP"
       ..videoDeviceName = _connectDevice;
 
     final soraClient = await SoraClient.create(config)

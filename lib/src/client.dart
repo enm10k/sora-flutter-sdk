@@ -216,6 +216,9 @@ class SoraClientConfig {
   /// Lyra の設定
   SoraAudioCodecLyraParams audioCodecLyraParams = SoraAudioCodecLyraParams();
 
+  /// 音声ストリーミングの言語コード
+  String? audioStreamingLanguageCode;
+
   /// メタデータ
   dynamic metadata;
 

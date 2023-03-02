@@ -153,6 +153,7 @@ sora::SoraSignalingConfig JsonToSignalingConfig(const std::string& json) {
   if (c.audio_codec_type == "LYRA") {
     F(SetJson, "audioCodecLyraParams", &c.audio_codec_lyra_params);
   }
+  F(SetString, "audioStreamingLanguageCode", &c.audio_streaming_language_code);
   F(SetJson, "metadata", &c.metadata);
   F(SetJson, "signalingNotifyMetadata", &c.signaling_notify_metadata);
   F(SetString, "role", &c.role);

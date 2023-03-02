@@ -90,6 +90,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
       ..audioBitRate = json['audioBitRate'] as int?
       ..audioCodecLyraParams = SoraAudioCodecLyraParams.fromJson(
           json['audioCodecLyraParams'] as Map<String, dynamic>)
+      ..audioStreamingLanguageCode =
+          json['audioStreamingLanguageCode'] as String?
       ..metadata = json['metadata']
       ..signalingNotifyMetadata = json['signalingNotifyMetadata']
       ..multistream = json['multistream'] as bool?
@@ -152,6 +154,8 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
   writeNotNull('videoBitRate', instance.videoBitRate);
   writeNotNull('audioBitRate', instance.audioBitRate);
   val['audioCodecLyraParams'] = instance.audioCodecLyraParams;
+  writeNotNull(
+      'audioStreamingLanguageCode', instance.audioStreamingLanguageCode);
   writeNotNull('metadata', instance.metadata);
   writeNotNull('signalingNotifyMetadata', instance.signalingNotifyMetadata);
   val['role'] = _$SoraRoleEnumMap[instance.role]!;
