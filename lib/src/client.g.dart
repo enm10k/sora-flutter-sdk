@@ -124,7 +124,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           json['disableSignalingUrlRandomization'] as bool?
       ..useAudioDeivce = json['useAudioDeivce'] as bool?
       ..useHardwareEncoder = json['useHardwareEncoder'] as bool?
-      ..videoDeviceName = json['videoDeviceName'] as String?
+      ..videoDeviceName =
+          SoraClientConfig._videoDeviceNameFrom(json['videoDeviceName'])
       ..videoDeviceWidth = json['videoDeviceWidth'] as int?
       ..videoDeviceHeight = json['videoDeviceHeight'] as int?
       ..videoDeviceFps = json['videoDeviceFps'] as int?;
@@ -188,7 +189,8 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
       instance.disableSignalingUrlRandomization);
   writeNotNull('useAudioDeivce', instance.useAudioDeivce);
   writeNotNull('useHardwareEncoder', instance.useHardwareEncoder);
-  writeNotNull('videoDeviceName', instance.videoDeviceName);
+  writeNotNull('videoDeviceName',
+      SoraClientConfig._videoDeviceNameOf(instance.videoDeviceName));
   writeNotNull('videoDeviceWidth', instance.videoDeviceWidth);
   writeNotNull('videoDeviceHeight', instance.videoDeviceHeight);
   writeNotNull('videoDeviceFps', instance.videoDeviceFps);

@@ -9,13 +9,30 @@ import 'package:sora_flutter_sdk/src/platform_interface.dart';
 /// デバイス名は [SoraClientConfig.videoDeviceName] や [SoraClient.switchVideoDevice] でカメラを指定するのに使います。
 /// [device], [unique] のどちらも使用できます。
 class DeviceName {
-  DeviceName({required this.device, required this.unique});
+  DeviceName({required this.index, required this.device, required this.unique});
+
+  final int index;
 
   /// デバイス名
   final String device;
 
   /// デバイスのユニーク名
   final String unique;
+
+  @override
+  String toString() {
+    return '<Device $index, $device, $unique>';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DeviceName && unique == other.unique;
+  }
+
+  @override
+  int get hashCode {
+    return unique.hashCode;
+  }
 }
 
 /// 端末に搭載されているデバイスのリストを取得します。
@@ -65,9 +82,16 @@ class DeviceList {
   /// 端末に搭載されているカメラのリストを返します。
   static Future<List<DeviceName>> videoCapturers() async {
     final capturers = await SoraFlutterSdkPlatform.instance.videoCapturers();
+    var i = 0;
     return capturers.map((resp) {
       final Map<dynamic, dynamic> map = resp;
-      return DeviceName(device: map['device'], unique: map['unique']);
+      final device = DeviceName(
+        index: i,
+        device: map['device'],
+        unique: map['unique'],
+      );
+      i++;
+      return device;
     }).toList();
   }
 }

@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
   var _capturerNum = 0;
 
   // 接続時に使用するカメラ、または使用中のカメラ
-  String? _connectDevice;
+  DeviceName? _connectDevice;
   var _video = true;
   var _audio = true;
   var _audioCodec = SoraAudioCodecType.opus;
@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
       final capturers = await DeviceList.videoCapturers();
       setState(() {
         _capturers = capturers;
-        _connectDevice = _capturers.firstOrNull?.device;
+        _connectDevice = _capturers.firstOrNull;
       });
     }();
   }
@@ -202,7 +202,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> _setCamera(String? name) async {
+  Future<void> _setCamera(DeviceName? name) async {
     if (name == null) {
       return;
     }
@@ -238,7 +238,7 @@ class _MyAppState extends State<MyApp> {
     if (next >= _capturers.length) {
       next = 0;
     }
-    final name = _capturers[next].device;
+    final name = _capturers[next];
     final result = await _doSwitchCamera(name);
     if (result) {
       setState(() {
@@ -247,8 +247,8 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  Future<bool> _doSwitchCamera(String name) async {
-    print('switch => ${name}');
+  Future<bool> _doSwitchCamera(DeviceName name) async {
+    print('switch => $name');
 
     // カメラの切替中は切替ボタンを無効にしたいので、
     // switchVideoDevice を非同期で呼んでから画面を更新する。
@@ -281,9 +281,9 @@ class DeviceListDropdownButton extends StatelessWidget {
     required this.onChanged,
   });
 
-  final String? connectDevice;
+  final DeviceName? connectDevice;
   final List<DeviceName> capturers;
-  final void Function(String?) onChanged;
+  final void Function(DeviceName?) onChanged;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -294,8 +294,8 @@ class DeviceListDropdownButton extends StatelessWidget {
             value: connectDevice,
             items: capturers
                 .map((DeviceName name) => DropdownMenuItem(
-                      child: Text(name.device),
-                      value: name.device,
+                      child: Text('${name.index}: ${name.device}'),
+                      value: name,
                     ))
                 .toList(),
 
