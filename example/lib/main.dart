@@ -14,7 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final devices = await DeviceList.videoCapturers();
   for (final device in devices) {
-    print('device => ${device.device}, ${device.unique}');
+    print('device => $device');
   }
   final frontCamera = await DeviceList.frontCamera();
   final backCamera = await DeviceList.backCamera();
@@ -293,9 +293,9 @@ class DeviceListDropdownButton extends StatelessWidget {
           DropdownButton(
             value: connectDevice,
             items: capturers
-                .map((DeviceName name) => DropdownMenuItem(
-                      child: Text('${name.index}: ${name.device}'),
-                      value: name,
+                .map((DeviceName device) => DropdownMenuItem(
+                      child: Text('${device.name}'),
+                      value: device,
                     ))
                 .toList(),
 
