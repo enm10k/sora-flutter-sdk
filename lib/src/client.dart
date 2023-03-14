@@ -313,7 +313,7 @@ class SoraClientConfig {
   }
 
   static String? _videoDeviceNameOf(DeviceName? name) {
-    return name?.unique;
+    return name?.id;
   }
 
   /// 映像デバイスの横幅
@@ -542,7 +542,7 @@ class SoraClient {
       _switchingVideoDevice = true;
       await SoraFlutterSdkPlatform.instance.switchVideoDevice(
         client: this,
-        name: name.index.toString(),
+        name: name.id,
         width: width,
         height: height,
         fps: fps,
