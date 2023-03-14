@@ -10,6 +10,10 @@ class DeviceList {
  public:
   static bool EnumVideoCapturer(
       std::function<void(std::string, std::string)> f);
+ private:
+#if defined(__linux__)
+  static bool FindDevice(const char* deviceUniqueIdUTF8, const std::string& device);
+#endif
 };
 
 }  // namespace sora_flutter_sdk

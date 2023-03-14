@@ -313,7 +313,7 @@ class SoraClientConfig {
   }
 
   static String? _videoDeviceNameOf(DeviceName? name) {
-    return name != null ? '${name.index}' : null;
+    return name?.unique;
   }
 
   /// 映像デバイスの横幅

@@ -22,7 +22,41 @@
 void* GetAndroidApplicationContext(void*);
 #endif
 
+#if defined(__linux__)
+#include <errno.h>
+#include <fcntl.h>
+#include <linux/videodev2.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/select.h>
+#include <unistd.h>
+#endif
+
 namespace sora_flutter_sdk {
+
+#if defined(__linux__)
+bool DeviceList::FindDevice(const char* deviceUniqueIdUTF8,
+                            const std::string& device) {
+  int fd;
+  if ((fd = open(device.c_str(), O_RDONLY)) != -1) {
+    // query device capabilities
+    struct v4l2_capability cap;
+    if (ioctl(fd, VIDIOC_QUERYCAP, &cap) == 0) {
+      if (cap.bus_info[0] != 0) {
+        if (strncmp((const char*)cap.bus_info, (const char*)deviceUniqueIdUTF8,
+                    strlen((const char*)deviceUniqueIdUTF8)) ==
+            0)  // match with device id
+        {
+          close(fd);
+          return true;
+        }
+      }
+    }
+    close(fd);  // close since this is not the matching device
+  }
+  return false;
+}
+#endif
 
 bool DeviceList::EnumVideoCapturer(
     std::function<void(std::string, std::string)> f) {
@@ -58,6 +92,24 @@ bool DeviceList::EnumVideoCapturer(
       RTC_LOG(LS_WARNING) << "Failed to GetDeviceName: index=" << i;
       continue;
     }
+
+#if defined(__linux__)
+    /* detect /dev/video [0-63] entries */
+    char device[32];
+    int n;
+    bool found = false;
+    for (n = 0; n < 64; n++) {
+      sprintf(device, "/dev/video%d", n);
+      if (FindDevice(unique_name, device)) {
+        found = true;
+        strcpy(unique_name, device);
+        break;
+      }
+    }
+    if (!found) {
+      RTC_LOG(LS_WARNING) << "device not found for '" << unique_name << "'";
+    }
+#endif
 
     RTC_LOG(LS_INFO) << "EnumVideoCapturer: device_name=" << device_name
                      << " unique_name=" << unique_name;
