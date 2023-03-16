@@ -1,466 +1,115 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
-import 'environment.dart';
-
-void main() async {
-  SoraClientConfig.flutterVersion = Environment.flutterVersion;
-
-  // 映像キャプチャーデバイス一覧
-  WidgetsFlutterBinding.ensureInitialized();
-  final devices = await DeviceList.videoCapturers();
-  for (final device in devices) {
-    print('device => ${device.device}, ${device.unique}');
-  }
-  final frontCamera = await DeviceList.frontCamera();
-  final backCamera = await DeviceList.backCamera();
-  print('front camera => $frontCamera');
-  print('back camera => $backCamera');
-
+void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  SoraClient? _soraClient;
-  var _isConnected = false;
-  List<DeviceName> _capturers = List<DeviceName>.empty();
-  var _capturerNum = 0;
-
-  // 接続時に使用するカメラ、または使用中のカメラ
-  String? _connectDevice;
-  var _video = true;
-  var _audio = true;
-  var _audioCodec = SoraAudioCodecType.opus;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // initState は async にできないのでクロージャーで実行する
-    () async {
-      final capturers = await DeviceList.videoCapturers();
-      setState(() {
-        _capturers = capturers;
-        _connectDevice = _capturers.firstOrNull?.device;
-      });
-    }();
-  }
-
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: Builder(builder: _buildMain),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // Try running your application with "flutter run". You'll see the
+        // application has a blue toolbar. Then, without quitting the app, try
+        // changing the primarySwatch below to Colors.green and then invoke
+        // "hot reload" (press "r" in the console where you ran "flutter run",
+        // or simply save your changes to "hot reload" in a Flutter IDE).
+        // Notice that the counter didn't reset back to zero; the application
+        // is not restarted.
+        primarySwatch: Colors.blue,
       ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
+}
 
-  Widget _buildMain(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    return Center(
-      child: Column(
-        children: [
-          SizedBox(
-            height: screenSize.height * 0.7,
-            child: VideoGroupView(
-              soraClient: _soraClient,
-            ),
-          ),
-          SizedBox(
-            height: screenSize.height * 0.3,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DeviceListDropdownButton(
-                    connectDevice: _connectDevice,
-                    capturers: _capturers,
-                    onChanged: (device) {
-                      setState(() {
-                        _connectDevice = device;
-                        if (_soraClient?.switchingVideoDevice == true) {
-                          _setCamera(device);
-                        }
-                      });
-                    }),
-                AudioCodecDropdownButton(
-                  codec: _audioCodec,
-                  onChanged: (codec) {
-                    setState(() {
-                      _audioCodec = codec ?? SoraAudioCodecType.opus;
-                    });
-                  },
-                ),
-                ConnectButtons(
-                  onConnect: _connect,
-                  onDisconnect: _disconnect,
-                  canSwitchCamera: _canSwitchCamera,
-                  onSwitchCamera: _switchCamera,
-                ),
-                const SizedBox(height: 8),
-                MuteButtons(
-                  enabled: _isConnected,
-                  video: _video,
-                  audio: _audio,
-                  onChanged: (video, audio) {
-                    setState(() {
-                      _video = video;
-                      _audio = audio;
-                      _soraClient?.setVideoEnabled(_video);
-                      _soraClient?.setVideoEnabled(_audio);
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
 
-  Future<void> _connect() async {
-    if (_isConnected) {
-      return;
-    }
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
 
-    await _soraClient?.dispose();
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
 
-    final config = SoraClientConfig(
-      signalingUrls: Environment.urlCandidates,
-      channelId: Environment.channelId,
-      role: SoraRole.sendrecv,
-    )
-    // Lyra の設定
-    // ..audioCodecLyraParams.version = ...
-    // ..audioCodecLyraParams.bitRate = ...
-      ..audioCodecType = _audioCodec
-      ..metadata = Environment.signalingMetadata
-      ..audioStreamingLanguageCode = "ja-JP"
-      ..videoDeviceName = _connectDevice;
+  final String title;
 
-    final soraClient = await SoraClient.create(config)
-      ..onDisconnect = (String errorCode, String message) {
-        print("OnDisconnect: ec=$errorCode message=$message");
-        _disconnect();
-      }
-      ..onSetOffer = (String offer) {
-        print("OnSetOffer: $offer");
-      }
-      ..onNotify = (String text) {
-        print("OnNotify: $text");
-      }
-      ..onSwitchTrack = (SoraVideoTrack track) {
-        setState(() {/* カメラのトラックが交換されたので描画し直す */});
-      }
-      ..onAddTrack = (SoraVideoTrack track) {
-        setState(() {/* soraClient.tracks の数が変動したので描画し直す */});
-      }
-      ..onRemoveTrack = (SoraVideoTrack track) {
-        setState(() {/* soraClient.tracks の数が変動したので描画し直す */});
-      };
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
-    try {
-      await soraClient.connect();
+class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
 
-      setState(() {
-        _soraClient = soraClient;
-        _isConnected = true;
-      });
-    } on Exception catch (e) {
-      print('connect failed => $e');
-    }
-  }
-
-  Future<void> _disconnect() async {
-    if (!_isConnected && _soraClient == null) {
-      return;
-    }
-    print('disconnect');
-
-    try {
-      await _soraClient?.dispose();
-    } on Exception catch (e) {
-      print('dispose failed => $e');
-    }
-
+  void _incrementCounter() {
     setState(() {
-      _soraClient = null;
-      _isConnected = false;
-      _video = true;
-      _audio = true;
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      _counter++;
     });
   }
-
-  Future<void> _setCamera(String? name) async {
-    if (name == null) {
-      return;
-    }
-
-    if (_soraClient != null) {
-      // 接続済みであれば切り替える
-      await _doSwitchCamera(name);
-    } else {
-      // 接続済みでなければ接続設定にする
-      setState(() {
-        _connectDevice = name;
-      });
-    }
-  }
-
-  bool get _canSwitchCamera {
-    if ((Platform.isIOS || Platform.isAndroid) &&
-        _soraClient != null &&
-        _soraClient?.switchingVideoDevice != true) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  Future<void> _switchCamera() async {
-    if (_soraClient == null || _capturers.isEmpty) {
-      return;
-    }
-
-    // 次に使用するカメラを決める
-    var next = _capturerNum + 1;
-    if (next >= _capturers.length) {
-      next = 0;
-    }
-    final name = _capturers[next].device;
-    final result = await _doSwitchCamera(name);
-    if (result) {
-      setState(() {
-        _capturerNum = next;
-      });
-    }
-  }
-
-  Future<bool> _doSwitchCamera(String name) async {
-    print('switch => ${name}');
-
-    // カメラの切替中は切替ボタンを無効にしたいので、
-    // switchVideoDevice を非同期で呼んでから画面を更新する。
-    // 切替中は _soraClient.switchingVideoDevice が true になる
-    final future = _soraClient!.switchVideoDevice(name: name);
-
-    // _soraClient.switchingVideoDevice で有効・無効を判断するボタンは
-    // この更新で無効になる
-    setState(() {});
-
-    // 切替終了まで待って残りの処理を行う
-    final result = await future;
-    setState(() {
-      if (result) {
-        print('switched device => $name, ${_soraClient!.switchingVideoDevice}');
-        _connectDevice = name;
-      } else {
-        print('switch failed');
-      }
-    });
-    return result;
-  }
-}
-
-class DeviceListDropdownButton extends StatelessWidget {
-  DeviceListDropdownButton({
-    super.key,
-    required this.connectDevice,
-    required this.capturers,
-    required this.onChanged,
-  });
-
-  final String? connectDevice;
-  final List<DeviceName> capturers;
-  final void Function(String?) onChanged;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      const Text('カメラ: '),
-      DropdownButton(
-        value: connectDevice,
-        items: capturers
-            .map((DeviceName name) => DropdownMenuItem(
-          child: Text(name.device),
-          value: name.device,
-        ))
-            .toList(),
-
-        // カメラの切替中はボタンを無効にする
-        onChanged: onChanged,
-      ),
-    ],
-  );
-}
-
-class AudioCodecDropdownButton extends StatelessWidget {
-  AudioCodecDropdownButton({
-    super.key,
-    required this.codec,
-    required this.onChanged,
-  });
-
-  final SoraAudioCodecType codec;
-  final void Function(SoraAudioCodecType?) onChanged;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      const Text('音声コーデック: '),
-      DropdownButton(
-        value: codec,
-        items: SoraAudioCodecType.values
-            .map((codec) => DropdownMenuItem(
-          child: Text(codec.name),
-          value: codec,
-        ))
-            .toList(),
-        onChanged: onChanged,
-      ),
-    ],
-  );
-}
-
-class ConnectButtons extends StatelessWidget {
-  ConnectButtons({
-    super.key,
-    required this.onConnect,
-    required this.onDisconnect,
-    required this.canSwitchCamera,
-    required this.onSwitchCamera,
-  });
-
-  final void Function() onConnect;
-  final void Function() onDisconnect;
-  final bool canSwitchCamera;
-  final void Function() onSwitchCamera;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      ElevatedButton(
-        onPressed: onConnect,
-        child: const Text('接続する'),
-      ),
-      const SizedBox(width: 20),
-      ElevatedButton(
-        onPressed: onDisconnect,
-        child: const Text('切断する'),
-      ),
-      const SizedBox(width: 20),
-      SwitchCameraButton(
-        enabled: canSwitchCamera,
-        onPressed: onSwitchCamera,
-      ),
-    ],
-  );
-}
-
-class MuteButtons extends StatelessWidget {
-  MuteButtons({
-    super.key,
-    required this.enabled,
-    required this.video,
-    required this.audio,
-    required this.onChanged,
-  });
-
-  final bool enabled;
-  final bool video;
-  final bool audio;
-  final void Function(bool video, bool audio) onChanged;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      const Text('ミュート:'),
-      const SizedBox(width: 20),
-      const Text('映像'),
-      Switch(
-        value: video,
-        onChanged: enabled
-            ? (flag) {
-          onChanged(flag, audio);
-        }
-            : null,
-      ),
-      const SizedBox(width: 8),
-      const Text('音声'),
-      Switch(
-        value: audio,
-        onChanged: enabled
-            ? (flag) {
-          onChanged(video, flag);
-        }
-            : null,
-      ),
-    ],
-  );
-}
-
-class SwitchCameraButton extends StatelessWidget {
-  SwitchCameraButton({
-    super.key,
-    required this.enabled,
-    required this.onPressed,
-  });
-
-  final bool enabled;
-  final void Function() onPressed;
-
-  @override
-  Widget build(BuildContext context) => ElevatedButton(
-    onPressed: enabled ? onPressed : null,
-    child: Icon(Icons.flip_camera_ios),
-  );
-}
-
-class VideoGroupView extends StatelessWidget {
-  VideoGroupView({
-    super.key,
-    required this.soraClient,
-  });
-
-  final SoraClient? soraClient;
 
   @override
   Widget build(BuildContext context) {
-    var renderers = List<SoraRenderer>.empty();
-    if (soraClient != null) {
-      renderers = soraClient!.tracks
-          .map((track) => SoraRenderer(
-        width: 320,
-        height: 240,
-        track: track,
-      ))
-          .toList();
-    }
-
-    return SingleChildScrollView(
-      child: Center(
-        child: GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          children: renderers,
+    // This method is rerun every time setState is called, for instance as done
+    // by the _incrementCounter method above.
+    //
+    // The Flutter framework has been optimized to make rerunning build methods
+    // fast, so that you can just rebuild anything that needs updating rather
+    // than having to individually change instances of widgets.
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: Center(
+        // Center is a layout widget. It takes a single child and positions it
+        // in the middle of the parent.
+        child: Column(
+          // Column is also a layout widget. It takes a list of children and
+          // arranges them vertically. By default, it sizes itself to fit its
+          // children horizontally, and tries to be as tall as its parent.
+          //
+          // Invoke "debug painting" (press "p" in the console, choose the
+          // "Toggle Debug Paint" action from the Flutter Inspector in Android
+          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+          // to see the wireframe for each widget.
+          //
+          // Column has various properties to control how it sizes itself and
+          // how it positions its children. Here we use mainAxisAlignment to
+          // center the children vertically; the main axis here is the vertical
+          // axis because Columns are vertical (the cross axis would be
+          // horizontal).
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+          ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
