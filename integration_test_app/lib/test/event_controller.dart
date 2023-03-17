@@ -4,12 +4,13 @@ import './event_stream.dart';
 
 class SoraClientEventController {
   // TODO: state, timeout, 長時間配信用タイマー
-  SoraClientEventController(this.client) {
+  SoraClientEventController(this.client, {int timeout = 5}) {
+    this.timeout = timeout;
     stream = SoraClientEventStream(client);
   }
 
   final SoraClient client;
-
+  late final int timeout;
   late final SoraClientEventStream stream;
 
   bool get hasConnected => stream.hasOnNotify;
@@ -17,10 +18,15 @@ class SoraClientEventController {
   Future<void> connect({bool wait = true}) async {
     await client.connect();
     if (wait) {
-      print('wait');
+      print('wait: timeout $timeout');
+      var cont = true;
       await Future.doWhile(() async {
-        return !hasConnected;
+        await Future.delayed(Duration(seconds: 1));
+        return cont && !hasConnected && !stream.hasOnDisconnect;
+      }).timeout(Duration(seconds: timeout), onTimeout: () {
+        cont = false;
       });
+      print('end wait');
     }
   }
 
