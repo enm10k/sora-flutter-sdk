@@ -9,3 +9,4 @@ analyzer:
     - macos/_install/**
     - android/_install/**
     - linux/_install/**
+    - integration_test_app/**
