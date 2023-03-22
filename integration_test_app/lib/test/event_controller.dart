@@ -34,4 +34,10 @@ class SoraClientEventController {
     await client.dispose();
     stream.close();
   }
+
+  Future<void> tryDispose() async {
+    if (!client.disposed) {
+      await dispose();
+    }
+  }
 }
