@@ -32,9 +32,14 @@ jobs:
         run: flutter emulators
       - name: Launch iOS Simulator
         run: flutter emulators --launch apple_ios_simulator
-      - name: Test
+      - name: Show Flutter Available Devices
+        run: flutter devices
+      - name: Generate Configuration
         working-directory: ./integration_test_app
-        run: |
-          ../scripts/create_env.sh lib/environment.dart URLS CHANNEL_ID METADATA
-          flutter pub get
-          flutter test integration_test/app_test.dart -d iPhone
+        run: ../scripts/create_env.sh lib/environment.dart URLS CHANNEL_ID "null"
+      - name: Get Flutter Dependencies
+        working-directory: ./integration_test_app 
+        run: flutter pub get
+      - name: Run Integration Tests
+        working-directory: ./integration_test_app
+        run: flutter test integration_test/app_test.dart -d iPhone
