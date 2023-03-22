@@ -36,8 +36,8 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "DEFINES_MODULE" => "YES",
 
-    # Flutter.framework does not contain a i386 slice.
-    "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "i386",
+    # Flutter.framework does not contain i386 and arm64 slices.
+    "EXCLUDED_ARCHS[sdk=iphonesimulator*]" => "i386 arm64",
 
     "CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES" => "YES",
     "HEADER_SEARCH_PATHS" => '"$(inherited)" ' +
