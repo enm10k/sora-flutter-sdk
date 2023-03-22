@@ -1,0 +1,40 @@
+name: test
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'example'
+      - '.fvm'
+
+jobs:
+  test-ios:
+    strategy:
+      matrix:
+        name:
+          - ios
+    name: Test on iOS
+    runs-on: macos-12
+    env:
+      XCODE: /Applications/Xcode_14.0.1.app
+    steps:
+      - uses: actions/checkout@v3
+      - name: Select Xcode Version
+        run: sudo xcode-select -s '${{ env.XCODE }}/Contents/Developer'
+      - name: Show Xcode Version
+        run: xcodebuild -version
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          architecture: x64
+      - name: Show Flutter Available Emulators
+        run: flutter emulators
+      - name: Launch iOS Simulator
+        run: flutter emulators --launch apple_ios_simulator
+      - name: Test
+        working-directory: ./integration_test_app
+        run: |
+          ../scripts/create_env.sh lib/environment.dart URLS CHANNEL_ID METADATA
+          flutter pub get
+          flutter test integration_test/app_test.dart -d iPhone
