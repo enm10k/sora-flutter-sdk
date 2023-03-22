@@ -328,6 +328,9 @@ class SoraClient {
     return await SoraFlutterSdk.createSoraClient(config);
   }
 
+  bool get disposed => _disposed;
+  bool _disposed = false;
+
   /// クライアント ID
   int clientId = 0;
 
@@ -399,6 +402,7 @@ class SoraClient {
         }
         _eventSubscription?.cancel();
         _destructor(this);
+        _disposed = true;
         break;
       case 'Notify':
         String text = js['text'];
@@ -482,7 +486,11 @@ class SoraClient {
 
   /// 終了処理を行います。
   Future<void> dispose() async {
+    if (_disposed) {
+      throw StateError('Client already disposed');
+    }
     await _disposer(this);
+    _disposed = true;
   }
 
   /// DataChannel を利用してメッセージを送信します。
