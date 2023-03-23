@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import 'device_list.dart';
 import 'lyra.dart';
 import 'platform_interface.dart';
 import 'sdk.dart';
@@ -304,7 +305,16 @@ class SoraClientConfig {
   bool? useHardwareEncoder;
 
   /// 利用する映像デバイス名
-  String? videoDeviceName;
+  @JsonKey(fromJson: _videoDeviceNameFrom, toJson: _videoDeviceNameOf)
+  DeviceName? videoDeviceName;
+
+  static DeviceName? _videoDeviceNameFrom(dynamic value) {
+    throw UnsupportedError('SoraClientConfig.videoDeviceName from JSON');
+  }
+
+  static String? _videoDeviceNameOf(DeviceName? name) {
+    return name?.id;
+  }
 
   /// 映像デバイスの横幅
   int? videoDeviceWidth;
@@ -517,7 +527,7 @@ class SoraClient {
   /// 現在、本メソッドは iOS と Android にのみ対応しています。
   /// 他のプラットフォームでは何もせずに [false] を返します。
   Future<bool> switchVideoDevice({
-    required String name,
+    required DeviceName name,
     int? width,
     int? height,
     int? fps,
@@ -532,7 +542,7 @@ class SoraClient {
       _switchingVideoDevice = true;
       await SoraFlutterSdkPlatform.instance.switchVideoDevice(
         client: this,
-        name: name,
+        name: name.id,
         width: width,
         height: height,
         fps: fps,
