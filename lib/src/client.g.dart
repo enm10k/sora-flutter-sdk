@@ -104,7 +104,8 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           SoraClientConfig._videoDeviceNameFrom(json['videoDeviceName'])
       ..videoDeviceWidth = json['videoDeviceWidth'] as int?
       ..videoDeviceHeight = json['videoDeviceHeight'] as int?
-      ..videoDeviceFps = json['videoDeviceFps'] as int?;
+      ..videoDeviceFps = json['videoDeviceFps'] as int?
+      ..noVideoDevice = json['noVideoDevice'] as bool;
 
 Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
   final val = <String, dynamic>{
@@ -172,6 +173,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
   writeNotNull('videoDeviceWidth', instance.videoDeviceWidth);
   writeNotNull('videoDeviceHeight', instance.videoDeviceHeight);
   writeNotNull('videoDeviceFps', instance.videoDeviceFps);
+  val['noVideoDevice'] = instance.noVideoDevice;
   return val;
 }
 

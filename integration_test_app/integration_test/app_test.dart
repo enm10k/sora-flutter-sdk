@@ -17,8 +17,9 @@ void main() {
       await tester.pumpAndSettle();
 
       final config = createClientConfig(role: SoraRole.recvonly);
-      config.video = false;
-      config.audio = false;
+      config.noVideoDevice = true;
+      //config.video = false;
+      //config.audio = false;
       final client = await SoraClient.create(config);
       final controller = SoraClientEventController(client);
       final queue = StreamQueue(controller.stream);
