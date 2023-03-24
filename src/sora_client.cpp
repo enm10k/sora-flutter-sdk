@@ -22,6 +22,7 @@
 #include <sora/java_context.h>
 #include <sora/sora_video_decoder_factory.h>
 #include <sora/sora_video_encoder_factory.h>
+#include "blank_video_capturer.h";
 
 #if defined(__ANDROID__)
 #include <sora/android/android_capturer.h>
@@ -220,18 +221,26 @@ void SoraClient::DoConnect() {
 #endif
 
   if (config_.signaling_config.video) {
-    sora::CameraDeviceCapturerConfig cam_config;
-    cam_config.device_name = config_.video_device_name;
-    cam_config.width = config_.video_device_width;
-    cam_config.height = config_.video_device_height;
-    cam_config.fps = config_.video_device_fps;
+    if (config_.no_video_device) {
+      BlankVideoCapturerConfig blank_config;
+      blank_config.width = config_.video_device_width;
+      blank_config.height = config_.video_device_height;
+      blank_config.fps = config_.video_device_fps;
+      video_source_ = BlankVideoCapturer::Create(blank_config);
+    } else {
+      sora::CameraDeviceCapturerConfig cam_config;
+      cam_config.device_name = config_.video_device_name;
+      cam_config.width = config_.video_device_width;
+      cam_config.height = config_.video_device_height;
+      cam_config.fps = config_.video_device_fps;
 #if defined(__ANDROID__)
-    auto env = io_env_;
-    cam_config.jni_env = env;
-    cam_config.application_context = GetAndroidApplicationContext(env);
+      auto env = io_env_;
+      cam_config.jni_env = env;
+      cam_config.application_context = GetAndroidApplicationContext(env);
 #endif
-    cam_config.signaling_thread = signaling_thread();
-    video_source_ = sora::CreateCameraDeviceCapturer(cam_config);
+      cam_config.signaling_thread = signaling_thread();
+      video_source_ = sora::CreateCameraDeviceCapturer(cam_config);
+    }
 
     std::string video_track_id = rtc::CreateRandomString(16);
     video_track_ =

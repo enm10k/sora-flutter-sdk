@@ -242,6 +242,7 @@ SoraClientConfig JsonToClientConfig(const std::string& json) {
   F(SetInteger, "videoDeviceWidth", &c.video_device_width);
   F(SetInteger, "videoDeviceHeight", &c.video_device_height);
   F(SetInteger, "videoDeviceFps", &c.video_device_fps);
+  F(SetBoolean, "noVideoDevice", &c.no_video_device);
 
 #undef F
   for (const auto& e : errors) {

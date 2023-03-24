@@ -32,6 +32,7 @@ struct SoraClientConfig : sora::SoraDefaultClientConfig {
   int video_device_width = 640;
   int video_device_height = 480;
   int video_device_fps = 30;
+  bool no_video_device = false;
 
   sora::SoraSignalingConfig signaling_config;
 

@@ -325,6 +325,8 @@ class SoraClientConfig {
   /// 映像デバイスのフレームレート
   int? videoDeviceFps;
 
+  bool noVideoDevice = false;
+
   factory SoraClientConfig.fromJson(Map<String, dynamic> json) =>
       _$SoraClientConfigFromJson(json);
   Map<String, dynamic> toJson() => _$SoraClientConfigToJson(this);
