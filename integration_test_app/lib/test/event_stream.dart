@@ -4,19 +4,21 @@ import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
 import './event.dart';
 
+// SoraClient のイベントをストリームで扱う
+// 取得したイベントはブロードキャストで配信される
 class SoraClientEventStream extends Stream {
   SoraClientEventStream(this.client) {
     // TODO: 各コールバック
     client.onDisconnect = (errorCode, message) {
       print('onDisconnect');
       hasOnDisconnect = true;
-      _controller.add(SoraClientEvent.onDisconnect(errorCode, message));
-      _controller.close();
+      _add(SoraClientEvent.onDisconnect(errorCode, message));
+      close();
     };
     client.onNotify = (text) {
       print('onNotify');
       hasOnNotify = true;
-      _controller.add(SoraClientEvent.onNotify(text));
+      _add(SoraClientEvent.onNotify(text));
     };
   }
 
@@ -26,6 +28,12 @@ class SoraClientEventStream extends Stream {
 
   var hasOnDisconnect = false;
   var hasOnNotify = false;
+
+  void _add(SoraClientEvent event) {
+    if (!_controller.isClosed) {
+      _controller.add(event);
+    }
+  }
 
   @override
   StreamSubscription listen(
@@ -43,6 +51,8 @@ class SoraClientEventStream extends Stream {
   }
 
   void close() {
-    _controller.close();
+    if (!_controller.isClosed) {
+      _controller.close();
+    }
   }
 }

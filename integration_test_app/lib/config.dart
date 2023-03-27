@@ -8,5 +8,6 @@ SoraClientConfig createClientConfig({required SoraRole role}) {
       signalingUrls: Environment.urlCandidates,
       channelId: Environment.channelId,
       role: role)
-    ..metadata = Environment.signalingMetadata;
+    ..metadata = Environment.signalingMetadata
+    ..noVideoDevice = true;
 }
