@@ -15,6 +15,7 @@ enum SoraClientEventType {
   onSwitchTrack,
 }
 
+// SoraClient のコールバックの呼び出しをイベントとして扱う
 class SoraClientEvent {
   SoraClientEvent(
     this.type, {
