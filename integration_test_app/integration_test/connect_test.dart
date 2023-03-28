@@ -1,10 +1,12 @@
+import 'dart:io';
 import 'dart:ui';
+
 import 'package:async/async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:integration_test_app/config.dart';
-import 'package:integration_test_app/main.dart' as app;
 import 'package:integration_test_app/environment.dart';
+import 'package:integration_test_app/main.dart' as app;
 import 'package:integration_test_app/test/event_controller.dart';
 import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
@@ -50,6 +52,30 @@ void main() {
         await controller.dispose();
         expect(controller.disposed, isTrue);
       }
+    });
+
+    testWidgets('タイムアウト', (tester) async {
+      await tester.pumpAndSettle();
+
+      final timeout = 3;
+      final config = createClientConfig(
+        role: SoraRole.recvonly,
+        signalingUrls: [Uri.parse('ws://localhost:8080')],
+      )..disconnectWaitTimeout = timeout;
+      final client = await SoraClient.create(config);
+      final controller = SoraClientEventController(client);
+
+      // 何もしないサーバーを起動
+      final server = await HttpServer.bind('localhost', 8080);
+
+      await controller.connect();
+      expect(controller.hasOnDisconnect, isTrue);
+      expect(controller.hasConnected, isFalse);
+      expect(controller.disposed, isTrue);
+      expect(controller.waitedTime, greaterThan(timeout * 1000));
+      await controller.dispose();
+
+      server.close();
     });
   });
 }

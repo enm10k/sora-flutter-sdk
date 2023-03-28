@@ -259,7 +259,7 @@ class SoraClientConfig {
   /// WebSocket が閉じても接続の切断とみなさずに無視する
   bool? ignoreDisconnectWebsocket;
 
-  /// 切断までのタイムアウト時間
+  /// 切断までのタイムアウト時間 (秒)
   int? disconnectWaitTimeout;
 
   /// DataChannel の設定
