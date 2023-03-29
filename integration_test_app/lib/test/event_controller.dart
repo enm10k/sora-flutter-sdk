@@ -6,7 +6,7 @@ import './event_stream.dart';
 // SoraClient のイベントを監視する
 class SoraClientEventController {
   // TODO: state, timeout, 長時間配信用タイマー
-  SoraClientEventController(this.client, {int timeout = 30}) {
+  SoraClientEventController(this.client, {int timeout = 35}) {
     this.timeout = timeout;
     stream = SoraClientEventStream(client);
     stream.listen((event) {
@@ -27,6 +27,8 @@ class SoraClientEventController {
   final SoraClient client;
 
   // 接続試行のタイムアウト (秒)
+  // デフォルトは 35 秒
+  // SDK のデフォルトのタイムアウトが 30 秒なので、それより長くしておく
   late final int timeout;
 
   late final SoraClientEventStream stream;
