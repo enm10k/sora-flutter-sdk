@@ -103,5 +103,35 @@ void main() {
 
       server.close();
     });
+
+    testWidgets('複数同時接続 (recvonly)', (tester) async {
+      final controllers = <SoraClientEventController>[];
+      for (var i = 0; i < 10; i++) {
+        final config = createClientConfig(role: SoraRole.recvonly);
+        final client = await SoraClient.create(config);
+        final controller = SoraClientEventController(client);
+        controllers.add(controller);
+      }
+
+      // 接続
+      for (var controller in controllers) {
+        await controller.connect();
+        expect(controller.hasConnected, isTrue);
+        expect(controller.disposed, isFalse);
+      }
+
+      // すべての接続の完了後、接続を維持できているかどうか
+      for (var controller in controllers) {
+        expect(controller.hasConnected, isTrue);
+        expect(controller.disposed, isFalse);
+      }
+
+      // 切断
+      for (var controller in controllers) {
+        await controller.dispose();
+        expect(controller.disposed, isTrue);
+      }
+    });
+
   });
 }
