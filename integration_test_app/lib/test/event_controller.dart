@@ -1,32 +1,42 @@
 import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
+import './event.dart';
 import './event_stream.dart';
 
 // SoraClient のイベントを監視する
 class SoraClientEventController {
   // TODO: state, timeout, 長時間配信用タイマー
-  SoraClientEventController(this.client, {int timeout = 5}) {
+  SoraClientEventController(this.client, {int timeout = 30}) {
     this.timeout = timeout;
-    stream = SoraClientEventStream(client, onDisconnect: (_) {
-      hasOnDisconnect = true;
-      _finishAttempt();
+    stream = SoraClientEventStream(client);
+    stream.listen((event) {
+      switch (event.type) {
+        case SoraClientEventType.onNotify:
+          onNotifyCalled = true;
+          break;
+        case SoraClientEventType.onDisconnect:
+          onDisconnectCalled = true;
+          _finishAttempt();
+          break;
+        default:
+          break;
+      }
     });
   }
 
   final SoraClient client;
 
   // 接続試行のタイムアウト (秒)
-  // SoraClientConfig の disconnectWaitTime とは別で、
-  // disconnectWaitTime にかかわらずタイムアウトする
   late final int timeout;
 
   late final SoraClientEventStream stream;
 
-  bool hasOnDisconnect = false;
+  var onDisconnectCalled = false;
+  var onNotifyCalled = false;
 
   // 接続が完了したかどうか
   // type: notify が来ていれば true
-  bool get hasConnected => stream.hasOnNotify;
+  bool get hasConnected => onNotifyCalled;
 
   // 切断済みかどうか
   bool get disposed => client.disposed;
@@ -52,7 +62,7 @@ class SoraClientEventController {
       var cont = true;
       await Future.doWhile(() async {
         await Future.delayed(Duration(seconds: 1));
-        return cont && !hasConnected && !stream.hasOnDisconnect;
+        return cont && !hasConnected && !onDisconnectCalled;
       }).timeout(Duration(seconds: timeout), onTimeout: () {
         cont = false;
       });
