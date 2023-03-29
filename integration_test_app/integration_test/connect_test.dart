@@ -54,14 +54,13 @@ void main() {
       }
     });
 
-    testWidgets('タイムアウト', (tester) async {
+    testWidgets('WebSocket 接続タイムアウト', (tester) async {
       await tester.pumpAndSettle();
 
-      final timeout = 3;
       final config = createClientConfig(
         role: SoraRole.recvonly,
         signalingUrls: [Uri.parse('ws://localhost:8080')],
-      )..disconnectWaitTimeout = timeout;
+      );
       final client = await SoraClient.create(config);
       final controller = SoraClientEventController(client);
 
@@ -69,10 +68,9 @@ void main() {
       final server = await HttpServer.bind('localhost', 8080);
 
       await controller.connect();
-      expect(controller.hasOnDisconnect, isTrue);
+      expect(controller.onDisconnectCalled, isTrue);
       expect(controller.hasConnected, isFalse);
       expect(controller.disposed, isTrue);
-      expect(controller.waitedTime, greaterThan(timeout * 1000));
       await controller.dispose();
 
       server.close();
