@@ -22,11 +22,39 @@ void main() {
       app.main();
     });
 
-    testWidgets('接続と切断', (tester) async {
+    testWidgets('接続と切断 (recvonly)', (tester) async {
       // アプリが起動するまで待つ
       await tester.pumpAndSettle();
 
       final config = createClientConfig(role: SoraRole.recvonly);
+      final client = await SoraClient.create(config);
+      final controller = SoraClientEventController(client);
+
+      await controller.connect();
+      expect(controller.hasConnected, isTrue);
+      expect(controller.disposed, isFalse);
+      await controller.dispose();
+      expect(controller.disposed, isTrue);
+    });
+
+    testWidgets('接続と切断 (sendonly)', (tester) async {
+      await tester.pumpAndSettle();
+
+      final config = createClientConfig(role: SoraRole.sendonly);
+      final client = await SoraClient.create(config);
+      final controller = SoraClientEventController(client);
+
+      await controller.connect();
+      expect(controller.hasConnected, isTrue);
+      expect(controller.disposed, isFalse);
+      await controller.dispose();
+      expect(controller.disposed, isTrue);
+    });
+
+    testWidgets('接続と切断 (sendrecv)', (tester) async {
+      await tester.pumpAndSettle();
+
+      final config = createClientConfig(role: SoraRole.sendrecv);
       final client = await SoraClient.create(config);
       final controller = SoraClientEventController(client);
 
