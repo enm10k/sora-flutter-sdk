@@ -30,16 +30,10 @@ jobs:
       - name: Create Test Channel ID
         run: |
           uuidgen > USER.txt
-          echo "::add-mask::" > USER_MASK.txt
-          cat USER.txt > USER_MASK.txt
-          cat USER_MASK.txt
-          cat USER.txt > CHANNEL_ID.txt
-          echo "@$CHANNEL_ID" > CHANNEL_ID.txt
-          echo "::add-mask::" > CHANNEL_ID_MASK.txt
-          cat CHANNEL_ID.txt > CHANNEL_ID_MASK.txt
-          cat CHANNEL_ID_MASK.txt
-          echo "CHANNEL_ID=`cat CHANNEL_ID.txt`" >> $GITHUB_ENV
-          rm USER.txt USER_MASK.txt CHANNEL_ID.txt CHANNEL_ID_MASK.txt
+          echo "::add-mask::`cat USER.txt`"
+          echo "::add-mask::`cat USER.txt`@$CHANNEL_ID"
+          echo "CHANNEL_ID=`cat USER.txt`@$CHANNEL_ID" >> $GITHUB_ENV
+          rm USER.txt
       - uses: actions/checkout@v3
       - name: Select Xcode Version
         run: sudo xcode-select -s '${{ env.XCODE }}/Contents/Developer'
