@@ -17,9 +17,9 @@ jobs:
     runs-on: macos-12
     env:
       XCODE: /Applications/Xcode_14.0.1.app
-      SIGNALING_URLS: ${{ secrets.TEST_SIGNALING_URLS }}"
-      CHANNEL_ID: ${{ secrets.TEST_CHANNEL_ID }}"
-      METADATA: ${{ secrets.TEST_METADATA }}"
+      SIGNALING_URLS: ${{ secrets.TEST_SIGNALING_URLS }}
+      CHANNEL_ID: ${{ secrets.TEST_CHANNEL_ID }}
+      METADATA: ${{ secrets.TEST_METADATA }}
     steps:
       - name: Add Masked Secrets
         run: |
