@@ -17,7 +17,15 @@ jobs:
     runs-on: macos-12
     env:
       XCODE: /Applications/Xcode_14.0.1.app
+      SIGNALING_URLS: ${{ secrets.TEST_SIGNALING_URLS }}"
+      CHANNEL_ID: ${{ secrets.TEST_CHANNEL_ID }}"
+      METADATA: ${{ secrets.TEST_METADATA }}"
     steps:
+      - name: Add Masked Secrets
+        run: |
+          echo "::add-mask::$SIGNALING_URLS"
+          echo "::add-mask::$CHANNEL_ID"
+          echo "::add-mask::$METADATA"
       - uses: actions/checkout@v3
       - name: Select Xcode Version
         run: sudo xcode-select -s '${{ env.XCODE }}/Contents/Developer'
@@ -36,7 +44,7 @@ jobs:
         run: flutter devices
       - name: Generate Configuration
         working-directory: ./integration_test_app
-        run: ../scripts/create_env.sh lib/environment.dart URLS CHANNEL_ID "null"
+        run: ../scripts/create_env.sh lib/environment.dart $SIGNALING_URLS $CHANNEL_ID $METADATA
       - name: Get Flutter Dependencies
         working-directory: ./integration_test_app 
         run: flutter pub get
