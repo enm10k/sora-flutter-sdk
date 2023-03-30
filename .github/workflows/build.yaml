@@ -3,6 +3,7 @@ name: build
 on:
   push:
     paths-ignore:
+      - '.github/workflows/test.yaml'
       - '**.md'
       - 'integration_test_app'
 

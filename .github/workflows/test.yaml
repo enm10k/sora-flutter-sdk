@@ -3,6 +3,7 @@ name: test
 on:
   push:
     paths-ignore:
+      - '.github/workflows/build.yaml'
       - '**.md'
       - 'example'
       - '.fvm'
