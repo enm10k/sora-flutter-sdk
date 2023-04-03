@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - '.github/workflows/test.yaml'
       - '**.md'
-      - 'integration_test_app'
+      - 'integration_test_app/**'
 
 jobs:
   build-ios:
