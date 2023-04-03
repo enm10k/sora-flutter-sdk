@@ -53,6 +53,9 @@ jobs:
       - name: Generate Configuration
         working-directory: ./integration_test_app
         run: ../scripts/create_env.sh lib/environment.dart "$SIGNALING_URLS" "${{ env.CHANNEL_ID }}" "$METADATA"
+      - name: Debug Configuration
+        working-directory: ./integration_test_app
+        run: cat lib/environment.dart
       - name: Get Flutter Dependencies
         working-directory: ./integration_test_app 
         run: flutter pub get
