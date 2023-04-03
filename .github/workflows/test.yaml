@@ -18,13 +18,17 @@ jobs:
     runs-on: macos-12
     env:
       XCODE: /Applications/Xcode_14.0.1.app
-      SIGNALING_URLS: ${{ secrets.TEST_SIGNALING_URLS }}
+      SIGNALING_URL1: ${{ secrets.TEST_SIGNALING_URL1 }}
+      SIGNALING_URL2: ${{ secrets.TEST_SIGNALING_URL2 }}
+      SIGNALING_URL3: ${{ secrets.TEST_SIGNALING_URL3 }}
       CHANNEL_ID: ${{ secrets.TEST_CHANNEL_ID }}
       METADATA: ${{ secrets.TEST_METADATA }}
     steps:
       - name: Add Masked Secrets
         run: |
-          echo "::add-mask::$SIGNALING_URLS"
+          echo "::add-mask::$SIGNALING_URL1"
+          echo "::add-mask::$SIGNALING_URL2"
+          echo "::add-mask::$SIGNALING_URL3"
           echo "::add-mask::$CHANNEL_ID"
           echo "::add-mask::$METADATA"
       - name: Create Test Channel ID
@@ -52,7 +56,7 @@ jobs:
         run: flutter devices
       - name: Generate Configuration
         working-directory: ./integration_test_app
-        run: ../scripts/create_env.sh lib/environment.dart "$SIGNALING_URLS" "${{ env.CHANNEL_ID }}" "$METADATA"
+        run: ../scripts/create_env.sh lib/environment.dart "$SIGNALING_URL1,$SIGNALING_URL2,$SIGNALING_URL3" "${{ env.CHANNEL_ID }}" "$METADATA"
       - name: Debug Configuration
         working-directory: ./integration_test_app
         run: cat lib/environment.dart
