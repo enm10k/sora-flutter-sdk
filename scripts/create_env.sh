@@ -32,6 +32,6 @@ cat << EOT >> $OUTFILE
 
   static const String channelId = '$CHANNEL_ID';
 
-  static const dynamic signalingMetadata = "$METADATA";
+  static const dynamic signalingMetadata = $METADATA;
 }
 EOT
