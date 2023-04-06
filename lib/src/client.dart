@@ -193,7 +193,7 @@ class SoraClientConfig {
   int? audioBitRate;
 
   /// Lyra: ビットレート
-  int? audioCodecLyraBitRate;
+  int? audioCodecLyraBitrate;
 
   /// Lyra: `true` であれば無音のときにデータを送らない
   bool? audioCodecLyraUsedtx;

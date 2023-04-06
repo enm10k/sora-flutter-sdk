@@ -64,7 +64,7 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
       ..checkLyraVersion = json['checkLyraVersion'] as bool?
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
-      ..audioCodecLyraBitRate = json['audioCodecLyraBitRate'] as int?
+      ..audioCodecLyraBitrate = json['audioCodecLyraBitrate'] as int?
       ..audioCodecLyraUsedtx = json['audioCodecLyraUsedtx'] as bool?
       ..audioStreamingLanguageCode =
           json['audioStreamingLanguageCode'] as String?
@@ -130,7 +130,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
   writeNotNull('checkLyraVersion', instance.checkLyraVersion);
   writeNotNull('videoBitRate', instance.videoBitRate);
   writeNotNull('audioBitRate', instance.audioBitRate);
-  writeNotNull('audioCodecLyraBitRate', instance.audioCodecLyraBitRate);
+  writeNotNull('audioCodecLyraBitrate', instance.audioCodecLyraBitrate);
   writeNotNull('audioCodecLyraUsedtx', instance.audioCodecLyraUsedtx);
   writeNotNull(
       'audioStreamingLanguageCode', instance.audioStreamingLanguageCode);
