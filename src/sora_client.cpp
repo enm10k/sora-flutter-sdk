@@ -22,7 +22,7 @@
 #include <sora/java_context.h>
 #include <sora/sora_video_decoder_factory.h>
 #include <sora/sora_video_encoder_factory.h>
-#include "blank_video_capturer.h";
+#include "blank_video_capturer.h"
 
 #if defined(__ANDROID__)
 #include <sora/android/android_capturer.h>
