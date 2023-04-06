@@ -346,6 +346,7 @@ void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
     case sora::SoraSignalingErrorCode::WEBSOCKET_ONERROR: s = "WEBSOCKET_ONERROR"; break;
     case sora::SoraSignalingErrorCode::PEER_CONNECTION_STATE_FAILED: s = "PEER_CONNECTION_STATE_FAILED"; break;
     case sora::SoraSignalingErrorCode::ICE_FAILED: s = "ICE_FAILED"; break;
+    case sora::SoraSignalingErrorCode::LYRA_VERSION_INCOMPATIBLE: s = "LYRA_VERSION_INCOMPATIBLE"; break;
   }
   obj["error_code"] = s;
   obj["message"] = message;
