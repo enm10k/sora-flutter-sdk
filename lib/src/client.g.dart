@@ -61,6 +61,7 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           _$SoraVideoCodecTypeEnumMap, json['videoCodecType'])
       ..audioCodecType = $enumDecodeNullable(
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
+      ..checkLyraVersion = json['checkLyraVersion'] as bool?
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
       ..audioCodecLyraBitRate = json['audioCodecLyraBitRate'] as int?
@@ -126,6 +127,7 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
       'videoCodecType', _$SoraVideoCodecTypeEnumMap[instance.videoCodecType]);
   writeNotNull(
       'audioCodecType', _$SoraAudioCodecTypeEnumMap[instance.audioCodecType]);
+  writeNotNull('checkLyraVersion', instance.checkLyraVersion);
   writeNotNull('videoBitRate', instance.videoBitRate);
   writeNotNull('audioBitRate', instance.audioBitRate);
   writeNotNull('audioCodecLyraBitRate', instance.audioCodecLyraBitRate);

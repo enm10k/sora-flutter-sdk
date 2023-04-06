@@ -152,6 +152,7 @@ sora::SoraSignalingConfig JsonToSignalingConfig(const std::string& json) {
   F(SetInteger, "audioBitRate", &c.audio_bit_rate);
   F(SetInteger, "audioCodecLyraBitRate", &c.audio_codec_lyra_bitrate);
   F(SetBoolean, "audioCodecLyraUsedtx", &c.audio_codec_lyra_usedtx);
+  F(SetBoolean, "checkLyraVersion", &c.check_lyra_version);
   F(SetString, "audioStreamingLanguageCode", &c.audio_streaming_language_code);
   F(SetJson, "metadata", &c.metadata);
   F(SetJson, "signalingNotifyMetadata", &c.signaling_notify_metadata);

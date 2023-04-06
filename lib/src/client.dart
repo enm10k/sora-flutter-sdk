@@ -183,6 +183,9 @@ class SoraClientConfig {
   /// 音声コーデック
   SoraAudioCodecType? audioCodecType;
 
+  // Lyra のバージョンのチェックの可否
+  bool? checkLyraVersion;
+
   /// 映像ビットレート
   int? videoBitRate;
 
