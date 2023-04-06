@@ -141,9 +141,6 @@ class _MyAppState extends State<MyApp> {
       channelId: Environment.channelId,
       role: SoraRole.sendrecv,
     )
-      // Lyra の設定
-      // ..audioCodecLyraParams.version = ...
-      // ..audioCodecLyraParams.bitRate = ...
       ..audioCodecType = _audioCodec
       ..metadata = Environment.signalingMetadata
       ..audioStreamingLanguageCode = "ja-JP"

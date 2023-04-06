@@ -6,31 +6,6 @@ part of 'client.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-SoraAudioCodecLyraParams _$SoraAudioCodecLyraParamsFromJson(
-        Map<String, dynamic> json) =>
-    SoraAudioCodecLyraParams(
-      version:
-          json['version'] as String? ?? SoraAudioCodecLyraParams.defaultVersion,
-      bitRate: json['bitRate'] as int?,
-    )..usedtx = json['usedtx'] as bool?;
-
-Map<String, dynamic> _$SoraAudioCodecLyraParamsToJson(
-    SoraAudioCodecLyraParams instance) {
-  final val = <String, dynamic>{
-    'version': instance.version,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('bitRate', instance.bitRate);
-  writeNotNull('usedtx', instance.usedtx);
-  return val;
-}
-
 SoraDataChannel _$SoraDataChannelFromJson(Map<String, dynamic> json) =>
     SoraDataChannel(
       label: json['label'] as String,
@@ -86,10 +61,11 @@ SoraClientConfig _$SoraClientConfigFromJson(Map<String, dynamic> json) =>
           _$SoraVideoCodecTypeEnumMap, json['videoCodecType'])
       ..audioCodecType = $enumDecodeNullable(
           _$SoraAudioCodecTypeEnumMap, json['audioCodecType'])
+      ..checkLyraVersion = json['checkLyraVersion'] as bool?
       ..videoBitRate = json['videoBitRate'] as int?
       ..audioBitRate = json['audioBitRate'] as int?
-      ..audioCodecLyraParams = SoraAudioCodecLyraParams.fromJson(
-          json['audioCodecLyraParams'] as Map<String, dynamic>)
+      ..audioCodecLyraBitrate = json['audioCodecLyraBitrate'] as int?
+      ..audioCodecLyraUsedtx = json['audioCodecLyraUsedtx'] as bool?
       ..audioStreamingLanguageCode =
           json['audioStreamingLanguageCode'] as String?
       ..metadata = json['metadata']
@@ -152,9 +128,11 @@ Map<String, dynamic> _$SoraClientConfigToJson(SoraClientConfig instance) {
       'videoCodecType', _$SoraVideoCodecTypeEnumMap[instance.videoCodecType]);
   writeNotNull(
       'audioCodecType', _$SoraAudioCodecTypeEnumMap[instance.audioCodecType]);
+  writeNotNull('checkLyraVersion', instance.checkLyraVersion);
   writeNotNull('videoBitRate', instance.videoBitRate);
   writeNotNull('audioBitRate', instance.audioBitRate);
-  val['audioCodecLyraParams'] = instance.audioCodecLyraParams;
+  writeNotNull('audioCodecLyraBitrate', instance.audioCodecLyraBitrate);
+  writeNotNull('audioCodecLyraUsedtx', instance.audioCodecLyraUsedtx);
   writeNotNull(
       'audioStreamingLanguageCode', instance.audioStreamingLanguageCode);
   writeNotNull('metadata', instance.metadata);

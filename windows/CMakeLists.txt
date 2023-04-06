@@ -8,8 +8,8 @@ cmake_minimum_required(VERSION 3.18)
 set(PROJECT_NAME "sora_flutter_sdk")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
-set(WEBRTC_VERSION "m111.5563.4.2")
-set(SORA_VERSION "2023.2.0")
+set(WEBRTC_VERSION "m111.5563.4.4")
+set(SORA_VERSION "2023.3.0")
 set(BOOST_VERSION "1.81.0")
 set(LYRA_VERSION "1.3.0")
 

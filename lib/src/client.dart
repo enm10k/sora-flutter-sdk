@@ -61,30 +61,6 @@ enum SoraAudioCodecType {
   lyra,
 }
 
-/// 音声コーデック Lyra の設定です。
-@JsonSerializable()
-class SoraAudioCodecLyraParams {
-  static const String defaultVersion = '1.3.0';
-
-  SoraAudioCodecLyraParams({
-    this.version = SoraAudioCodecLyraParams.defaultVersion,
-    this.bitRate,
-  });
-
-  /// バージョン
-  String version = defaultVersion;
-
-  /// ビットレート
-  int? bitRate;
-
-  /// `true` であれば無音のときにデータを送らない
-  bool? usedtx;
-
-  factory SoraAudioCodecLyraParams.fromJson(Map<String, dynamic> json) =>
-      _$SoraAudioCodecLyraParamsFromJson(json);
-  Map<String, dynamic> toJson() => _$SoraAudioCodecLyraParamsToJson(this);
-}
-
 /// サイマルキャスト受信映像の rid を表します。
 enum SoraSimulcastRid {
   /// r0
@@ -208,14 +184,20 @@ class SoraClientConfig {
   /// 音声コーデック
   SoraAudioCodecType? audioCodecType;
 
+  // Lyra のバージョンのチェックの可否
+  bool? checkLyraVersion;
+
   /// 映像ビットレート
   int? videoBitRate;
 
   /// 音声ビットレート
   int? audioBitRate;
 
-  /// Lyra の設定
-  SoraAudioCodecLyraParams audioCodecLyraParams = SoraAudioCodecLyraParams();
+  /// Lyra: ビットレート
+  int? audioCodecLyraBitrate;
+
+  /// Lyra: `true` であれば無音のときにデータを送らない
+  bool? audioCodecLyraUsedtx;
 
   /// 音声ストリーミングの言語コード
   String? audioStreamingLanguageCode;
