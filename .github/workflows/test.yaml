@@ -9,12 +9,13 @@ on:
       - '.fvm'
 
 jobs:
-  test-ios:
+  test:
     strategy:
       matrix:
-        name:
+        target:
           - ios
-    name: Test on iOS
+          - macos
+    name: Test on ${{ matrix.target }}
     runs-on: macos-12
     env:
       XCODE: /Applications/Xcode_14.0.1.app
@@ -49,17 +50,25 @@ jobs:
           cache: true
           architecture: x64
       - name: Show Flutter Available Emulators
+        if: matrix.target == 'ios'
         run: flutter emulators
       - name: Launch iOS Simulator
+        if: matrix.target == 'ios'
         run: flutter emulators --launch apple_ios_simulator
       - name: Show Flutter Available Devices
+        if: matrix.target == 'ios'
         run: flutter devices
       - name: Generate Configuration
         working-directory: ./integration_test_app
         run: ../scripts/create_env.sh lib/environment.dart "$SIGNALING_URL1,$SIGNALING_URL2,$SIGNALING_URL3" "${{ env.CHANNEL_ID }}" "$METADATA"
       - name: Get Flutter Dependencies
-        working-directory: ./integration_test_app 
+        working-directory: ./integration_test_app
         run: flutter pub get
       - name: Run Integration Tests
         working-directory: ./integration_test_app
-        run: flutter test integration_test/connect_test.dart -d iPhone
+        run: |
+          if [ "${{ matrix.target }}" = "ios" ]; then
+            flutter test integration_test/connect_test.dart -d iPhone
+          else
+            flutter test integration_test/connect_test.dart -d macos
+          fi
