@@ -16,7 +16,7 @@
 #include <flutter_linux/flutter_linux.h>
 #endif
 
-#include <sora/sora_default_client.h>
+#include <sora/sora_client_context.h>
 #include <sora/camera_device_capturer.h>
 
 #include "sora_renderer.h"
@@ -27,13 +27,14 @@ void* GetAndroidApplicationContext(void*);
 
 namespace sora_flutter_sdk {
 
-struct SoraClientConfig : sora::SoraDefaultClientConfig {
+struct SoraClientConfig : sora::SoraSignalingConfig {
   std::string video_device_name;
   int video_device_width = 640;
   int video_device_height = 480;
   int video_device_fps = 30;
 
   sora::SoraSignalingConfig signaling_config;
+  sora::SoraClientContextConfig context_config;
 
   std::string event_channel;
 #if defined(__ANDROID__)
@@ -53,7 +54,7 @@ struct SoraClientConfig : sora::SoraDefaultClientConfig {
 };
 
 class SoraClient : public std::enable_shared_from_this<SoraClient>,
-                  public sora::SoraDefaultClient {
+                  public sora::SoraSignalingObserver {
  public:
   SoraClient(SoraClientConfig config);
   virtual ~SoraClient();
@@ -92,6 +93,19 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void DoConnect();
   void SendEvent(const boost::json::value& v);
   void DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
+
+  static sora::SoraClientContext& GetSharedContext() {
+    static sora::SoraClientContextConfig context_config = CreateContextConfig();
+    static sora::SoraClientContext context_(sora::SoraClientContext::Create(context_config));
+    return context_;
+  }
+
+  static sora::SoraClientContextConfig CreateContextConfig() {
+    sora::SoraClientContextConfig config;
+    config.use_audio_device = true;
+    config.use_hardware_encoder = true;
+    return config;
+  }
 
  private:
   SoraClientConfig config_;

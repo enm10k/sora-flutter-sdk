@@ -8,7 +8,7 @@
 {
     if (self = [super init]) {
         self.clientId = clientId;
-        self.client = sora::CreateSoraClient<SoraClient>(config);
+        self.client = std::make_shared<SoraClient>(config);
         self.eventChannelName = [SoraUtils stringForStdString: config.event_channel];
     }
     return self;

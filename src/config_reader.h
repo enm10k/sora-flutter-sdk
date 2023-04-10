@@ -236,8 +236,8 @@ SoraClientConfig JsonToClientConfig(const std::string& json) {
   if (std::string error; !func(v, name, field, error)) \
     errors.push_back(error)
 
-  F(SetBoolean, "useAudioDeivce", &c.use_audio_device);
-  F(SetBoolean, "useHardwareEncoder", &c.use_hardware_encoder);
+  F(SetBoolean, "useAudioDeivce", &c.context_config.use_audio_device);
+  F(SetBoolean, "useHardwareEncoder", &c.context_config.use_hardware_encoder);
   F(SetString, "videoDeviceName", &c.video_device_name);
   F(SetInteger, "videoDeviceWidth", &c.video_device_width);
   F(SetInteger, "videoDeviceHeight", &c.video_device_height);
