@@ -213,8 +213,6 @@ void SoraClient::Connect() {
 }
 
 void SoraClient::DoConnect() {
-  auto factory = GetSharedContext()->peer_connection_factory;
-
 #if defined(__ANDROID__)
   renderer_.reset(new SoraRenderer(io_env_, texture_registry_.obj()));
 #else
@@ -232,27 +230,31 @@ void SoraClient::DoConnect() {
     cam_config.jni_env = env;
     cam_config.application_context = GetAndroidApplicationContext(env);
 #endif
-    cam_config.signaling_thread = signaling_thread();
+    cam_config.signaling_thread = context()->signaling_thread();
     video_source_ = sora::CreateCameraDeviceCapturer(cam_config);
 
     std::string video_track_id = rtc::CreateRandomString(16);
     video_track_ =
-        factory->CreateVideoTrack(video_track_id, video_source_.get());
+        factory()->CreateVideoTrack(video_track_id, video_source_.get());
   }
 
   if (config_.signaling_config.audio) {
     std::string audio_track_id = rtc::CreateRandomString(16);
-    audio_track_ = factory->CreateAudioTrack(
+    audio_track_ = factory()->CreateAudioTrack(
         audio_track_id,
-        factory->CreateAudioSource(cricket::AudioOptions()).get());
+        factory()->CreateAudioSource(cricket::AudioOptions()).get());
   }
 
   sora::SoraSignalingConfig config = config_.signaling_config;
-  config.pc_factory = factory;
+  config.pc_factory = factory();
   config.io_context = ioc_.get();
   config.observer = shared_from_this();
-  config.network_manager = signaling_thread()->BlockingCall([this]() { return connection_context()->default_network_manager(); });
-  config.socket_factory = signaling_thread()->BlockingCall([this]() { return connection_context()->default_socket_factory; });
+  config.network_manager = context()->signaling_thread()->BlockingCall([this]() {
+    return context()->connection_context()->default_network_manager();
+  });
+  config.socket_factory = context()->signaling_thread()->BlockingCall([this]() {
+    return context()->connection_context()->default_socket_factory();
+  });
   conn_ = sora::SoraSignaling::Create(config);
 
   boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
@@ -484,7 +486,7 @@ void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &bas
   config.jni_env = env;
   config.application_context = GetAndroidApplicationContext(env);
 #endif
-  config.signaling_thread = signaling_thread();
+  config.signaling_thread = context()->signaling_thread();
 
   auto source = sora::CreateCameraDeviceCapturer(config);
   if (source == nullptr) {
@@ -492,7 +494,7 @@ void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &bas
   }
 
   std::string video_track_id = rtc::CreateRandomString(16);
-  auto track = factory->CreateVideoTrack(video_track_id, source.get());
+  auto track = factory()->CreateVideoTrack(video_track_id, source.get());
   if (track == nullptr) {
     return;
   }

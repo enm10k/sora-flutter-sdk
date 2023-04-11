@@ -94,9 +94,9 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void SendEvent(const boost::json::value& v);
   void DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
 
-  static sora::SoraClientContext& GetSharedContext() {
-    static sora::SoraClientContextConfig context_config = CreateContextConfig();
-    static sora::SoraClientContext context_(sora::SoraClientContext::Create(context_config));
+  static std::shared_ptr<sora::SoraClientContext> GetClientContext() {
+    static auto context_config = CreateContextConfig();
+    static auto context_ = sora::SoraClientContext::Create(context_config);
     return context_;
   }
 
@@ -105,6 +105,14 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
     config.use_audio_device = true;
     config.use_hardware_encoder = true;
     return config;
+  }
+
+  std::shared_ptr<sora::SoraClientContext> context() {
+    return GetClientContext();
+  }
+
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory() const {
+    return GetClientContext()->peer_connection_factory();
   }
 
  private:
