@@ -65,7 +65,7 @@ static void sora_flutter_sdk_plugin_handle_method_call(
     config.event_channel = event_channel;
     config.messenger = self->messenger;
     config.texture_registrar = self->texture_registrar;
-    auto client = sora::CreateSoraClient<sora_flutter_sdk::SoraClient>(config);
+    auto client = std::make_shared<sora_flutter_sdk::SoraClient>(config);
     data->clients.insert(std::make_pair(data->client_id, client));
 
     g_autoptr(FlValue) resp = fl_value_new_map();
