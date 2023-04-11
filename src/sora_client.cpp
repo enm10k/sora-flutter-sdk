@@ -228,7 +228,7 @@ void SoraClient::DoConnect() {
 #if defined(__ANDROID__)
     auto env = io_env_;
     cam_config.jni_env = env;
-    cam_config.application_context = GetAndroidApplicationContext(env);
+    cam_config.application_context = context()->android_application_context(env);
 #endif
     cam_config.signaling_thread = context()->signaling_thread();
     video_source_ = sora::CreateCameraDeviceCapturer(cam_config);
