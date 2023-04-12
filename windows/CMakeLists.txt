@@ -115,6 +115,8 @@ list(APPEND PLUGIN_SOURCES
   "../src/sora_renderer.h"
   "../src/device_list.h"
   "../src/device_list.cpp"
+  "../src/blank_video_capturer.h"
+  "../src/blank_video_capturer.cpp"
 )
 
 # Define the plugin library target. Its name must not be changed (see comment
