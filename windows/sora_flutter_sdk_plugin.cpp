@@ -86,7 +86,7 @@ void SoraFlutterSdkPlugin::HandleMethodCall(
     config.event_channel = event_channel;
     config.messenger = messenger_;
     config.texture_registrar = texture_registrar_;
-    auto client = sora::CreateSoraClient<SoraClient>(config);
+    auto client = std::make_shared<SoraClient>(config);
     clients_.insert(std::make_pair(client_id_, client));
 
     flutter::EncodableMap resp;
