@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test_app/integration_test/connect_test.dart';
+import 'package:integration_test_app/integration_test/integration_test.dart';
 import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
 import 'environment.dart';
 
 void main() async {
-  SoraClientConfig.flutterVersion = Environment.flutterVersion;
+  if (SDKIntegrationTest.isAppRunMode) {
+    TestWidgetsFlutterBinding.ensureInitialized();
+  }
+
+  SDKIntegrationTest.setup();
 
   runApp(const MyApp());
 }
@@ -24,10 +31,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    if (SDKIntegrationTest.isAppRunMode) {
+      SDKIntegrationTest.runAllTests();
+    }
+
     return MaterialApp(
-      home: Scaffold(
-        body: Container(),
-      ),
-    );
+        home: Scaffold(
+      body: Container(),
+    ));
   }
 }

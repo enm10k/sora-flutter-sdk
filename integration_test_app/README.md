@@ -1,16 +1,20 @@
 # integration_test_app
 
-A new Flutter project.
+## 実行方法
 
-## Getting Started
+### Windows 以外
 
-This project is a starting point for a Flutter application.
+```sh
+flutter test -d DEVICE_ID integration_test_app/integration_test/connect_test.dart
+```
 
-A few resources to get you started if this is your first Flutter project:
+### Windows
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Windows では Sora Flutter SDK はリリースモードでビルドする必要があるが、 Flutter のインテグレーションテストはリリースモードをサポートしていない。
+そのため、 `flutter run` による起動でもテスト実行可能にしてある。
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+`flutter run` でテストを実行するには、 `--dart-define=TEST_MODE=app_run` を指定する必要がある。
+
+```sh
+flutter run -d DEVICE_ID --release --dart-define=TEST_MODE=app_run
+```
