@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test_app/integration_test/connect_test.dart';
@@ -7,10 +8,6 @@ import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 import 'environment.dart';
 
 void main() async {
-  if (SDKIntegrationTest.isAppRunMode) {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  }
-
   SDKIntegrationTest.setup();
 
   runApp(const MyApp());

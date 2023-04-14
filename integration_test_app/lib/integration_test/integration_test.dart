@@ -1,5 +1,8 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:integration_test/integration_test.dart';
 import 'package:integration_test_app/environment.dart';
 import 'package:integration_test_app/integration_test/connect_test.dart';
+import 'package:integration_test_app/integration_test/integration_test.dart';
 import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 
 abstract class _DartDefine {
@@ -13,25 +16,35 @@ enum SDKIntegrationTestMode {
 }
 
 abstract class SDKIntegrationTest {
-  static SDKIntegrationTestMode loadTestMode() {
-    final s = String.fromEnvironment(_DartDefine.testMode,
-        defaultValue: SDKIntegrationTestMode.standard.name);
-    return SDKIntegrationTestMode.values.firstWhere((e) => e.name == s);
+  // fromEnvironment の値は static const に入れる必要がある
+  static const _testMode = String.fromEnvironment(_DartDefine.testMode);
+  static const _testTarget = String.fromEnvironment(_DartDefine.testTarget);
+
+  static SDKIntegrationTestMode get testMode {
+    return SDKIntegrationTestMode.values.firstWhere(
+      (e) => e.name == _testMode,
+      orElse: () => SDKIntegrationTestMode.standard,
+    );
   }
 
-  static bool get isStandardMode =>
-      loadTestMode() == SDKIntegrationTestMode.standard;
+  static bool get isStandardMode => testMode == SDKIntegrationTestMode.standard;
 
-  static bool get isAppRunMode =>
-      loadTestMode() == SDKIntegrationTestMode.app_run;
+  static bool get isAppRunMode => testMode == SDKIntegrationTestMode.app_run;
+
+  static String? get testTarget => _testTarget.isEmpty ? null : _testTarget;
 
   static void setup() {
+    if (isAppRunMode) {
+      LiveTestWidgetsFlutterBinding.ensureInitialized();
+    } else {
+      IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+    }
+
     SoraClientConfig.flutterVersion = Environment.flutterVersion;
   }
 
   static void runAllTests() {
-    final s = String.fromEnvironment(_DartDefine.testMode);
-    if (s.isEmpty || s == 'connect') {
+    if (testTarget == null || testTarget == 'connect') {
       connectTest();
     }
   }

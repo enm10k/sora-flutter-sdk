@@ -15,7 +15,6 @@ import 'package:sora_flutter_sdk/sora_flutter_sdk.dart';
 // 実行方法
 // $ flutter test integration_test/app_test.dart -d <DEVICE_ID>
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   SDKIntegrationTest.setup();
 
   connectTest();
