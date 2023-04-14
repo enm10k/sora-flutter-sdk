@@ -14,7 +14,8 @@ jobs:
       matrix:
         target:
           - ios
-          - macos
+          # Sora C++ SDK は x86_64 に非対応
+          # - macos
     name: Test on ${{ matrix.target }}
     runs-on: macos-12
     env:
