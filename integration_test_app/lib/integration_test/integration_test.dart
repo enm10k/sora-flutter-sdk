@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:integration_test_app/environment.dart';
@@ -33,11 +36,13 @@ abstract class SDKIntegrationTest {
 
   static String? get testTarget => _testTarget.isEmpty ? null : _testTarget;
 
+  static TestWidgetsFlutterBinding? _binding;
+
   static void setup() {
     if (isAppRunMode) {
-      LiveTestWidgetsFlutterBinding.ensureInitialized();
+      _binding = LiveTestWidgetsFlutterBinding.ensureInitialized();
     } else {
-      IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+      _binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
     }
 
     SoraClientConfig.flutterVersion = Environment.flutterVersion;
@@ -46,6 +51,16 @@ abstract class SDKIntegrationTest {
   static void runAllTests() {
     if (testTarget == null || testTarget == 'connect') {
       connectTest();
+    }
+
+    // デスクトップの場合はテストが終了したら強制的にアプリを終了する
+    if (Platform.isMacOS || Platform.isLinux || Platform.isWindows) {
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (_binding != null && !_binding!.inTest) {
+          timer.cancel();
+          exit(0);
+        }
+      });
     }
   }
 }
