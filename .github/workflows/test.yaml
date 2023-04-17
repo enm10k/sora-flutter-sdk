@@ -9,17 +9,13 @@ on:
       - '.fvm'
 
 jobs:
-  test:
+  prepare:
     strategy:
       matrix:
-        target:
-          - ios
-          # Sora C++ SDK は x86_64 に非対応
-          # - macos
-    name: Test on ${{ matrix.target }}
-    runs-on: macos-12
+        os: [ macos-12, windows-latest, ubuntu-latest ]
+    name: Prepare Environment for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     env:
-      XCODE: /Applications/Xcode_14.0.1.app
       SIGNALING_URL1: ${{ secrets.TEST_SIGNALING_URL1 }}
       SIGNALING_URL2: ${{ secrets.TEST_SIGNALING_URL2 }}
       SIGNALING_URL3: ${{ secrets.TEST_SIGNALING_URL3 }}
@@ -41,6 +37,35 @@ jobs:
           echo "CHANNEL_ID=`cat USER.txt`@$CHANNEL_ID" >> $GITHUB_ENV
           rm USER.txt
       - uses: actions/checkout@v3
+      - name: Generate Configuration
+        working-directory: ./integration_test_app
+        run: ../scripts/create_env.sh lib/environment.dart "$SIGNALING_URL1,$SIGNALING_URL2,$SIGNALING_URL3" "${{ env.CHANNEL_ID }}" "$METADATA"
+      - name: Upload Generated Configuration
+        uses: actions/upload-artifact@v2
+        with:
+          name: environment-dart
+          path: ./integration_test_app/lib/environment.dart
+
+  test:
+    needs: prepare
+    strategy:
+      matrix:
+        target:
+          - ios
+          # Sora C++ SDK は x86_64 に非対応
+          # - macos
+    name: Test on ${{ matrix.target }}
+    runs-on: macos-12
+    env:
+      XCODE: /Applications/Xcode_14.0.1.app
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download Generated Configuration
+        uses: actions/download-artifact@v2
+        with:
+          name: environment-dart
+          path: ./integration_test_app/lib/
+      - uses: actions/checkout@v3
       - name: Select Xcode Version
         run: sudo xcode-select -s '${{ env.XCODE }}/Contents/Developer'
       - name: Show Xcode Version
@@ -59,9 +84,6 @@ jobs:
       - name: Show Flutter Available Devices
         if: matrix.target == 'ios'
         run: flutter devices
-      - name: Generate Configuration
-        working-directory: ./integration_test_app
-        run: ../scripts/create_env.sh lib/environment.dart "$SIGNALING_URL1,$SIGNALING_URL2,$SIGNALING_URL3" "${{ env.CHANNEL_ID }}" "$METADATA"
       - name: Get Flutter Dependencies
         working-directory: ./integration_test_app
         run: flutter pub get
