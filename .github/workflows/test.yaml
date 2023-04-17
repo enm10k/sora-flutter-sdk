@@ -16,7 +16,7 @@ jobs:
         target: [ ios, windows, linux ]
     name: Prepare Environment for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
-    if: >
+    if: >-
       (matrix.os == 'macos-12' && matrix.target == 'ios') ||
       (matrix.os == 'windows-latest' && matrix.target == 'windows') ||
       (matrix.os == 'ubuntu-latest' && matrix.target == 'linux')
