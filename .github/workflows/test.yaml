@@ -13,8 +13,13 @@ jobs:
     strategy:
       matrix:
         os: [ macos-12, windows-latest, ubuntu-latest ]
-    name: Prepare Environment for ${{ matrix.os }}
+        target: [ ios, windows, linux ]
+    name: Prepare Environment for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    if: >
+      (matrix.os == 'macos-12' && matrix.target == 'ios') ||
+      (matrix.os == 'windows-latest' && matrix.target == 'windows') ||
+      (matrix.os == 'ubuntu-latest' && matrix.target == 'linux')
     env:
       SIGNALING_URL1: ${{ secrets.TEST_SIGNALING_URL1 }}
       SIGNALING_URL2: ${{ secrets.TEST_SIGNALING_URL2 }}
@@ -36,6 +41,13 @@ jobs:
           echo "::add-mask::`cat USER.txt`@$CHANNEL_ID"
           echo "CHANNEL_ID=`cat USER.txt`@$CHANNEL_ID" >> $GITHUB_ENV
           rm USER.txt
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          architecture: ${{ (matrix.os == 'macos-12' && matrix.target == 'ios') && 'arm64' || '' }}
+      - name: Show Flutter Available Emulators
+        run: flutter emulators
       - uses: actions/checkout@v3
       - name: Generate Configuration
         working-directory: ./integration_test_app
@@ -70,14 +82,6 @@ jobs:
         run: sudo xcode-select -s '${{ env.XCODE }}/Contents/Developer'
       - name: Show Xcode Version
         run: xcodebuild -version
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-          architecture: x64
-      - name: Show Flutter Available Emulators
-        if: matrix.target == 'ios'
-        run: flutter emulators
       - name: Launch iOS Simulator
         if: matrix.target == 'ios'
         run: flutter emulators --launch apple_ios_simulator
