@@ -12,8 +12,7 @@ jobs:
   prepare:
     strategy:
       matrix:
-        os: [ macos-12, ubuntu-22.04 ]
-        # os: [ macos-12, windows-latest, ubuntu-latest ]
+        os: [ macos-12, windows-latest, ubuntu-22.04 ]
     name: Prepare Environment for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
@@ -35,7 +34,7 @@ jobs:
           uuidgen > USER.txt
           echo "::add-mask::`cat USER.txt`"
           echo "::add-mask::`cat USER.txt`@$CHANNEL_ID"
-          echo "CHANNEL_ID=`cat USER.txt`@$CHANNEL_ID" >> $GITHUB_ENV
+          echo "CHANNEL_ID=`cat USER.txt`@$CHANNEL_ID" >> "$GITHUB_ENV"
           rm USER.txt
       - uses: actions/checkout@v3
       - name: Generate Configuration
@@ -95,6 +94,30 @@ jobs:
           else
             flutter test integration_test/connect_test.dart -d macos
           fi
+
+  test-windows:
+    name: Test on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - name: Download Generated Configuration
+        uses: actions/download-artifact@v2
+        with:
+          name: environment-dart
+          path: ./integration_test_app/lib/
+      - name: Configure Flutter
+        working-directory: ./integration_test_app
+        run: |
+          flutter pub get
+          flutter config --enable-windows-desktop
+      - name: Run Integration Tests
+        working-directory: ./integration_test_app
+        run: flutter run -d windows --release
 
   test-ubuntu:
     name: Test on Ubuntu
