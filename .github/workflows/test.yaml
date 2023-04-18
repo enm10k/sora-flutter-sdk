@@ -37,13 +37,6 @@ jobs:
           echo "::add-mask::`cat USER.txt`@$CHANNEL_ID"
           echo "CHANNEL_ID=`cat USER.txt`@$CHANNEL_ID" >> $GITHUB_ENV
           rm USER.txt
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-          architecture: x64
-      - name: Show Flutter Available Emulators
-        run: flutter emulators
       - uses: actions/checkout@v3
       - name: Generate Configuration
         working-directory: ./integration_test_app
@@ -54,7 +47,7 @@ jobs:
           name: environment-dart
           path: ./integration_test_app/lib/environment.dart
 
-  test:
+  test-ios:
     needs: prepare
     strategy:
       matrix:
@@ -78,6 +71,14 @@ jobs:
         run: sudo xcode-select -s '${{ env.XCODE }}/Contents/Developer'
       - name: Show Xcode Version
         run: xcodebuild -version
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+          architecture: x64
+      - name: Show Flutter Available Emulators
+        run: flutter emulators
       - name: Launch iOS Simulator
         if: matrix.target == 'ios'
         run: flutter emulators --launch apple_ios_simulator
@@ -95,3 +96,36 @@ jobs:
           else
             flutter test integration_test/connect_test.dart -d macos
           fi
+
+  test-ubuntu:
+    name: Test on Ubuntu
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download Generated Configuration
+        uses: actions/download-artifact@v2
+        with:
+          name: environment-dart
+          path: ./integration_test_app/lib/
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+      - name: Show Flutter Available Emulators
+        run: flutter emulators
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev libva-dev libdrm-dev
+      - name: Install Sora C++ SDK
+        working-directory: ./integration_test_app
+        run: |
+          flutter pub get
+          flutter config --enable-linux-desktop
+          ./linux/flutter/ephemeral/.plugin_symlinks/sora_flutter_sdk/linux/install_deps.sh linux/
+          export PATH="`pwd`/linux/_install/llvm/clang/bin:$PATH"
+      - name: Run Integration Tests
+        working-directory: ./integration_test_app
+        run: |
+          flutter test integration_test/connect_test.dart -d linux
