@@ -12,8 +12,9 @@ jobs:
   prepare:
     strategy:
       matrix:
-        os: [ macos-12, windows-latest, ubuntu-latest ]
-    name: Prepare Environment for ${{ matrix.target }}
+        os: [ macos-12, ubuntu-latest ]
+        # os: [ macos-12, windows-latest, ubuntu-latest ]
+    name: Prepare Environment for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
       SIGNALING_URL1: ${{ secrets.TEST_SIGNALING_URL1 }}
@@ -40,7 +41,7 @@ jobs:
         with:
           channel: 'stable'
           cache: true
-          architecture: ${{ (matrix.os == 'macos-12' && matrix.target == 'ios') && 'arm64' || '' }}
+          architecture: x64
       - name: Show Flutter Available Emulators
         run: flutter emulators
       - uses: actions/checkout@v3
