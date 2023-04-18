@@ -34,7 +34,7 @@ jobs:
         run: |
           uuidgen > USER.txt
       - name: Create Test Channel ID (Windows)
-        if: matrix.os != 'windows-latest'
+        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
           [guid]::NewGuid().ToString() | Out-File -FilePath USER.txt
