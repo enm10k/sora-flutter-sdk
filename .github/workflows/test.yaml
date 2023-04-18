@@ -12,7 +12,7 @@ jobs:
   prepare:
     strategy:
       matrix:
-        os: [ macos-12, ubuntu-latest ]
+        os: [ macos-12, ubuntu-22.04 ]
         # os: [ macos-12, windows-latest, ubuntu-latest ]
     name: Prepare Environment for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -66,7 +66,6 @@ jobs:
         with:
           name: environment-dart
           path: ./integration_test_app/lib/
-      - uses: actions/checkout@v3
       - name: Select Xcode Version
         run: sudo xcode-select -s '${{ env.XCODE }}/Contents/Developer'
       - name: Show Xcode Version
@@ -99,7 +98,7 @@ jobs:
 
   test-ubuntu:
     name: Test on Ubuntu
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - name: Download Generated Configuration
