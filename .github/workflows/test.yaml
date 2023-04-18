@@ -31,12 +31,15 @@ jobs:
           echo "::add-mask::$METADATA"
       - name: Create Test Channel ID
         if: matrix.os != 'windows-latest'
-        run: uuidgen > USER.txt
+        run: |
+          uuidgen > USER.txt
       - name: Create Test Channel ID (Windows)
         if: matrix.os != 'windows-latest'
         shell: pwsh
-        run: [guid]::NewGuid().ToString() | Out-File -FilePath USER.txt
+        run: |
+          [guid]::NewGuid().ToString() | Out-File -FilePath USER.txt
       - name: Add Masked Test Channel ID
+        shell: bash
         run: |
           echo "::add-mask::`cat USER.txt`"
           echo "::add-mask::`cat USER.txt`@$CHANNEL_ID"
