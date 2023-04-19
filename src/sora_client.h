@@ -27,7 +27,7 @@ void* GetAndroidApplicationContext(void*);
 
 namespace sora_flutter_sdk {
 
-struct SoraClientConfig : sora::SoraSignalingConfig {
+struct SoraClientConfig {
   std::string video_device_name;
   int video_device_width = 640;
   int video_device_height = 480;
