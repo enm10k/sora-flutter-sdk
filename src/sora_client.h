@@ -94,31 +94,21 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void SendEvent(const boost::json::value& v);
   void DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
 
-  static std::shared_ptr<sora::SoraClientContext> GetClientContext() {
-    static auto context_config = CreateContextConfig();
-    static auto context_ = sora::SoraClientContext::Create(context_config);
-    return context_;
+  static std::shared_ptr<sora::SoraClientContext> CreateClientContext(const sora::SoraClientContextConfig& new_config) {
+    std::unique_lock<std::mutex> lock(context_mutex_);
+    if (!shared_context_ || shared_context_config_.use_audio_device != new_config.use_audio_device || shared_context_config_.use_hardware_encoder != new_config.use_hardware_encoder) {
+      shared_context_config_ = new_config;
+      shared_context_ = sora::SoraClientContext::Create(shared_context_config_);
+    }
+    return shared_context_;
   }
 
-  static sora::SoraClientContextConfig CreateContextConfig() {
-    sora::SoraClientContextConfig config;
-    config.use_audio_device = true;
-    config.use_hardware_encoder = true;
-#if defined(__ANDROID__)
-    config.get_android_application_context = [](void* env) {
-      return ::GetAndroidApplicationContext(env);
-    };
-#endif
-
-    return config;
-  }
-
-  std::shared_ptr<sora::SoraClientContext> context() {
-    return GetClientContext();
-  }
+  static sora::SoraClientContextConfig shared_context_config_;
+  static std::shared_ptr<sora::SoraClientContext> shared_context_;
+  static std::mutex context_mutex_;
 
   rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory() const {
-    return GetClientContext()->peer_connection_factory();
+    return context_->peer_connection_factory();
   }
 
  private:
@@ -129,6 +119,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   rtc::scoped_refptr<webrtc::RtpSenderInterface> video_sender_;
 
   std::shared_ptr<sora::SoraSignaling> conn_;
+  std::shared_ptr<sora::SoraClientContext> context_;
   std::unique_ptr<boost::asio::io_context> ioc_;
   std::unique_ptr<rtc::Thread> io_thread_;
 
