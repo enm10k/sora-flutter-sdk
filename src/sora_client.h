@@ -84,7 +84,6 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void OnDataChannel(std::string label) override;
 
 #if defined(__ANDROID__)
-  void* GetAndroidApplicationContext(void* env) { return ::GetAndroidApplicationContext(env); }
   void OnListen(JNIEnv* env, jobject self, jobject arguments, jobject events);
   void OnCancel(JNIEnv* env, jobject self, jobject arguments);
 #endif
