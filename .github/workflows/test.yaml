@@ -125,7 +125,7 @@ jobs:
           flutter config --enable-windows-desktop
       - name: Run Integration Tests
         working-directory: ./integration_test_app
-        run: flutter run -d windows --release
+        run: flutter run -d windows --release --dart-define=TEST_MODE=app_run
 
   test-ubuntu:
     name: Test on Ubuntu
