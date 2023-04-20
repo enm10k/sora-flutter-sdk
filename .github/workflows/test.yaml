@@ -6,7 +6,6 @@ on:
       - '.github/workflows/build.yaml'
       - '**.md'
       - 'example'
-      - '.fvm'
 
 jobs:
   prepare:
