@@ -16,7 +16,7 @@
 #include <flutter_linux/flutter_linux.h>
 #endif
 
-#include <sora/sora_default_client.h>
+#include <sora/sora_client_context.h>
 #include <sora/camera_device_capturer.h>
 
 #include "sora_renderer.h"
@@ -27,13 +27,14 @@ void* GetAndroidApplicationContext(void*);
 
 namespace sora_flutter_sdk {
 
-struct SoraClientConfig : sora::SoraDefaultClientConfig {
+struct SoraClientConfig {
   std::string video_device_name;
   int video_device_width = 640;
   int video_device_height = 480;
   int video_device_fps = 30;
 
   sora::SoraSignalingConfig signaling_config;
+  sora::SoraClientContextConfig context_config;
 
   std::string event_channel;
 #if defined(__ANDROID__)
@@ -53,7 +54,7 @@ struct SoraClientConfig : sora::SoraDefaultClientConfig {
 };
 
 class SoraClient : public std::enable_shared_from_this<SoraClient>,
-                  public sora::SoraDefaultClient {
+                  public sora::SoraSignalingObserver {
  public:
   SoraClient(SoraClientConfig config);
   virtual ~SoraClient();
@@ -83,7 +84,6 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void OnDataChannel(std::string label) override;
 
 #if defined(__ANDROID__)
-  void* GetAndroidApplicationContext(void* env) override { return ::GetAndroidApplicationContext(env); }
   void OnListen(JNIEnv* env, jobject self, jobject arguments, jobject events);
   void OnCancel(JNIEnv* env, jobject self, jobject arguments);
 #endif
@@ -93,6 +93,23 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void SendEvent(const boost::json::value& v);
   void DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
 
+  static std::shared_ptr<sora::SoraClientContext> CreateClientContext(const sora::SoraClientContextConfig& new_config) {
+    std::unique_lock<std::mutex> lock(context_mutex_);
+    if (!shared_context_ || shared_context_config_.use_audio_device != new_config.use_audio_device || shared_context_config_.use_hardware_encoder != new_config.use_hardware_encoder) {
+      shared_context_config_ = new_config;
+      shared_context_ = sora::SoraClientContext::Create(shared_context_config_);
+    }
+    return shared_context_;
+  }
+
+  static sora::SoraClientContextConfig shared_context_config_;
+  static std::shared_ptr<sora::SoraClientContext> shared_context_;
+  static std::mutex context_mutex_;
+
+  rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> factory() const {
+    return context_->peer_connection_factory();
+  }
+
  private:
   SoraClientConfig config_;
   rtc::scoped_refptr<webrtc::VideoTrackSourceInterface> video_source_;
@@ -101,6 +118,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   rtc::scoped_refptr<webrtc::RtpSenderInterface> video_sender_;
 
   std::shared_ptr<sora::SoraSignaling> conn_;
+  std::shared_ptr<sora::SoraClientContext> context_;
   std::unique_ptr<boost::asio::io_context> ioc_;
   std::unique_ptr<rtc::Thread> io_thread_;
 

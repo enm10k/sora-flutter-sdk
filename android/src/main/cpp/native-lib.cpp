@@ -64,7 +64,7 @@ Java_jp_shiguredo_sora_1flutter_1sdk_SoraFlutterSdkPlugin_createSoraClient(JNIEn
   config.messenger = env->CallObjectMethod(binding, getbin);
   config.texture_registry = env->CallObjectMethod(binding, gettex);
   auto client = new SoraClientWrapper();
-  client->p = sora::CreateSoraClient<sora_flutter_sdk::SoraClient>(config);
+  client->p = std::make_shared<sora_flutter_sdk::SoraClient>(config);
 
   // m = new HashMap();
   // m.put("client_id", client_id);
