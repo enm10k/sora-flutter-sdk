@@ -1,20 +1,44 @@
-# integration_test_app
+# インテグレーションテスト
 
-## 実行方法
+このアプリは、Sora Flutter SDKの開発者向けインテグレーションテスト用アプリです。
 
-### Windows 以外
+## アプリの実行方法
 
-```sh
-flutter test -d DEVICE_ID integration_test_app/integration_test/connect_test.dart
+### 準備
+`lib/environment.dart`を用意します。`lib/environment.example.dart`をコピーしてファイル名を変更し、テストに使う接続設定を編集します。
+
+### iOS
+
+```
+flutter test -d iPhone integration_test/connect_test.dart
 ```
 
-### Windows
+### macOS (arm64)
 
-Windows では Sora Flutter SDK はリリースモードでビルドする必要があるが、 Flutter のインテグレーションテストはリリースモードをサポートしていない。
-そのため、 `flutter run` による起動でもテスト実行可能にしてある。
-
-`flutter run` でテストを実行するには、 `--dart-define=TEST_MODE=app_run` を指定する必要がある。
-
-```sh
-flutter run -d DEVICE_ID --release --dart-define=TEST_MODE=app_run
 ```
+flutter test -d macos integration_test/connect_test.dart
+```
+
+### macOS (x86_64)
+
+Sora Flutter SDK は macOS (x86_64) に対応していません。
+
+### Ubuntu
+
+```
+flutter test -d linux integration_test/connect_test.dart
+```
+
+## Windowsでの実行方法
+
+Windowsでは `flutter test` で実行できません。
+Sora Flutter SDK は Windows ではリリースモードでしかビルド・実行できないため、
+`flutter test`はリリースモードに対応していません。そのため、インテグレーションテストをアプリとして実行する必要があります。
+
+テストを実行するには、次のコマンドを実行してください。
+
+```
+flutter run -d windows --release --dart-define=TEST_MODE=app_run
+```
+
+本アプリは `--dart-define` で指定できる環境変数 `TEST_MODE` の値が `app_run` であればテストを実行します。
