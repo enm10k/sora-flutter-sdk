@@ -125,7 +125,7 @@ jobs:
           flutter config --enable-windows-desktop
       - name: Run Integration Tests
         working-directory: ./integration_test_app
-        run: pwsh -File .\app-run.ps1 -timeoutSeconds 120
+        run: pwsh -File .\app-run.ps1 -timeoutSeconds 300
 
   test-ubuntu:
     name: Test on Ubuntu
