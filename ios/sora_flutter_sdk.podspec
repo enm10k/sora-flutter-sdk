@@ -2,7 +2,7 @@ sdk_dir = "_install"
 
 Pod::Spec.new do |s|
   s.name = 'sora_flutter_sdk'
-  s.version  = '2022.1.0-canary.12'
+  s.version  = '2022.1.0-canary.13'
   s.summary  = 'Sora Flutter SDK.'
   s.description  = <<-DESC
   A library to develop Web RTC SFU Sora(https://sora.shiguredo.jp/) client applications.
