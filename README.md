@@ -12,6 +12,8 @@ Please read https://github.com/shiguredo/oss before use.
 
 ## 概要
 
+**現在優先度がとても低くなっています**
+
 Sora Flutter SDK は [WebRTC SFU Sora](https://sora.shiguredo.jp) の Flutter クライアントアプリケーションを開発するためのライブラリです。
 
 ## ドキュメント
