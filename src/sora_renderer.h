@@ -42,13 +42,18 @@ class SoraRenderer {
   class Sink : public rtc::VideoSinkInterface<webrtc::VideoFrame> {
    public:
 #if defined(__ANDROID__)
-    Sink(webrtc::VideoTrackInterface* track, JNIEnv* env, jobject texture_registrar);
+    Sink(webrtc::VideoTrackInterface* track,
+         JNIEnv* env,
+         jobject texture_registrar);
 #elif defined(_WIN32)
-    Sink(webrtc::VideoTrackInterface* track, flutter::TextureRegistrar* texture_registrar);
+    Sink(webrtc::VideoTrackInterface* track,
+         flutter::TextureRegistrar* texture_registrar);
 #elif defined(__APPLE__)
-    Sink(webrtc::VideoTrackInterface* track, id<FlutterTextureRegistry> texture_registrar);
+    Sink(webrtc::VideoTrackInterface* track,
+         id<FlutterTextureRegistry> texture_registrar);
 #elif defined(__linux__)
-    Sink(webrtc::VideoTrackInterface* track, FlTextureRegistrar* texture_registrar);
+    Sink(webrtc::VideoTrackInterface* track,
+         FlTextureRegistrar* texture_registrar);
 #endif
     ~Sink();
 

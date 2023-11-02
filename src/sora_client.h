@@ -7,8 +7,8 @@
 #elif defined(_WIN32)
 #include <flutter/binary_messenger.h>
 #include <flutter/encodable_value.h>
-#include <flutter/event_sink.h>
 #include <flutter/event_channel.h>
+#include <flutter/event_sink.h>
 #include <flutter/texture_registrar.h>
 #elif defined(__APPLE__)
 #import "SoraBase.h"
@@ -16,8 +16,8 @@
 #include <flutter_linux/flutter_linux.h>
 #endif
 
-#include <sora/sora_client_context.h>
 #include <sora/camera_device_capturer.h>
+#include <sora/sora_client_context.h>
 
 #include "sora_renderer.h"
 
@@ -42,19 +42,19 @@ struct SoraClientConfig {
   jobject messenger;
   jobject texture_registry;
 #elif defined(_WIN32)
-  flutter::BinaryMessenger *messenger;
-  flutter::TextureRegistrar *texture_registrar;
+  flutter::BinaryMessenger* messenger;
+  flutter::TextureRegistrar* texture_registrar;
 #elif defined(__APPLE__)
   id<FlutterBinaryMessenger> messenger;
   id<FlutterTextureRegistry> texture_registrar;
 #else
-  FlBinaryMessenger *messenger;
-  FlTextureRegistrar *texture_registrar;
+  FlBinaryMessenger* messenger;
+  FlTextureRegistrar* texture_registrar;
 #endif
 };
 
 class SoraClient : public std::enable_shared_from_this<SoraClient>,
-                  public sora::SoraSignalingObserver {
+                   public sora::SoraSignalingObserver {
  public:
   SoraClient(SoraClientConfig config);
   virtual ~SoraClient();
@@ -63,7 +63,7 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void Connect();
   void Disconnect();
   bool SendDataChannel(std::string label, std::string data);
-  void SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
+  void SwitchVideoDevice(const sora::CameraDeviceCapturerConfig& config);
 
   void SetVideoEnabled(bool flag);
   void SetAudioEnabled(bool flag);
@@ -76,8 +76,8 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   void OnPush(std::string text) override;
   void OnMessage(std::string label, std::string data) override;
 
-  void OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver)
-      override;
+  void OnTrack(
+      rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) override;
   void OnRemoveTrack(
       rtc::scoped_refptr<webrtc::RtpReceiverInterface> receiver) override;
 
@@ -91,11 +91,16 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
  private:
   void DoConnect();
   void SendEvent(const boost::json::value& v);
-  void DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config);
+  void DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig& config);
 
-  static std::shared_ptr<sora::SoraClientContext> CreateClientContext(const sora::SoraClientContextConfig& new_config) {
+  static std::shared_ptr<sora::SoraClientContext> CreateClientContext(
+      const sora::SoraClientContextConfig& new_config) {
     std::unique_lock<std::mutex> lock(context_mutex_);
-    if (!shared_context_ || shared_context_config_.use_audio_device != new_config.use_audio_device || shared_context_config_.use_hardware_encoder != new_config.use_hardware_encoder) {
+    if (!shared_context_ ||
+        shared_context_config_.use_audio_device !=
+            new_config.use_audio_device ||
+        shared_context_config_.use_hardware_encoder !=
+            new_config.use_hardware_encoder) {
       shared_context_config_ = new_config;
       shared_context_ = sora::SoraClientContext::Create(shared_context_config_);
     }
@@ -133,11 +138,12 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
   webrtc::ScopedJavaGlobalRef<jobject> event_handler_;
   webrtc::ScopedJavaGlobalRef<jobject> event_sink_;
 #elif defined(_WIN32)
-  std::unique_ptr<flutter::EventChannel<flutter::EncodableValue>> event_channel_;
-  std::unique_ptr<flutter::EventSink<flutter::EncodableValue>> event_sink_;
+  std::unique_ptr<flutter::EventChannel<flutter::EncodableValue> >
+      event_channel_;
+  std::unique_ptr<flutter::EventSink<flutter::EncodableValue> > event_sink_;
 #elif defined(__APPLE__)
-  FlutterEventChannel *event_channel_;
-  NSObject<FlutterStreamHandler> *stream_handler_;
+  FlutterEventChannel* event_channel_;
+  NSObject<FlutterStreamHandler>* stream_handler_;
   FlutterEventSink event_sink_;
 #else
   std::shared_ptr<FlEventChannel> event_channel_ = nullptr;
@@ -145,6 +151,6 @@ class SoraClient : public std::enable_shared_from_this<SoraClient>,
 #endif
 };
 
-}
+}  // namespace sora_flutter_sdk
 
 #endif

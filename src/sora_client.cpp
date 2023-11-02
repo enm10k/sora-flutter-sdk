@@ -4,8 +4,8 @@
 #include <sdk/android/native_api/jni/class_loader.h>
 #include <sdk/android/native_api/jni/jvm.h>
 #elif defined(_WIN32)
-#include <flutter/event_stream_handler_functions.h>
 #include <flutter/event_stream_handler.h>
+#include <flutter/event_stream_handler_functions.h>
 #include <flutter/standard_method_codec.h>
 #elif defined(__linux__)
 #endif
@@ -30,38 +30,41 @@
 #if defined(__ANDROID__)
 
 extern "C" JNIEXPORT void JNICALL
-Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnListen(JNIEnv* env,
-                                         jobject self,
-                                         jlong ptr,
-                                         jobject arguments,
-                                         jobject events) {
+Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnListen(
+    JNIEnv* env,
+    jobject self,
+    jlong ptr,
+    jobject arguments,
+    jobject events) {
   if (ptr == 0) {
     return;
   }
   ((sora_flutter_sdk::SoraClient*)ptr)->OnListen(env, self, arguments, events);
 }
 extern "C" JNIEXPORT void JNICALL
-Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnCancel(JNIEnv* env,
-                                         jobject self,
-                                         jlong ptr,
-                                         jobject arguments) {
+Java_jp_shiguredo_sora_1flutter_1sdk_EventChannelHandler_nativeOnCancel(
+    JNIEnv* env,
+    jobject self,
+    jlong ptr,
+    jobject arguments) {
   if (ptr == 0) {
     return;
   }
   ((sora_flutter_sdk::SoraClient*)ptr)->OnCancel(env, self, arguments);
 }
 
-void RunOnMainThread(JNIEnv* env, std::function<void (JNIEnv*)> f);
+void RunOnMainThread(JNIEnv* env, std::function<void(JNIEnv*)> f);
 
 #elif defined(__APPLE__)
 
 #import "SoraUtils.h"
 
-typedef FlutterError *_Nullable (^StreamHandlerOnListen)(id _Nullable, FlutterEventSink __nonnull);
+typedef FlutterError* _Nullable (
+    ^StreamHandlerOnListen)(id _Nullable, FlutterEventSink __nonnull);
 
 @interface SoraClientStreamHandler : NSObject <FlutterStreamHandler>
 
-@property (nonatomic) StreamHandlerOnListen onListen;
+@property(nonatomic) StreamHandlerOnListen onListen;
 
 - (instancetype)initWithOnListen:(StreamHandlerOnListen)onListen;
 
@@ -72,7 +75,10 @@ typedef FlutterError *_Nullable (^StreamHandlerOnListen)(id _Nullable, FlutterEv
 namespace sora_flutter_sdk {
 
 #if defined(__ANDROID__)
-void SoraClient::OnListen(JNIEnv* env, jobject self, jobject arguments, jobject events) {
+void SoraClient::OnListen(JNIEnv* env,
+                          jobject self,
+                          jobject arguments,
+                          jobject events) {
   event_sink_ = webrtc::ScopedJavaLocalRef<jobject>(env, events);
 }
 void SoraClient::OnCancel(JNIEnv* env, jobject self, jobject arguments) {
@@ -82,11 +88,11 @@ void SoraClient::OnCancel(JNIEnv* env, jobject self, jobject arguments) {
 #endif
 
 sora::SoraClientContextConfig SoraClient::shared_context_config_;
-std::shared_ptr<sora::SoraClientContext> SoraClient::shared_context_ = nullptr; // Add this line
+std::shared_ptr<sora::SoraClientContext> SoraClient::shared_context_ =
+    nullptr;  // Add this line
 std::mutex SoraClient::context_mutex_;
 
-SoraClient::SoraClient(SoraClientConfig config)
-    : config_(config) {
+SoraClient::SoraClient(SoraClientConfig config) : config_(config) {
 #if defined(__ANDROID__)
   auto env = config_.env;
 
@@ -96,67 +102,82 @@ SoraClient::SoraClient(SoraClientConfig config)
   // event_channel_ = new EventChannel(messenger_, event_channel);
   // event_handler_ = new EventChannelHandler(this);
   // event_channel_.setStreamHandler(handler);
-  webrtc::ScopedJavaLocalRef<jclass> evcls = webrtc::GetClass(env, "io/flutter/plugin/common/EventChannel");
-  jmethodID evctorid = env->GetMethodID(evcls.obj(), "<init>", "(Lio/flutter/plugin/common/BinaryMessenger;Ljava/lang/String;)V");
-  webrtc::ScopedJavaLocalRef<jobject> evobj(env, env->NewObject(evcls.obj(), evctorid, messenger_.obj(), env->NewStringUTF(config_.event_channel.c_str())));
+  webrtc::ScopedJavaLocalRef<jclass> evcls =
+      webrtc::GetClass(env, "io/flutter/plugin/common/EventChannel");
+  jmethodID evctorid = env->GetMethodID(
+      evcls.obj(), "<init>",
+      "(Lio/flutter/plugin/common/BinaryMessenger;Ljava/lang/String;)V");
+  webrtc::ScopedJavaLocalRef<jobject> evobj(
+      env, env->NewObject(evcls.obj(), evctorid, messenger_.obj(),
+                          env->NewStringUTF(config_.event_channel.c_str())));
 
-  webrtc::ScopedJavaLocalRef<jclass> hndcls = webrtc::GetClass(env, "jp/shiguredo/sora_flutter_sdk/EventChannelHandler");
+  webrtc::ScopedJavaLocalRef<jclass> hndcls = webrtc::GetClass(
+      env, "jp/shiguredo/sora_flutter_sdk/EventChannelHandler");
   jmethodID hndctorid = env->GetMethodID(hndcls.obj(), "<init>", "(J)V");
-  webrtc::ScopedJavaLocalRef<jobject> hndobj(env, env->NewObject(hndcls.obj(), hndctorid, (jlong)this));
+  webrtc::ScopedJavaLocalRef<jobject> hndobj(
+      env, env->NewObject(hndcls.obj(), hndctorid, (jlong)this));
 
-  jmethodID set_stream_handler_id = env->GetMethodID(evcls.obj(), "setStreamHandler", "(Lio/flutter/plugin/common/EventChannel$StreamHandler;)V");
+  jmethodID set_stream_handler_id = env->GetMethodID(
+      evcls.obj(), "setStreamHandler",
+      "(Lio/flutter/plugin/common/EventChannel$StreamHandler;)V");
   env->CallVoidMethod(evobj.obj(), set_stream_handler_id, hndobj.obj());
 
   event_channel_ = evobj;
   event_handler_ = hndobj;
 #elif defined(_WIN32)
   event_channel_.reset(new flutter::EventChannel<flutter::EncodableValue>(
-      config_.messenger, config_.event_channel, &flutter::StandardMethodCodec::GetInstance()));
+      config_.messenger, config_.event_channel,
+      &flutter::StandardMethodCodec::GetInstance()));
 
-  auto handler = std::make_unique<flutter::StreamHandlerFunctions<flutter::EncodableValue>>(
-    [this](
-        const flutter::EncodableValue* arguments,
-        std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events
-    ) -> std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> {
-      RTC_LOG(LS_INFO) << "WindowsEventHandler OnListen";
-      event_sink_ = std::move(events);
-      return nullptr;
-    },
-    [this](const flutter::EncodableValue* arguments)
-      -> std::unique_ptr<flutter::StreamHandlerError<flutter::EncodableValue>> {
-      RTC_LOG(LS_INFO) << "WindowsEventHandler OnCancel";
-      event_sink_ = nullptr;
-      return nullptr;
-    });
+  auto handler = std::make_unique<
+      flutter::StreamHandlerFunctions<flutter::EncodableValue>>(
+      [this](
+          const flutter::EncodableValue* arguments,
+          std::unique_ptr<flutter::EventSink<flutter::EncodableValue>>&& events)
+          -> std::unique_ptr<
+              flutter::StreamHandlerError<flutter::EncodableValue>> {
+        RTC_LOG(LS_INFO) << "WindowsEventHandler OnListen";
+        event_sink_ = std::move(events);
+        return nullptr;
+      },
+      [this](const flutter::EncodableValue* arguments)
+          -> std::unique_ptr<
+              flutter::StreamHandlerError<flutter::EncodableValue>> {
+        RTC_LOG(LS_INFO) << "WindowsEventHandler OnCancel";
+        event_sink_ = nullptr;
+        return nullptr;
+      });
 
   event_channel_->SetStreamHandler(std::move(handler));
 #elif defined(__APPLE__)
-  event_channel_ = [[FlutterEventChannel alloc] initWithName: [SoraUtils stringForStdString: config.event_channel]
-   binaryMessenger: config_.messenger
-    codec: [FlutterStandardMethodCodec sharedInstance]];
-  stream_handler_ = [[SoraClientStreamHandler alloc] initWithOnListen:
-    ^(id _Nullable arguments, FlutterEventSink __nonnull events) {
-    event_sink_ = events;
-    return (FlutterError *)nil;
-  }];
-  [event_channel_ setStreamHandler: stream_handler_];
+  event_channel_ = [[FlutterEventChannel alloc]
+         initWithName:[SoraUtils stringForStdString:config.event_channel]
+      binaryMessenger:config_.messenger
+                codec:[FlutterStandardMethodCodec sharedInstance]];
+  stream_handler_ = [[SoraClientStreamHandler alloc]
+      initWithOnListen:^(id _Nullable arguments,
+                         FlutterEventSink __nonnull events) {
+        event_sink_ = events;
+        return (FlutterError*)nil;
+      }];
+  [event_channel_ setStreamHandler:stream_handler_];
 #else
   g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
-  g_autoptr(FlEventChannel) channel = fl_event_channel_new(config_.messenger, config_.event_channel.c_str(), FL_METHOD_CODEC(codec));
+  g_autoptr(FlEventChannel) channel = fl_event_channel_new(
+      config_.messenger, config_.event_channel.c_str(), FL_METHOD_CODEC(codec));
   fl_event_channel_set_stream_handlers(
-    channel,
-    [](FlEventChannel* channel,
-       FlValue* args,
-       gpointer user_data) -> FlMethodErrorResponse* {
-      ((SoraClient*)user_data)->event_channel_listened_ = true;
-      return nullptr;
-    },
-    [](FlEventChannel* channel,
-       FlValue* args,
-       gpointer user_data) -> FlMethodErrorResponse* {
-      ((SoraClient*)user_data)->event_channel_listened_ = false;
-      return nullptr;
-    }, this, nullptr);
+      channel,
+      [](FlEventChannel* channel, FlValue* args,
+         gpointer user_data) -> FlMethodErrorResponse* {
+        ((SoraClient*)user_data)->event_channel_listened_ = true;
+        return nullptr;
+      },
+      [](FlEventChannel* channel, FlValue* args,
+         gpointer user_data) -> FlMethodErrorResponse* {
+        ((SoraClient*)user_data)->event_channel_listened_ = false;
+        return nullptr;
+      },
+      this, nullptr);
   event_channel_.reset(channel, [](FlEventChannel* p) { g_object_unref(p); });
   channel = nullptr;
 #endif
@@ -184,33 +205,38 @@ void SoraClient::Destroy() {
   auto env = config_.env;
 
   // event_handler_.clear();
-  webrtc::ScopedJavaLocalRef<jclass> hndcls(env, env->GetObjectClass(event_handler_.obj()));
+  webrtc::ScopedJavaLocalRef<jclass> hndcls(
+      env, env->GetObjectClass(event_handler_.obj()));
   jmethodID clearid = env->GetMethodID(hndcls.obj(), "clear", "()V");
   env->CallVoidMethod(event_handler_.obj(), clearid);
 
   // event_channel_.setStreamHandler(null);
-  webrtc::ScopedJavaLocalRef<jclass> evcls(env, env->GetObjectClass(event_channel_.obj()));
-  jmethodID set_stream_handler_id = env->GetMethodID(evcls.obj(), "setStreamHandler", "(Lio/flutter/plugin/common/EventChannel$StreamHandler;)V");
+  webrtc::ScopedJavaLocalRef<jclass> evcls(
+      env, env->GetObjectClass(event_channel_.obj()));
+  jmethodID set_stream_handler_id = env->GetMethodID(
+      evcls.obj(), "setStreamHandler",
+      "(Lio/flutter/plugin/common/EventChannel$StreamHandler;)V");
   env->CallVoidMethod(event_channel_.obj(), set_stream_handler_id, NULL);
 #elif defined(_WIN32)
   event_channel_->SetStreamHandler(nullptr);
 #elif defined(__APPLE__)
-  [event_channel_ setStreamHandler: nil];
+  [event_channel_ setStreamHandler:nil];
 #else
-  fl_event_channel_set_stream_handlers(event_channel_.get(), nullptr, nullptr, nullptr, nullptr);
+  fl_event_channel_set_stream_handlers(event_channel_.get(), nullptr, nullptr,
+                                       nullptr, nullptr);
 #endif
 }
 
 void SoraClient::Connect() {
 #if TARGET_OS_IPHONE
-    auto config = [RTCAudioSessionConfiguration webRTCConfiguration];
-    config.category = AVAudioSessionCategoryPlayAndRecord;
-    [[RTCAudioSession sharedInstance] initializeInput:^(NSError* error) {
-      if (error != nil) {
-        RTC_LOG(LS_ERROR) << [error.localizedDescription UTF8String];
-        return;
-     }
-    }];
+  auto config = [RTCAudioSessionConfiguration webRTCConfiguration];
+  config.category = AVAudioSessionCategoryPlayAndRecord;
+  [[RTCAudioSession sharedInstance] initializeInput:^(NSError* error) {
+    if (error != nil) {
+      RTC_LOG(LS_ERROR) << [error.localizedDescription UTF8String];
+      return;
+    }
+  }];
 #endif
   io_thread_ = rtc::Thread::Create();
   io_thread_->SetName("Sora Flutter SDK IO Thread", nullptr);
@@ -246,7 +272,9 @@ void SoraClient::DoConnect() {
 
     std::string video_track_id = rtc::CreateRandomString(16);
     video_track_ = factory()->CreateVideoTrack(
-      rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>(video_source_.get()), video_track_id);
+        rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>(
+            video_source_.get()),
+        video_track_id);
   }
 
   if (config_.signaling_config.audio) {
@@ -280,9 +308,8 @@ void SoraClient::DoConnect() {
 }
 
 void SoraClient::Disconnect() {
-  boost::asio::post(*ioc_, [self = shared_from_this()]() {
-    self->conn_->Disconnect();
-  });
+  boost::asio::post(
+      *ioc_, [self = shared_from_this()]() { self->conn_->Disconnect(); });
 }
 
 bool SoraClient::SendDataChannel(std::string label, std::string data) {
@@ -312,9 +339,9 @@ void SoraClient::OnSetOffer(std::string offer) {
     webrtc::RTCErrorOr<rtc::scoped_refptr<webrtc::RtpSenderInterface>>
         video_result =
             conn_->GetPeerConnection()->AddTrack(video_track_, {stream_id});
-   if (video_result.ok()) {
-     video_sender_ = video_result.value();
-   }
+    if (video_result.ok()) {
+      video_sender_ = video_result.value();
+    }
   }
 
   if (video_track_ != nullptr) {
@@ -335,7 +362,7 @@ void SoraClient::OnSetOffer(std::string offer) {
 }
 
 void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
-                             std::string message) {
+                              std::string message) {
   RTC_LOG(LS_INFO) << "OnDisconnect: " << message;
   ioc_->stop();
 
@@ -352,16 +379,36 @@ void SoraClient::OnDisconnect(sora::SoraSignalingErrorCode ec,
   obj["event"] = "Disconnect";
   std::string s;
   switch (ec) {
-    case sora::SoraSignalingErrorCode::CLOSE_SUCCEEDED: s = "CLOSE_SUCCEEDED"; break;
-    case sora::SoraSignalingErrorCode::CLOSE_FAILED: s = "CLOSE_FAILED"; break;
-    case sora::SoraSignalingErrorCode::INTERNAL_ERROR: s = "INTERNAL_ERROR"; break;
-    case sora::SoraSignalingErrorCode::INVALID_PARAMETER: s = "INVALID_PARAMETER"; break;
-    case sora::SoraSignalingErrorCode::WEBSOCKET_HANDSHAKE_FAILED: s = "WEBSOCKET_HANDSHAKE_FAILED"; break;
-    case sora::SoraSignalingErrorCode::WEBSOCKET_ONCLOSE: s = "WEBSOCKET_ONCLOSE"; break;
-    case sora::SoraSignalingErrorCode::WEBSOCKET_ONERROR: s = "WEBSOCKET_ONERROR"; break;
-    case sora::SoraSignalingErrorCode::PEER_CONNECTION_STATE_FAILED: s = "PEER_CONNECTION_STATE_FAILED"; break;
-    case sora::SoraSignalingErrorCode::ICE_FAILED: s = "ICE_FAILED"; break;
-    case sora::SoraSignalingErrorCode::LYRA_VERSION_INCOMPATIBLE: s = "LYRA_VERSION_INCOMPATIBLE"; break;
+    case sora::SoraSignalingErrorCode::CLOSE_SUCCEEDED:
+      s = "CLOSE_SUCCEEDED";
+      break;
+    case sora::SoraSignalingErrorCode::CLOSE_FAILED:
+      s = "CLOSE_FAILED";
+      break;
+    case sora::SoraSignalingErrorCode::INTERNAL_ERROR:
+      s = "INTERNAL_ERROR";
+      break;
+    case sora::SoraSignalingErrorCode::INVALID_PARAMETER:
+      s = "INVALID_PARAMETER";
+      break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_HANDSHAKE_FAILED:
+      s = "WEBSOCKET_HANDSHAKE_FAILED";
+      break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_ONCLOSE:
+      s = "WEBSOCKET_ONCLOSE";
+      break;
+    case sora::SoraSignalingErrorCode::WEBSOCKET_ONERROR:
+      s = "WEBSOCKET_ONERROR";
+      break;
+    case sora::SoraSignalingErrorCode::PEER_CONNECTION_STATE_FAILED:
+      s = "PEER_CONNECTION_STATE_FAILED";
+      break;
+    case sora::SoraSignalingErrorCode::ICE_FAILED:
+      s = "ICE_FAILED";
+      break;
+    case sora::SoraSignalingErrorCode::LYRA_VERSION_INCOMPATIBLE:
+      s = "LYRA_VERSION_INCOMPATIBLE";
+      break;
   }
   obj["error_code"] = s;
   obj["message"] = message;
@@ -392,7 +439,8 @@ void SoraClient::OnMessage(std::string label, std::string data) {
   SendEvent(obj);
 }
 
-void SoraClient::OnTrack(rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
+void SoraClient::OnTrack(
+    rtc::scoped_refptr<webrtc::RtpTransceiverInterface> transceiver) {
   auto track = transceiver->receiver()->track();
   if (track->kind() == webrtc::MediaStreamTrackInterface::kVideoKind) {
     auto connection_id = transceiver->receiver()->stream_ids()[0];
@@ -435,7 +483,8 @@ void SoraClient::OnDataChannel(std::string label) {
 
 void SoraClient::SendEvent(const boost::json::value& v) {
   std::string json = boost::json::serialize(v);
-  RTC_LOG(LS_INFO) << "SendEvent: event=" << v.at("event").as_string() << " json=" << json;
+  RTC_LOG(LS_INFO) << "SendEvent: event=" << v.at("event").as_string()
+                   << " json=" << json;
 #if defined(__ANDROID__)
   if (!event_sink_.is_null()) {
     auto env = io_env_;
@@ -443,13 +492,20 @@ void SoraClient::SendEvent(const boost::json::value& v) {
     // m.put("json", json);
     // event_sink_.success(m);
     RunOnMainThread(io_env_, [&, this](JNIEnv* env) {
-      webrtc::ScopedJavaLocalRef<jclass> mapcls = webrtc::GetClass(env, "java/util/HashMap");
+      webrtc::ScopedJavaLocalRef<jclass> mapcls =
+          webrtc::GetClass(env, "java/util/HashMap");
       jmethodID ctorid = env->GetMethodID(mapcls.obj(), "<init>", "()V");
-      webrtc::ScopedJavaLocalRef<jobject> mapobj(env, env->NewObject(mapcls.obj(), ctorid));
-      jmethodID putid = env->GetMethodID(mapcls.obj(), "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-      env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("json"), env->NewStringUTF(json.c_str()));
-      webrtc::ScopedJavaLocalRef<jclass> sinkcls(env, env->GetObjectClass(event_sink_.obj()));
-      jmethodID successid = env->GetMethodID(sinkcls.obj(), "success", "(Ljava/lang/Object;)V");
+      webrtc::ScopedJavaLocalRef<jobject> mapobj(
+          env, env->NewObject(mapcls.obj(), ctorid));
+      jmethodID putid = env->GetMethodID(
+          mapcls.obj(), "put",
+          "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+      env->CallObjectMethod(mapobj.obj(), putid, env->NewStringUTF("json"),
+                            env->NewStringUTF(json.c_str()));
+      webrtc::ScopedJavaLocalRef<jclass> sinkcls(
+          env, env->GetObjectClass(event_sink_.obj()));
+      jmethodID successid =
+          env->GetMethodID(sinkcls.obj(), "success", "(Ljava/lang/Object;)V");
       env->CallVoidMethod(event_sink_.obj(), successid, mapobj.obj());
     });
   }
@@ -461,9 +517,9 @@ void SoraClient::SendEvent(const boost::json::value& v) {
   }
 #elif defined(__APPLE__)
   if (event_sink_ != nullptr) {
-      event_sink_(@{
-        @"json" : [SoraUtils stringForStdString: json],
-      });
+    event_sink_(@{
+      @"json" : [SoraUtils stringForStdString:json],
+    });
   }
 #else
   if (event_channel_listened_) {
@@ -474,13 +530,15 @@ void SoraClient::SendEvent(const boost::json::value& v) {
 #endif
 }
 
-void SoraClient::SwitchVideoDevice(const sora::CameraDeviceCapturerConfig &config) {
+void SoraClient::SwitchVideoDevice(
+    const sora::CameraDeviceCapturerConfig& config) {
   boost::asio::post(*ioc_, [self = shared_from_this(), config]() {
     self->DoSwitchVideoDevice(config);
   });
 }
 
-void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &baseConfig) {
+void SoraClient::DoSwitchVideoDevice(
+    const sora::CameraDeviceCapturerConfig& baseConfig) {
   auto old_texture_id = renderer_->RemoveTrack(video_track_.get());
   video_sender_->SetTrack(nullptr);
   video_track_ = nullptr;
@@ -506,7 +564,9 @@ void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &bas
 
   std::string video_track_id = rtc::CreateRandomString(16);
   auto track = factory()->CreateVideoTrack(
-    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>(video_source_.get()), video_track_id);
+      rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>(
+          video_source_.get()),
+      video_track_id);
   if (track == nullptr) {
     return;
   }
@@ -527,30 +587,27 @@ void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &bas
   SendEvent(obj);
 }
 
-}
+}  // namespace sora_flutter_sdk
 
 #ifdef __APPLE__
 @implementation SoraClientStreamHandler
 
-- (instancetype)initWithOnListen:(StreamHandlerOnListen)onListen
-{
-    if (self = [super init]) {
-        self.onListen = onListen;
-    }
-    return self;
+- (instancetype)initWithOnListen:(StreamHandlerOnListen)onListen {
+  if (self = [super init]) {
+    self.onListen = onListen;
+  }
+  return self;
 }
 
-- (FlutterError *_Nullable)onListenWithArguments:(id _Nullable)arguments
+- (FlutterError* _Nullable)onListenWithArguments:(id _Nullable)arguments
                                        eventSink:
-                                           (nonnull FlutterEventSink)events
-{
+                                           (nonnull FlutterEventSink)events {
   NSLog(@"EventSink: onListenWithArguments");
-    return self.onListen(arguments, events);
+  return self.onListen(arguments, events);
 }
 
-- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments
-{
-    return nil;
+- (FlutterError* _Nullable)onCancelWithArguments:(id _Nullable)arguments {
+  return nil;
 }
 
 @end
