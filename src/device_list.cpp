@@ -9,9 +9,9 @@
 #include <rtc_base/logging.h>
 
 #ifdef __ANDROID__
-#include <sora/android/android_capturer.h>
 #include <sdk/android/native_api/audio_device_module/audio_device_android.h>
 #include <sdk/android/native_api/jni/jvm.h>
+#include <sora/android/android_capturer.h>
 #endif
 
 #if defined(__APPLE__)

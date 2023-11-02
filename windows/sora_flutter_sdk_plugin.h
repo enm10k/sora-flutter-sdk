@@ -16,7 +16,7 @@ namespace sora_flutter_sdk {
 
 class SoraFlutterSdkPlugin : public flutter::Plugin {
  public:
-  static void RegisterWithRegistrar(flutter::PluginRegistrar *registrar);
+  static void RegisterWithRegistrar(flutter::PluginRegistrar* registrar);
 
   SoraFlutterSdkPlugin(flutter::PluginRegistrar* registrar);
 
@@ -29,13 +29,13 @@ class SoraFlutterSdkPlugin : public flutter::Plugin {
  private:
   // Called when a method is called on this plugin's channel from Dart.
   void HandleMethodCall(
-      const flutter::MethodCall<flutter::EncodableValue> &method_call,
+      const flutter::MethodCall<flutter::EncodableValue>& method_call,
       std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result);
 
   webrtc::ScopedCOMInitializer init_;
 
-  flutter::BinaryMessenger *messenger_;
-  flutter::TextureRegistrar *texture_registrar_;
+  flutter::BinaryMessenger* messenger_;
+  flutter::TextureRegistrar* texture_registrar_;
   int client_id_ = 1;
   std::map<int, std::shared_ptr<SoraClient>> clients_;
 };

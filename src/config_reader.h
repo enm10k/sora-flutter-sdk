@@ -7,14 +7,17 @@
 #include <boost/json.hpp>
 
 // Sora C++ SDK
-#include <sora/sora_signaling.h>
 #include <sora/camera_device_capturer.h>
+#include <sora/sora_signaling.h>
 
 #include "sora_client.h"
 
 namespace sora_flutter_sdk {
 
-static bool FindKey(const boost::json::value& v, const std::string& key, boost::json::value& a, std::string& error) {
+static bool FindKey(const boost::json::value& v,
+                    const std::string& key,
+                    boost::json::value& a,
+                    std::string& error) {
   if (!v.is_object()) {
     error = "root is not object";
     return false;
@@ -28,8 +31,11 @@ static bool FindKey(const boost::json::value& v, const std::string& key, boost::
   return true;
 }
 
-template<class T>
-static bool SetStringArray(const boost::json::value& v, const std::string& key, T* p, std::string& error) {
+template <class T>
+static bool SetStringArray(const boost::json::value& v,
+                           const std::string& key,
+                           T* p,
+                           std::string& error) {
   boost::json::value a;
   if (!FindKey(v, key, a, error)) {
     return false;
@@ -55,8 +61,11 @@ static bool SetStringArray(const boost::json::value& v, const std::string& key, 
   return true;
 }
 
-template<class T>
-static bool SetString(const boost::json::value& v, const std::string& key, T* p, std::string& error) {
+template <class T>
+static bool SetString(const boost::json::value& v,
+                      const std::string& key,
+                      T* p,
+                      std::string& error) {
   boost::json::value a;
   if (!FindKey(v, key, a, error)) {
     return false;
@@ -73,8 +82,11 @@ static bool SetString(const boost::json::value& v, const std::string& key, T* p,
   return true;
 }
 
-template<class T>
-static bool SetInteger(const boost::json::value& v, const std::string& key, T* p, std::string& error) {
+template <class T>
+static bool SetInteger(const boost::json::value& v,
+                       const std::string& key,
+                       T* p,
+                       std::string& error) {
   boost::json::value a;
   if (!FindKey(v, key, a, error)) {
     return false;
@@ -96,8 +108,11 @@ static bool SetInteger(const boost::json::value& v, const std::string& key, T* p
   return true;
 }
 
-template<class T>
-static bool SetBoolean(const boost::json::value& v, const std::string& key, T* p, std::string& error) {
+template <class T>
+static bool SetBoolean(const boost::json::value& v,
+                       const std::string& key,
+                       T* p,
+                       std::string& error) {
   boost::json::value a;
   if (!FindKey(v, key, a, error)) {
     return false;
@@ -114,8 +129,11 @@ static bool SetBoolean(const boost::json::value& v, const std::string& key, T* p
   return true;
 }
 
-template<class T>
-static bool SetJson(const boost::json::value& v, const std::string& key, T* p, std::string& error) {
+template <class T>
+static bool SetJson(const boost::json::value& v,
+                    const std::string& key,
+                    T* p,
+                    std::string& error) {
   boost::json::value a;
   if (!FindKey(v, key, a, error)) {
     return false;
@@ -132,9 +150,9 @@ sora::SoraSignalingConfig JsonToSignalingConfig(const std::string& json) {
   boost::json::value v = boost::json::parse(json);
   sora::SoraSignalingConfig c;
   std::vector<std::string> errors;
-#define F(func, name, field) \
+#define F(func, name, field)                           \
   if (std::string error; !func(v, name, field, error)) \
-    errors.push_back(error)
+  errors.push_back(error)
 
   F(SetStringArray, "signalingUrls", &c.signaling_urls);
   F(SetString, "channelId", &c.channel_id);
@@ -165,13 +183,16 @@ sora::SoraSignalingConfig JsonToSignalingConfig(const std::string& json) {
   F(SetBoolean, "simulcast", &c.simulcast);
   F(SetString, "simulcastRid", &c.simulcast_rid);
   F(SetBoolean, "dataChannelSignaling", &c.data_channel_signaling);
-  F(SetInteger, "dataChannelSignalingTimeout", &c.data_channel_signaling_timeout);
+  F(SetInteger, "dataChannelSignalingTimeout",
+    &c.data_channel_signaling_timeout);
   F(SetBoolean, "ignoreDisconnectWebsocket", &c.ignore_disconnect_websocket);
   F(SetInteger, "disconnectWaitTimeout", &c.disconnect_wait_timeout);
 
   // dataChannels
   {
-    auto f = [](const boost::json::value& v, std::vector<sora::SoraSignalingConfig::DataChannel>& dcs, std::string& error) {
+    auto f = [](const boost::json::value& v,
+                std::vector<sora::SoraSignalingConfig::DataChannel>& dcs,
+                std::string& error) {
       boost::json::value a;
       if (!FindKey(v, "dataChannels", a, error)) {
         return false;
@@ -190,13 +211,21 @@ sora::SoraSignalingConfig JsonToSignalingConfig(const std::string& json) {
           return false;
         }
         sora::SoraSignalingConfig::DataChannel dc;
-        if (!SetString(x, "label", &dc.label, error)) return false;
-        if (!SetString(x, "direction", &dc.direction, error)) return false;
-        if (!SetBoolean(x, "ordered", &dc.ordered, error)) return false;
-        if (!SetInteger(x, "maxPacketLifeTime", &dc.max_packet_life_time, error)) return false;
-        if (!SetInteger(x, "maxRetransmits", &dc.max_retransmits, error)) return false;
-        if (!SetString(x, "protocol", &dc.protocol, error)) return false;
-        if (!SetBoolean(x, "compress", &dc.compress, error)) return false;
+        if (!SetString(x, "label", &dc.label, error))
+          return false;
+        if (!SetString(x, "direction", &dc.direction, error))
+          return false;
+        if (!SetBoolean(x, "ordered", &dc.ordered, error))
+          return false;
+        if (!SetInteger(x, "maxPacketLifeTime", &dc.max_packet_life_time,
+                        error))
+          return false;
+        if (!SetInteger(x, "maxRetransmits", &dc.max_retransmits, error))
+          return false;
+        if (!SetString(x, "protocol", &dc.protocol, error))
+          return false;
+        if (!SetBoolean(x, "compress", &dc.compress, error))
+          return false;
         dcs.push_back(std::move(dc));
       }
       return true;
@@ -218,7 +247,8 @@ sora::SoraSignalingConfig JsonToSignalingConfig(const std::string& json) {
   F(SetString, "proxyPassword", &c.proxy_password);
   F(SetString, "proxyAgent", &c.proxy_agent);
 
-  F(SetBoolean, "disableSignalingUrlRandomization", &c.disable_signaling_url_randomization);
+  F(SetBoolean, "disableSignalingUrlRandomization",
+    &c.disable_signaling_url_randomization);
 
 #undef F
   for (const auto& e : errors) {
@@ -232,9 +262,9 @@ SoraClientConfig JsonToClientConfig(const std::string& json) {
   boost::json::value v = boost::json::parse(json);
   SoraClientConfig c;
   std::vector<std::string> errors;
-#define F(func, name, field) \
+#define F(func, name, field)                           \
   if (std::string error; !func(v, name, field, error)) \
-    errors.push_back(error)
+  errors.push_back(error)
 
   F(SetBoolean, "useAudioDeivce", &c.context_config.use_audio_device);
   F(SetBoolean, "useHardwareEncoder", &c.context_config.use_hardware_encoder);
@@ -251,13 +281,14 @@ SoraClientConfig JsonToClientConfig(const std::string& json) {
   return c;
 }
 
-sora::CameraDeviceCapturerConfig JsonToCameraDeviceCapturerConfig(const std::string& json) {
+sora::CameraDeviceCapturerConfig JsonToCameraDeviceCapturerConfig(
+    const std::string& json) {
   boost::json::value v = boost::json::parse(json);
   sora::CameraDeviceCapturerConfig c;
   std::vector<std::string> errors;
-#define F(func, name, field) \
+#define F(func, name, field)                           \
   if (std::string error; !func(v, name, field, error)) \
-    errors.push_back(error)
+  errors.push_back(error)
 
   F(SetString, "name", &c.device_name);
   F(SetInteger, "width", &c.width);
@@ -272,5 +303,5 @@ sora::CameraDeviceCapturerConfig JsonToCameraDeviceCapturerConfig(const std::str
   return c;
 }
 
-}
+}  // namespace sora_flutter_sdk
 #endif
