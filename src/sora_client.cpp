@@ -245,8 +245,8 @@ void SoraClient::DoConnect() {
     video_source_ = sora::CreateCameraDeviceCapturer(cam_config);
 
     std::string video_track_id = rtc::CreateRandomString(16);
-    video_track_ =
-        factory()->CreateVideoTrack(video_track_id, video_source_.get());
+    video_track_ = factory()->CreateVideoTrack(
+      rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>(video_source_.get()), video_track_id);
   }
 
   if (config_.signaling_config.audio) {
@@ -505,7 +505,8 @@ void SoraClient::DoSwitchVideoDevice(const sora::CameraDeviceCapturerConfig &bas
   }
 
   std::string video_track_id = rtc::CreateRandomString(16);
-  auto track = factory()->CreateVideoTrack(video_track_id, source.get());
+  auto track = factory()->CreateVideoTrack(
+    rtc::scoped_refptr<webrtc::VideoTrackSourceInterface>(video_source_.get()), video_track_id);
   if (track == nullptr) {
     return;
   }
