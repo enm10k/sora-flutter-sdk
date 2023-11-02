@@ -18,6 +18,7 @@ set(LIBCXX_DIR ${INSTALL_DIR}/llvm/libcxx)
 #set(CMAKE_C_COMPILER ${LLVM_DIR}/clang/bin/clang)
 #set(CMAKE_CXX_COMPILER ${LLVM_DIR}/clang/bin/clang++)
 #set(CMAKE_CXX_FLAGS "-nostdinc++ -isystem ${LLVM_DIR}/libcxx/include -std=gnu++17")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 
 # Project-level configuration.
 set(PROJECT_NAME "sora_flutter_sdk")
