@@ -8,6 +8,10 @@ cmake_minimum_required(VERSION 3.18)
 set(PROJECT_NAME "sora_flutter_sdk")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
+# C++20 を有効にする
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(WEBRTC_VERSION "m119.6045.2.1")
 set(SORA_VERSION "2023.15.0")
 set(BOOST_VERSION "1.83.0")
