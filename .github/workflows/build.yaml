@@ -94,7 +94,8 @@ jobs:
       matrix:
         name:
           - ubuntu_x86_64
-    name: Build on Ubuntu
+          - ubuntu-20.04_armv8_jetson
+    name: Build on ${{ matrix.name }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -105,7 +106,16 @@ jobs:
       - run: |
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev libva-dev libdrm-dev
-      - name: Build
+      - name: Install deps for Jetson series
+        if: matrix.name == 'ubuntu-20.04_armv8_jetson'
+        run: |
+          sudo apt-get -y install multistrap binutils-aarch64-linux-gnu
+          # multistrap に insecure なリポジトリからの取得を許可する設定を入れる
+          sudo sed -e 's/Apt::Get::AllowUnauthenticated=true/Apt::Get::AllowUnauthenticated=true";\n$config_str .= " -o Acquire::AllowInsecureRepositories=true/' -i /usr/sbin/multistrap
+          # Lyra ビルドのためにクロスコンパイル環境一式を入れる
+          sudo apt-get -y install libstdc++-9-dev-arm64-cross gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+      - name: Build on ${{ matrix.name }}
+        if: matrix.name == 'ubuntu_x86_64'
         working-directory: ./example
         run: |
           cp lib/environment.example.dart lib/environment.dart
@@ -113,4 +123,13 @@ jobs:
           flutter config --enable-linux-desktop
           ./linux/flutter/ephemeral/.plugin_symlinks/sora_flutter_sdk/linux/install_deps.sh linux/
           export PATH="`pwd`/linux/_install/llvm/clang/bin:$PATH"
+          flutter build linux --release
+      - name: Build on ${{ matrix.name }}
+        if: matrix.name == 'ubuntu-20.04_armv8_jetson'
+        working-directory: ./example
+        run: |
+          cp lib/environment.example.dart lib/environment.dart
+          flutter pub get
+          flutter config --enable-linux-desktop
+          ./linux/flutter/ephemeral/.plugin_symlinks/sora_flutter_sdk/linux/install_jetson_deps.sh linux/
           flutter build linux --release

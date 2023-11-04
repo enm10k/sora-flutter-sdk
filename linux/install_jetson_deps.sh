@@ -17,38 +17,25 @@ LYRA_VERSION=1.3.0
 mkdir -p $INSTALL_DIR
 
 if [ ! -e $INSTALL_DIR/webrtc ]; then
-  file=webrtc.ubuntu-20.04_x86_64.tar.gz
+  file=webrtc.ubuntu-20.04_armv8.tar.gz
   curl -Lo $INSTALL_DIR/$file https://github.com/shiguredo-webrtc-build/webrtc-build/releases/download/${WEBRTC_VERSION}/${file}
   tar -xf $INSTALL_DIR/$file -C $INSTALL_DIR
 fi
 
 if [ ! -e $INSTALL_DIR/boost ]; then
-  file=boost-${BOOST_VERSION}_sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_x86_64.tar.gz
+  file=boost-${BOOST_VERSION}_sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_armv8_jetson.tar.gz
   curl -Lo $INSTALL_DIR/$file https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/${file}
   tar -xf $INSTALL_DIR/$file -C $INSTALL_DIR
 fi
 
 if [ ! -e $INSTALL_DIR/sora ]; then
-  file=sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_x86_64.tar.gz
+  file=sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_armv8_jetson.tar.gz
   curl -Lo $INSTALL_DIR/$file https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/${file}
   tar -xf $INSTALL_DIR/$file -C $INSTALL_DIR
 fi
 
 if [ ! -e $INSTALL_DIR/lyra ]; then
-  file=lyra-${LYRA_VERSION}_sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_x86_64.tar.gz
+  file=lyra-${LYRA_VERSION}_sora-cpp-sdk-${SORA_VERSION}_ubuntu-20.04_armv8_jetson.tar.gz
   curl -Lo $INSTALL_DIR/$file https://github.com/shiguredo/sora-cpp-sdk/releases/download/${SORA_VERSION}/${file}
   tar -xf $INSTALL_DIR/$file -C $INSTALL_DIR
-fi
-
-source $INSTALL_DIR/webrtc/VERSIONS
-
-if [ ! -e $INSTALL_DIR/llvm ]; then
-  $SCRIPT_DIR/get_llvm.sh \
-    $INSTALL_DIR/llvm \
-    $WEBRTC_SRC_TOOLS_URL \
-    $WEBRTC_SRC_TOOLS_COMMIT \
-    $WEBRTC_SRC_THIRD_PARTY_LIBCXX_SRC_URL \
-    $WEBRTC_SRC_THIRD_PARTY_LIBCXX_SRC_COMMIT \
-    $WEBRTC_SRC_BUILDTOOLS_URL \
-    $WEBRTC_SRC_BUILDTOOLS_COMMIT
 fi
